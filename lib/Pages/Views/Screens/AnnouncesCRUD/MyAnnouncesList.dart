@@ -32,7 +32,7 @@ class _MyAnnouncesState extends State<MyAnnounces> {
         floatingActionButtonLocation: FloatingActionButtonLocation.endContained,
         appBar: AppBar(title: Text("My Announces"),),
         body:ListView.builder(
-            physics: NeverScrollableScrollPhysics(),
+
             shrinkWrap:true,
             itemCount: annonces.length,
             itemBuilder:(context,index){

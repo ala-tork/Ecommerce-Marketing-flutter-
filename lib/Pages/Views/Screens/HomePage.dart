@@ -29,8 +29,9 @@ class _HomePageState extends State<HomePage> {
   List <Product> productData = ProductService.productData;
 
   List ad = [
-    AdsModel(title:"Nike Zome",price:350,ImagePrinciple : "assets/images/nikeblack.jpg"),
-    AdsModel(title:"Nike Hoodie",price:99.9,ImagePrinciple : "assets/images/nikehoodie.jpg"),
+    AdsModel(title:"ITIWIT",shortDescription:"CANOE KAYAK CONFORTABLE",price:1890,ImagePrinciple : "assets/images/Announces/deals1.png"),
+    AdsModel(title:"OLAIAN",shortDescription:"SURFER BOARDSHORT",price:50,ImagePrinciple : "assets/images/Announces/deals2.png"),
+    AdsModel(title:"SUBEA",shortDescription:"CHAUSSURES ELASTIQUE ADULTE",price:50,ImagePrinciple :"assets/images/Announces/deals3.png"),
   ];
 
   late Timer flashsaleCountdownTimer;
@@ -96,6 +97,7 @@ class _HomePageState extends State<HomePage> {
       appBar: MyAppBar(Daimons: 122,title: "My App",),
       body:
       ListView(
+
         children:[
         ListView(
           shrinkWrap: true,
@@ -107,11 +109,13 @@ class _HomePageState extends State<HomePage> {
               width: MediaQuery.of(context).size.width,
               padding: EdgeInsets.symmetric(horizontal: 16),
               decoration: BoxDecoration(
+                color: Colors.indigo[900]//Color.fromRGBO(1,120,186, 1),
+                /*
                 image: DecorationImage(
                   image: AssetImage('assets/images/background.jpg'),
                   fit: BoxFit.cover,
                 ),
-              ),
+             */ ),
               child: Column(
                 children: [
                   Container(
@@ -149,6 +153,7 @@ class _HomePageState extends State<HomePage> {
             ),
             //slide show
             Padding(
+
               padding: EdgeInsets.all(3.0),
               child: SizedBox(
                 height: 300.0,
@@ -170,7 +175,7 @@ class _HomePageState extends State<HomePage> {
             // Section 2 - category
             Container(
               width: MediaQuery.of(context).size.width,
-              color: AppColor.secondary,
+              color: Colors.indigo[900], //Color.fromRGBO(1,120,186, 1),
               padding: EdgeInsets.only(top: 12, bottom: 24),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
@@ -184,7 +189,7 @@ class _HomePageState extends State<HomePage> {
                         Text(
                           'Category',
                           style: TextStyle(
-                              color: Colors.white,
+                              color: Colors.black,
                               fontSize: 16,
                               fontWeight: FontWeight.w600),
                         ),
@@ -193,11 +198,11 @@ class _HomePageState extends State<HomePage> {
                           child: Text(
                             'View More',
                             style: TextStyle(
-                                color: Colors.white.withOpacity(0.7),
+                                color: Colors.black.withOpacity(0.7),
                                 fontWeight: FontWeight.w400),
                           ),
                           style: TextButton.styleFrom(
-                            foregroundColor: Colors.white,
+                            foregroundColor: Colors.black,
                           ),
                         ),
                       ],

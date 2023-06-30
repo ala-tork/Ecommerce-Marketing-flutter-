@@ -11,12 +11,114 @@ class AdsSlideShow extends StatelessWidget {
   Widget build(BuildContext context) {
     return  Stack(
       children: <Widget>[
-        Image.asset(
+        Card(
+          elevation: 0,
+          color: Colors.white,
+          borderOnForeground: true,
+          shape: RoundedRectangleBorder(
+              side: BorderSide(
+                color: Colors.black.withOpacity(0.20),
+              ),
+              borderRadius: BorderRadius.circular(15.0)
+          ),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Container(
+                  height: 160,
+                  //width: 200,// Set the desired height for the container
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: AssetImage(adsShow.ImagePrinciple), // Replace with your image path
+                      fit: BoxFit.cover,
+
+                    ),
+                  ),
+
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(15, 10, 0, 0),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            '${adsShow.title}',
+                            style: TextStyle(
+                              fontSize: 26,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                      /*
+                              Align(
+                                alignment: Alignment.centerRight,
+                                child:Text(
+                                  '${annonces[index]["datepub"]}',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              )*/
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(15, 10, 0, 0),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            '${adsShow.shortDescription}',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(15, 10, 0, 0),
+                  child: Row(
+                    children: [
+                      Text("${adsShow.price} DT",
+                        style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.indigo
+                        ),
+                      )
+                    ],
+
+                  ),
+                ),
+                SizedBox(height: 20,),
+
+              ],
+            ),
+          ),
+        ),
+       /* Image.asset(
           adsShow.ImagePrinciple,
           fit: BoxFit.cover,
           width: double.infinity,
           height: 300,
         ),
+*/
+      ],
+    );
+  }
+}
+/*
         Positioned(
           bottom: 39,
           right: 16,
@@ -65,7 +167,4 @@ class AdsSlideShow extends StatelessWidget {
             ),
           ),
         ),
-      ],
-    );
-  }
-}
+* */
