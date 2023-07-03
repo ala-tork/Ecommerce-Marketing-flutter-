@@ -28,7 +28,7 @@ class CustomIconButtonWidget extends StatelessWidget {
               height: 40,
               margin: EdgeInsets.all(4),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.15),
+                //color: Colors.white.withOpacity(0.15),
                 borderRadius: BorderRadius.circular(15),
               ),
               alignment: Alignment.center,
@@ -36,12 +36,12 @@ class CustomIconButtonWidget extends StatelessWidget {
             ),
             (value != 0)
                 ? Container(
-              width: 16,
-              height: 16,
+              width: 20,
+              height: 20,
               alignment: Alignment.center,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(100),
-                color: AppColor.accent,
+                color: Colors.yellow[400],
               ),
               child: Text(
                 '$value',

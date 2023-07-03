@@ -15,24 +15,22 @@ class AdsSlideShow extends StatelessWidget {
           elevation: 0,
           color: Colors.white,
           borderOnForeground: true,
-          shape: RoundedRectangleBorder(
+          /*shape: RoundedRectangleBorder(
               side: BorderSide(
                 color: Colors.black.withOpacity(0.20),
               ),
               borderRadius: BorderRadius.circular(15.0)
-          ),
+          ),*/
           child: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
                 Container(
                   height: 160,
-                  //width: 200,// Set the desired height for the container
                   decoration: BoxDecoration(
                     image: DecorationImage(
                       image: AssetImage(adsShow.ImagePrinciple), // Replace with your image path
                       fit: BoxFit.cover,
-
                     ),
                   ),
 
@@ -79,6 +77,7 @@ class AdsSlideShow extends StatelessWidget {
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
+                              color: Colors.grey[500]
                             ),
                           ),
                         ),

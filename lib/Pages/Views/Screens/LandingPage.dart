@@ -30,8 +30,11 @@ class _LandingPageState extends State<LandingPage> {
         child: currentScreen,
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {  },
-        child: Icon(Icons.add),
+        backgroundColor: Colors.yellow[400],
+        onPressed: () {
+          Navigator.of(context).pushNamed("AddAnnounce");
+        },
+        child: Icon(Icons.add,color: Colors.indigo,),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: BottomAppBar(
@@ -56,18 +59,18 @@ class _LandingPageState extends State<LandingPage> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.home,color: currentTab==0?Colors.blue:Colors.grey,),
+                        Icon(Icons.home,color: currentTab==0?Colors.indigo:Colors.grey,),
                         Text(
                           "Dashbord",
                           style: TextStyle(
-                              color: currentTab==0?Colors.blue:Colors.grey
+                              color: currentTab==0?Colors.indigo:Colors.grey
                           ),
                         )
                       ],
 
                     ),
                   ),
-                  SizedBox(width: 15,),
+                  //SizedBox(width: 15,),
                   MaterialButton(
                     minWidth: 40,
                     onPressed: (){
@@ -79,11 +82,11 @@ class _LandingPageState extends State<LandingPage> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.person,color: currentTab==1 ?Colors.blue:Colors.grey,),
+                        Icon(Icons.person,color: currentTab==1 ?Colors.indigo:Colors.grey,),
                         Text(
                           "Deals",
                           style: TextStyle(
-                              color: currentTab==1 ?Colors.blue:Colors.grey
+                              color: currentTab==1 ?Colors.indigo:Colors.grey
                           ),
                         )
                       ],
@@ -106,18 +109,18 @@ class _LandingPageState extends State<LandingPage> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.storefront_outlined,color: currentTab==2?Colors.blue:Colors.grey,),
+                        Icon(Icons.storefront_outlined,color: currentTab==2?Colors.indigo[400]:Colors.grey,),
                         Text(
                           "Stor",
                           style: TextStyle(
-                              color: currentTab==2?Colors.blue:Colors.grey
+                              color: currentTab==2?Colors.indigo[400]:Colors.grey
                           ),
                         )
                       ],
 
                     ),
                   ),
-                  SizedBox(width: 15,),
+                  //SizedBox(width: 15,),
                   MaterialButton(
                     minWidth: 40,
                     onPressed: (){
@@ -129,11 +132,11 @@ class _LandingPageState extends State<LandingPage> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.announcement_rounded,color: currentTab==3?Colors.blue:Colors.grey,),
+                        Icon(Icons.announcement_rounded,color: currentTab==3?Colors.indigo[400]:Colors.grey,),
                         Text(
                           "Announce",
                           style: TextStyle(
-                              color: currentTab==3?Colors.blue:Colors.grey
+                              color: currentTab==3?Colors.indigo[400]:Colors.grey
                           ),
                         )
                       ],

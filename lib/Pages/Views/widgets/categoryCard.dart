@@ -16,8 +16,8 @@ class CategoryCard extends StatelessWidget {
         padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: Colors.black.withOpacity(0.15), width: 1),
-          color: (data.featured == true) ? Colors.black.withOpacity(0.10) : Colors.transparent,
+          border: Border.all(color: Colors.white.withOpacity(0.15), width: 1),
+          color: (data.featured == true) ? Colors.white.withOpacity(0.10) : Colors.transparent,
         ),
         child: Column(
           children: [
@@ -25,14 +25,14 @@ class CategoryCard extends StatelessWidget {
               margin: EdgeInsets.only(bottom: 6),
               child: SvgPicture.asset(
                 '${data.iconUrl}',
-                color: Colors.black,
+                color: Colors.white,
               ),
             ),
             Flexible(
               child: Text(
                 '${data.name}',
                 textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.black, fontSize: 12),
+                style: TextStyle(color: Colors.white, fontSize: 12),
               ),
             ),
           ],

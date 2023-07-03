@@ -17,6 +17,7 @@ class SideBar extends StatelessWidget {
             ),
             accountEmail: Text(""),
             currentAccountPicture: CircleAvatar(
+              radius: 50,
               child: ClipOval(
                 child: Image.asset(
                   "assets/Torkhani_Ala.jpg",
@@ -25,7 +26,7 @@ class SideBar extends StatelessWidget {
               ),
             ),
             decoration: BoxDecoration(
-              color: Colors.blueAccent,
+              color: Colors.indigo[900],
               image:  DecorationImage(
                 image: NetworkImage(''),
                   fit: BoxFit.cover

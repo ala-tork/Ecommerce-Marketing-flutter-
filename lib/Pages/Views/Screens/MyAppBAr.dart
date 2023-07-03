@@ -23,12 +23,12 @@ class _MyAppBarState extends State<MyAppBar> {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      elevation: 0,
-      iconTheme: IconThemeData(color: Colors.black),
-      backgroundColor: Colors.white,
+      elevation: 1,
+      iconTheme: IconThemeData(color: Colors.white),
+      backgroundColor: Colors.indigo,
       title: Text("${widget.title}",
       style: TextStyle(
-          color: Colors.black
+          color: Colors.white
       ),
       ),
       centerTitle: true,
@@ -44,7 +44,7 @@ class _MyAppBarState extends State<MyAppBar> {
             value: 2,
             icon: Icon(
               Icons.mark_unread_chat_alt_outlined,
-              color:Colors.black,
+              color:Colors.white,
             ),
           ),
         ),
@@ -53,10 +53,12 @@ class _MyAppBarState extends State<MyAppBar> {
           child: CustomIconButtonWidget(
             onTap: () {},
             value: widget.Daimons,
+
             icon: Icon(
               Icons.diamond_outlined,
-              color:Colors.black,
+              color:Colors.white,
             ),
+
           ),
         ),
       ],

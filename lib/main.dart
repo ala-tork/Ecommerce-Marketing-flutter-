@@ -1,5 +1,6 @@
 import 'package:ecommerceversiontwo/Pages/Views/Screens/AnnouncesCRUD/EditeAnnounce.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/AnnouncesCRUD/MyAnnouncesList.dart';
+import 'package:ecommerceversiontwo/Pages/Views/Screens/LandingPage.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/WelcomePage.dart';
 import 'package:flutter/material.dart';
 
@@ -25,6 +26,7 @@ class MyApp extends StatelessWidget {
       home:  WelcomePage(),
       routes:
         {
+          "LandingPage":(context)=>LandingPage(),
           "MyAnnounces":(context)=>MyAnnounces(),
           "AddAnnounce": (context) => AddAnnounces(),
           "EditeAnnounce": (context) => EditeAnnounce()

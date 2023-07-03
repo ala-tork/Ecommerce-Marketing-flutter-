@@ -1,3 +1,4 @@
+import 'package:ecommerceversiontwo/Pages/Views/Screens/MyAppBAr.dart';
 import 'package:flutter/material.dart';
 
 class Store extends StatefulWidget {
@@ -11,7 +12,7 @@ class _StoreState extends State<Store> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Store"),),
+      appBar:  MyAppBar(Daimons: 122,title: "Store",),
       body: Center(
         child: Text("Store Page",
           style: TextStyle(

@@ -1,16 +1,12 @@
 import 'dart:async';
 
 import 'package:ecommerceversiontwo/Pages/Views/Screens/MyAppBAr.dart';
-import 'package:ecommerceversiontwo/Pages/Views/Screens/messagePage.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/searchPage.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/ads_slide_show.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/categoryCard.dart';
-import 'package:ecommerceversiontwo/Pages/Views/widgets/custom_icon_button_widget.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/dummy_search_widget1.dart';
-import 'package:ecommerceversiontwo/Pages/Views/widgets/flashable_countdown_tile.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/item_card.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/side_bar.dart';
-import 'package:ecommerceversiontwo/Pages/app_color.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/Category.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/Product.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/adsModel.dart';
@@ -104,12 +100,12 @@ class _HomePageState extends State<HomePage> {
           physics: BouncingScrollPhysics(),
           children: [
             // Section 1
-            Container(
+           /* Container(
               height: 190,
               width: MediaQuery.of(context).size.width,
               padding: EdgeInsets.symmetric(horizontal: 16),
               decoration: BoxDecoration(
-                color: Colors.indigo[900]//Color.fromRGBO(1,120,186, 1),
+                color: Colors.white//Color.fromRGBO(1,120,186, 1),
                 /*
                 image: DecorationImage(
                   image: AssetImage('assets/images/background.jpg'),
@@ -128,9 +124,9 @@ class _HomePageState extends State<HomePage> {
                         Text(
                           'Find the best \noutfit for you.',
                           style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 22,
-                            height: 150 / 100,
+                            color: Colors.pink[200],
+                            fontSize: 32,
+                            height: 160 / 100,
                             fontWeight: FontWeight.w600,
                             fontFamily: 'Poppins',
                           ),
@@ -138,31 +134,52 @@ class _HomePageState extends State<HomePage> {
                       ],
                     ),
                   ),
-                  DummySearchWidget1(
-                    onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => SearchPage(),
-                        ),
-                      );
-                    },
-                  ),
+
                 ],
               ),
 
-            ),
+            ),*/
+        Column(
+        children: [
+              Container(
+                height: 80,
+              margin: EdgeInsets.only(top: 0),
+                decoration: BoxDecoration(
+                    color: Colors.yellow[400]?.withOpacity(0.8),
+                ),
+
+                padding: EdgeInsets.symmetric(horizontal: 0),
+                child:
+                    Center(
+                      child: Text(
+                        'Find The Best Deal For You.',
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 22,
+                          height: 160 / 100,
+                          fontWeight: FontWeight.w600,
+                          fontFamily: 'Poppins',
+                        ),
+                      ),
+                    ),
+              ),
+            ],
+          ),
+          SizedBox(height: 20,),
             //slide show
             Padding(
-
-              padding: EdgeInsets.all(3.0),
+              padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
               child: SizedBox(
                 height: 300.0,
                 width: double.infinity,
+                //slide show
                 child: Carousel(
                   //showIndicator: false,
                   dotBgColor: Colors.transparent,
                   dotSize: 6.0,
-                  dotColor: Colors.blue,
+                  dotColor: Colors.pink,
+                  dotIncreasedColor: Colors.indigo,
+
                   images:
                   ad.map((a) {
                     return AdsSlideShow(adsShow: a);
@@ -170,17 +187,47 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
             ),
+            Divider(
+              height: 15,
+              color: Colors.black.withOpacity(0.2),
 
+            ),
+            Container(
 
+              child: Center(
+                child: Text("Search",
+                style: TextStyle(
+                  fontSize: 40,
+                  fontWeight: FontWeight.bold,
+
+                ),
+                ),
+              ),
+            ),
+            Container(
+              child:Padding(
+                padding: const EdgeInsets.fromLTRB(8, 0, 8, 28),
+                child: DummySearchWidget1(
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => SearchPage(),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
             // Section 2 - category
             Container(
               width: MediaQuery.of(context).size.width,
-              color: Colors.indigo[900], //Color.fromRGBO(1,120,186, 1),
+              color: Colors.indigo, //Color.fromRGBO(1,120,186, 1),
               padding: EdgeInsets.only(top: 12, bottom: 24),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 16),
                     child: Row(
@@ -189,7 +236,7 @@ class _HomePageState extends State<HomePage> {
                         Text(
                           'Category',
                           style: TextStyle(
-                              color: Colors.black,
+                              color: Colors.white,
                               fontSize: 16,
                               fontWeight: FontWeight.w600),
                         ),
@@ -198,11 +245,11 @@ class _HomePageState extends State<HomePage> {
                           child: Text(
                             'View More',
                             style: TextStyle(
-                                color: Colors.black.withOpacity(0.7),
+                                color: Colors.white.withOpacity(0.7),
                                 fontWeight: FontWeight.w400),
                           ),
                           style: TextButton.styleFrom(
-                            foregroundColor: Colors.black,
+                            foregroundColor: Colors.white,
                           ),
                         ),
                       ],
@@ -254,166 +301,7 @@ class _HomePageState extends State<HomePage> {
             // ),
 
             // Section 4 - Flash Sale
-            Container(
-              margin: EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppColor.primary,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Flash Sale',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                            fontFamily: 'Poppins',
-                          ),
-                        ),
-                        Row(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(right: 2.0),
-                              child: FlashsaleCountdownTile(
-                                digit: hours[0],
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(right: 2.0),
-                              child: FlashsaleCountdownTile(
-                                digit: hours[1],
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(right: 2.0),
-                              child: Text(
-                                ':',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                  fontFamily: 'Poppins',
-                                ),
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(right: 2.0),
-                              child: FlashsaleCountdownTile(
-                                digit: minutes[0],
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(right: 2.0),
-                              child: FlashsaleCountdownTile(
-                                digit: minutes[1],
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(right: 2.0),
-                              child: Text(
-                                ':',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                  fontFamily: 'Poppins',
-                                ),
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(right: 2.0),
-                              child: FlashsaleCountdownTile(
-                                digit: seconds[0],
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(right: 2.0),
-                              child: FlashsaleCountdownTile(
-                                digit: seconds[1],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Container(
-                          height: 310,
-                          child: ListView(
-                            shrinkWrap: true,
-                            physics: BouncingScrollPhysics(),
-                            scrollDirection: Axis.horizontal,
-                            children: List.generate(
-                              productData.length,
-                              (index) => Padding(
-                                padding: const EdgeInsets.only(left: 16.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    ItemCard(
-                                      product: productData[index],
-                                      titleColor: AppColor.primarySoft,
-                                      priceColor: AppColor.accent,
-                                    ),
-                                    Container(
-                                      width: 180,
-                                      child: Row(
-                                        children: [
-                                          Expanded(
-                                            child: Padding(
-                                              padding: const EdgeInsets.symmetric(
-                                                  horizontal: 8.0),
-                                              child: ClipRRect(
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                                child: LinearProgressIndicator(
-                                                  minHeight: 10,
-                                                  value: 0.4,
-                                                  color: AppColor.accent,
-                                                  backgroundColor:
-                                                      AppColor.border,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                          Icon(
-                                            Icons.local_fire_department,
-                                            color: AppColor.accent,
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    // Row(
-                                    //   children: [
-                                    //     Expanded(
-                                    //       child: Container(
-                                    //         color: Colors.amber,
-                                    //         height: 10,
-                                    //       ),
-                                    //     ),
-                                    //   ],
-                                    // ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
+
 
             // Section 5 - product list
 
