@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class SideBar extends StatelessWidget {
@@ -34,7 +35,7 @@ class SideBar extends StatelessWidget {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(18.0, 15.0, 0, 7.0),
+            padding: const EdgeInsets.fromLTRB(15.0, 10.0, 0, 5.0),
             child: ListTile(
               leading: Icon(Icons.account_circle_outlined),
               title: Text("Profile",
@@ -46,7 +47,7 @@ class SideBar extends StatelessWidget {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(18.0, 5.0, 0, 7.0),
+            padding: const EdgeInsets.fromLTRB(15.0, 5.0, 0, 5.0),
             child: ListTile(
               leading: Icon(Icons.shopping_bag_outlined),
               title: Text("Commande Vente",
@@ -57,7 +58,7 @@ class SideBar extends StatelessWidget {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(18.0, 5.0, 0, 7.0),
+            padding: const EdgeInsets.fromLTRB(15.0, 5.0, 0, 5.0),
             child: ListTile(
               leading: Icon(Icons.shopping_cart_outlined),
               title: Text("Commande d'achat",
@@ -68,7 +69,7 @@ class SideBar extends StatelessWidget {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(18.0, 5.0, 0, 7.0),
+            padding: const EdgeInsets.fromLTRB(15.0, 5.0, 0, 5.0),
             child: ListTile(
               leading: Icon(Icons.list_alt),
               title: Text("My Announces",
@@ -80,8 +81,37 @@ class SideBar extends StatelessWidget {
               },
             ),
           ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(15.0, 5.0, 0, 5.0),
+            child: ListTile(
+              leading: Icon(CupertinoIcons.star),
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text("My Favorits",
+                    style: TextStyle(
+                        fontSize: 18.0
+                    ),
+                  ),
+                  SizedBox(width: 30.0,),
+                  Container(
+                    child:Text("12",
+                      style: TextStyle(
+                        color: Colors.red,
+                          fontSize: 16.0
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              onTap: (){
+                Navigator.of(context).pushNamed("WishList");
+              },
+            ),
+          ),
           SizedBox(
-            height: 150.0,
+            height: 100.0,
           ),
           Padding(
             padding: const EdgeInsets.all(10.0),

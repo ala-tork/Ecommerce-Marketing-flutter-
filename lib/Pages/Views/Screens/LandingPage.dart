@@ -2,6 +2,7 @@ import 'package:ecommerceversiontwo/Pages/Views/Screens/BottomBar/announces.dart
 import 'package:ecommerceversiontwo/Pages/Views/Screens/BottomBar/deals.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/BottomBar/store.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/HomePage.dart';
+import 'package:ecommerceversiontwo/Pages/Views/Screens/MyAppBAr.dart';
 import 'package:flutter/material.dart';
 
 class LandingPage extends StatefulWidget {
@@ -30,11 +31,11 @@ class _LandingPageState extends State<LandingPage> {
         child: currentScreen,
       ),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.yellow[400],
+        backgroundColor: Colors.teal[100],
         onPressed: () {
           Navigator.of(context).pushNamed("AddAnnounce");
         },
-        child: Icon(Icons.add,color: Colors.indigo,),
+        child: Icon(Icons.add,color: Colors.black,),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: BottomAppBar(

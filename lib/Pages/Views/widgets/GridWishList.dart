@@ -1,99 +1,86 @@
 import 'package:ecommerceversiontwo/Pages/Views/widgets/modals/add_to_cart.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-class GridB extends StatefulWidget {
+class GridWishList extends StatefulWidget {
   final  data;
-  const GridB({super.key, required this.data,});
+  const GridWishList({super.key, required this.data,});
 
   @override
-  State<GridB> createState() => _GridBState();
+  State<GridWishList> createState() => _GridWishListState();
 }
 
-class _GridBState extends State<GridB> {
+class _GridWishListState extends State<GridWishList> {
   List gridMap=[];
   @override
   void initState() {
     // TODO: implement initState
     gridMap = widget.data;
-    //print(gridMap);
     super.initState();
   }
   @override
   Widget build(BuildContext context) {
 
-    return
-      GridView.builder(
+    return GridView.builder(
       shrinkWrap: true,
       physics: NeverScrollableScrollPhysics(),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2 ,
+        crossAxisCount: 1 ,
         crossAxisSpacing: 10.0,
         mainAxisSpacing: 10.0,
-        mainAxisExtent: 327,
+        mainAxisExtent: 310,
       ),
       itemCount: gridMap.length,
       itemBuilder: (_, index) {
         return Container(
-          width: MediaQuery.of(context).size.width / 2 - 16 - 8,
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(17.0),
-            border: Border.all(
-              color: Colors.indigo,
-              width: 1.0,
-
+            borderRadius: BorderRadius.circular(
+              16.0,
             ),
+            color: Colors.teal[100],
           ),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // item image
-              Container(
-                width: MediaQuery.of(context).size.width / 0 - 0 - 0,
-                height: MediaQuery.of(context).size.width / 2 - 0 - 26,
-                padding: EdgeInsets.all(10),
-                alignment: Alignment.topLeft,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16),
-                  image: DecorationImage(
-                      image: NetworkImage(gridMap[index].imagePrinciple.toString()), fit: BoxFit.cover),
+              ClipRRect(
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(16.0),
+                  topRight: Radius.circular(16.0),
                 ),
-                //child: RatingTag(value: product.rating,),
+                child: Image.network(
+                  "${gridMap.elementAt(index).images}",
+                  height: 170,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                ),
               ),
-
-              // item details
-              Container(
-                padding: EdgeInsets.symmetric(vertical: 14, horizontal: 10),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '${gridMap[index].title}',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.black,
-                      ),
-                    ),
-                    Container(
-                      margin: EdgeInsets.only(top: 2, bottom: 8),
-                      child: Text(
-                        '${gridMap[index].price} DT',
-                        style: TextStyle(
-                          fontSize: 20,
+                      "${gridMap.elementAt(index).title}",
+                      style: Theme.of(context).textTheme.subtitle1!.merge(
+                        const TextStyle(
                           fontWeight: FontWeight.w700,
-                          fontFamily: 'Poppins',
-                          color: Colors.indigo,
                         ),
                       ),
                     ),
+                    const SizedBox(
+                      height: 8.0,
+                    ),
                     Text(
-                      '${gridMap[index].countries.title}',
-                      style: TextStyle(
-                        color: Colors.grey,
-                        fontSize: 13,
+                      "${gridMap.elementAt(index).price} DT",
+                      style: Theme.of(context).textTheme.subtitle2!.merge(
+                        TextStyle(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 25,
+                          color: Colors.grey.shade500,
+                        ),
                       ),
+                    ),
+                    const SizedBox(
+                      height: 10.0,
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -109,26 +96,30 @@ class _GridBState extends State<GridB> {
                             });
                           },
                           icon: gridMap[index].like == false ? Icon(
+                            size:32,
                             CupertinoIcons.heart,
                           ):Icon(
+                            size:32,
                             CupertinoIcons.heart_fill,
                             color: Colors.red,
                           ),
                         ),
                         IconButton(
                           onPressed: () {
-                            AddToCartModal();
+                           setState(() {
+                             gridMap.remove(gridMap[index]);
+                           });
                           },
                           icon: Icon(
-                            CupertinoIcons.star,
+                            size:32,
+                            CupertinoIcons.star_fill, color: Colors.yellow[800],
                           ),
                         ),
                       ],
                     ),
-
                   ],
                 ),
-              )
+              ),
             ],
           ),
         );
@@ -136,6 +127,3 @@ class _GridBState extends State<GridB> {
     );
   }
 }
-
-
-

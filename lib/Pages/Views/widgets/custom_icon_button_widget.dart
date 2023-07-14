@@ -41,7 +41,7 @@ class CustomIconButtonWidget extends StatelessWidget {
               alignment: Alignment.center,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(100),
-                color: Colors.yellow[400],
+                color: Colors.teal[100],
               ),
               child: Text(
                 '$value',

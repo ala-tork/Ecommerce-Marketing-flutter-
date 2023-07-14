@@ -1,4 +1,5 @@
 import 'package:ecommerceversiontwo/Pages/Views/Screens/AnnouncesCRUD/EditeAnnounce.dart';
+import 'package:ecommerceversiontwo/Pages/Views/Screens/MyAppBAr.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/AnnounceModel.dart';
 import 'package:flutter/material.dart';
 
@@ -12,11 +13,16 @@ class MyAnnounces extends StatefulWidget {
 }
 
 class _MyAnnouncesState extends State<MyAnnounces> {
-  List announces = [
-    AnnounceModel(id:1,title:"ITIWIT",shortDescription:"CANOE KAYAK CONFORTABLE",price:1890,image : "assets/images/Announces/deals1.png",boosted: false),
-    AnnounceModel(id:2,title:"OLAIAN",shortDescription:"SURFER BOARDSHORT",price:50,image : "assets/images/Announces/deals2.png",boosted: false),
-    AnnounceModel(id:3,title:"SUBEA",shortDescription:"CHAUSSURES ELASTIQUE ADULTE",price:50,image :"assets/images/Announces/deals3.png",boosted: false),
+  List<dynamic> announces = [
+    AnnounceModel(idAds:1,title:"ITIWIT",description:"CANOE KAYAK CONFORTABLE",price:1890,imagePrinciple : "assets/images/Announces/deals1.png",like:false),
+    AnnounceModel(idAds:2,title:"OLAIAN",description:"SURFER BOARDSHORT",price:50,imagePrinciple : "assets/images/Announces/deals2.png",like: false),
+    AnnounceModel(idAds:3,title:"SUBEA",description:"CHAUSSURES ELASTIQUE ADULTE",price:50,imagePrinciple :"assets/images/Announces/deals3.png",like: false),
   ];
+  @override
+  void initState() {
+
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -27,7 +33,7 @@ class _MyAnnouncesState extends State<MyAnnounces> {
         },
       child: Icon(Icons.add,color: Colors.indigo,),),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-        appBar: AppBar(
+        appBar:MyAppBar(title:"My Announces" ,),/* AppBar(
           elevation: 1,
           iconTheme: IconThemeData(color: Colors.white),
           backgroundColor: Colors.indigo[900],
@@ -37,7 +43,7 @@ class _MyAnnouncesState extends State<MyAnnounces> {
             ),
           ),
           centerTitle: true,
-        ),
+        ),*/
         body:Padding(
           padding: const EdgeInsets.fromLTRB(0, 0, 0, 70.0),
           child: ListView.builder(
@@ -72,7 +78,7 @@ class _MyAnnouncesState extends State<MyAnnounces> {
 
                                 image: DecorationImage(
                                       
-                                image: AssetImage('${announces[index].image}'), // Replace with your image path
+                                image: AssetImage('${announces[index].images}'), // Replace with your image path
                                 fit: BoxFit.fill,
 
                               ),
@@ -113,7 +119,7 @@ class _MyAnnouncesState extends State<MyAnnounces> {
                             padding: const EdgeInsets.fromLTRB(15, 10, 0, 0),
                             child: Row(
                               children: [
-                                Text("${announces[index].shortDescription}",
+                                Text("${announces[index].description}",
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
@@ -155,9 +161,9 @@ class _MyAnnouncesState extends State<MyAnnounces> {
 
                                         id: announces[index].id,
                                         title: announces[index].title,
-                                        description: announces[index].shortDescription,
+                                        description: announces[index].description,
                                         price: announces[index].price,
-                                        image: announces[index].image,
+                                        images: announces[index].images,
                                         boosted: announces[index].boosted,
                                       )
                                       )
@@ -183,7 +189,9 @@ class _MyAnnouncesState extends State<MyAnnounces> {
                                       //backgroundColor: MaterialStateProperty.all<Color>(Colors.grey), // Replace with your desired background color
                                     ),
                                     onPressed: () {
-                                      // Add your onPressed logic here
+                                     setState(() {
+                                       announces.removeAt(index);
+                                     });
                                     },
                                     icon: Icon(Icons.delete,color: Colors.red,), // Replace with your desired icon
                                     label: Text('Delete',style: TextStyle(color: Colors.black),),

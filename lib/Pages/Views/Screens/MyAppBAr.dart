@@ -1,3 +1,4 @@
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
 
 import '../widgets/custom_icon_button_widget.dart';
@@ -6,7 +7,7 @@ import 'messagePage.dart';
 class MyAppBar extends StatefulWidget implements PreferredSizeWidget {
   final Daimons;
   final title;
-  const MyAppBar({super.key, this.Daimons, this.title});
+  const MyAppBar({super.key, this.Daimons=122, this.title});
 
 
   @override
@@ -35,7 +36,7 @@ class _MyAppBarState extends State<MyAppBar> {
 
       actions: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(0, 5.0, 5.0, 0),
+          padding: const EdgeInsets.fromLTRB(0, 5.0, 0.0, 0),
           child: CustomIconButtonWidget(
             onTap: () {
               Navigator.of(context).push(MaterialPageRoute(
@@ -49,9 +50,26 @@ class _MyAppBarState extends State<MyAppBar> {
           ),
         ),
         Padding(
-          padding: const EdgeInsets.fromLTRB(0, 5.0, 15.0, 0),
+          padding: const EdgeInsets.fromLTRB(0, 5.0, 5.0, 0),
           child: CustomIconButtonWidget(
-            onTap: () {},
+            onTap: () {
+              AwesomeDialog(
+                  context: context,
+                  dialogBackgroundColor: Colors.teal[100],
+                  dialogType: DialogType.info,
+                  animType: AnimType.topSlide,
+                  title:"Diamond",
+                  descTextStyle: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold
+                  ),
+                  desc: "Hello, welcome to ADS & Deals.\n \n What are diamonds?!\n Diamonds are the currency within our application.\n With diamonds, you can add your products to the application and enhance their visibility. If you would like to refill your wallet and purchase diamonds, please click OK",
+                  btnCancelColor: Colors.grey,
+                  btnCancelOnPress:(){},
+
+                  btnOkOnPress: (){}
+              ).show();
+            },
             value: widget.Daimons,
 
             icon: Icon(

@@ -11,10 +11,10 @@ class EditeAnnounce extends StatefulWidget {
   final title;
   final description;
   final price;
-  final image;
+  final images;
   final boosted;
 
-  const EditeAnnounce({super.key, this.id, this.title, this.description, this.price, this.image, this.boosted});
+  const EditeAnnounce({super.key, this.id, this.title, this.description, this.price, this.images, this.boosted});
 
   @override
   State<EditeAnnounce> createState() => _EditeAnnounceState();
@@ -159,7 +159,7 @@ class _EditeAnnounceState extends State<EditeAnnounce> {
 
                                     image: DecorationImage(
 
-                                      image: AssetImage(widget.image), // Replace with your image path
+                                      image: AssetImage(widget.images), // Replace with your image path
                                       fit: BoxFit.fill,
 
                                     ),
@@ -224,7 +224,7 @@ class _EditeAnnounceState extends State<EditeAnnounce> {
                           color: Colors.yellow[400],
                           onPressed: () async {
                             //print("$boost  $price");
-                            print(widget.image);
+                            print(widget.images);
                           },
                           child: Text("Edite Annonces",style: TextStyle(fontSize: 20),),
                         ),

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:ecommerceversiontwo/Pages/Views/Screens/MyAppBAr.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/searchPage.dart';
+import 'package:ecommerceversiontwo/Pages/Views/widgets/FilterAllForm.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/ads_slide_show.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/categoryCard.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/dummy_search_widget1.dart';
@@ -24,6 +25,16 @@ class _HomePageState extends State<HomePage> {
   List<Category> categoryData = CategoryService.categoryData.cast<Category>();
   List <Product> productData = ProductService.productData;
 
+  //filter variable
+  String country="All Countrys";
+  String category="All Categorys";
+  double minprice=0;
+  double maxprice=100;
+  bool DealsFilter = false;
+  bool AnnouncesFilter = false;
+  bool ProductsFilter = false;
+
+  //slide show variable
   List ad = [
     AdsModel(title:"ITIWIT",shortDescription:"CANOE KAYAK CONFORTABLE",price:1890,ImagePrinciple : "assets/images/Announces/deals1.png"),
     AdsModel(title:"OLAIAN",shortDescription:"SURFER BOARDSHORT",price:50,ImagePrinciple : "assets/images/Announces/deals2.png"),
@@ -99,53 +110,13 @@ class _HomePageState extends State<HomePage> {
           shrinkWrap: true,
           physics: BouncingScrollPhysics(),
           children: [
-            // Section 1
-           /* Container(
-              height: 190,
-              width: MediaQuery.of(context).size.width,
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              decoration: BoxDecoration(
-                color: Colors.white//Color.fromRGBO(1,120,186, 1),
-                /*
-                image: DecorationImage(
-                  image: AssetImage('assets/images/background.jpg'),
-                  fit: BoxFit.cover,
-                ),
-             */ ),
-              child: Column(
-                children: [
-                  Container(
-                    margin: EdgeInsets.only(top: 26),
-                    padding: EdgeInsets.symmetric(horizontal: 8),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text(
-                          'Find the best \noutfit for you.',
-                          style: TextStyle(
-                            color: Colors.pink[200],
-                            fontSize: 32,
-                            height: 160 / 100,
-                            fontWeight: FontWeight.w600,
-                            fontFamily: 'Poppins',
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                ],
-              ),
-
-            ),*/
         Column(
         children: [
               Container(
                 height: 80,
               margin: EdgeInsets.only(top: 0),
                 decoration: BoxDecoration(
-                    color: Colors.yellow[400]?.withOpacity(0.8),
+                    color: Colors.teal[100],
                 ),
 
                 padding: EdgeInsets.symmetric(horizontal: 0),
@@ -165,6 +136,7 @@ class _HomePageState extends State<HomePage> {
               ),
             ],
           ),
+          /** slide Show  **/
           SizedBox(height: 20,),
             //slide show
             Padding(
@@ -192,6 +164,7 @@ class _HomePageState extends State<HomePage> {
               color: Colors.black.withOpacity(0.2),
 
             ),
+            /** search and filter section **/
             Container(
 
               child: Center(
@@ -204,22 +177,276 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
             ),
-            Container(
-              child:Padding(
-                padding: const EdgeInsets.fromLTRB(8, 0, 8, 28),
-                child: DummySearchWidget1(
-                  onTap: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => SearchPage(),
+            Column(
+              children: [
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Container(
+                        child:Padding(
+                          padding: const EdgeInsets.fromLTRB(8, 0, 8, 28),
+                          child: DummySearchWidget1(
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => SearchPage(),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
                       ),
-                    );
-                  },
+                    ),
+                    SizedBox(width: 5,),
+                    /** filter **/
+                    Column(
+                      children: [
+                        IconButton(
+                            onPressed: () {
+                              showModalBottomSheet(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.vertical(
+                                        top: Radius.circular(25)
+                                    ),
+                                  ),
+                                  backgroundColor: Colors.white,
+                                  context: context,
+                                  isScrollControlled: true,
+                                  builder: (context) {
+                                    return FilterAllForm(category: category,
+                                      country: country,
+                                      minprice: minprice,
+                                      maxprice: maxprice,
+                                    Deals: DealsFilter,
+                                      Announces: AnnouncesFilter,
+                                    Products: ProductsFilter,);
+                                  }
+                              ).then((value){
+                                setState(() {
+                                  country = (value as Map)['country'];
+                                  category = (value as Map)['category'];
+                                  minprice = (value as Map)['minprice'];
+                                  maxprice = (value as Map)['maxprice'];
+                                  DealsFilter = (value as Map)['Deals'];
+                                  AnnouncesFilter = (value as Map)['Announces'];
+                                  ProductsFilter = (value as Map)['Products'];
+
+                                });
+
+                              });
+                            },
+                            icon: Icon(Icons.filter_alt_rounded ,color: Colors.black,size: 30,)
+                        ),
+                        Text('Filter')
+                      ],
+                    ),
+                  ],
                 ),
-              ),
+                /** show filters **/
+                country.isNotEmpty&&country !="All Countrys"||category.isNotEmpty&&category !="All Categorys"||minprice!=0||maxprice!=100? Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    country.isNotEmpty&&country!="All Countrys"?
+                    ElevatedButton(
+
+                      onPressed: () {
+                        setState(() {
+                          country="All Countrys";
+                        });
+                      },
+                      style: ElevatedButton.styleFrom(
+                        primary: Colors.lightBlue[100],
+                        padding: EdgeInsets.all(10),
+                        elevation: 0,
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            country,
+                            style: TextStyle(fontSize: 16,color: Colors.black),
+                          ),
+                          SizedBox(width: 3),
+                          Icon(Icons.close,color: Colors.black,),
+                        ],
+                      ),
+                    ):SizedBox(height: 0,),
+                    category.isNotEmpty&&category!="All Categorys"?
+                    ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          category="All Categorys";
+                        });
+                      },
+                      style: ElevatedButton.styleFrom(
+                        primary: Colors.lightBlue[100],
+                        padding: EdgeInsets.all(10),
+                        elevation: 0,
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+
+                          Text(
+                            category,
+                            style: TextStyle(fontSize: 16,color: Colors.black),
+                          ),
+                          SizedBox(width: 3),
+                          Icon(Icons.close,color: Colors.black,),
+
+                        ],
+                      ),
+                    ):SizedBox(height: 0,),
+
+                    minprice!=0?
+                    ElevatedButton(
+
+                      onPressed: () {
+                        setState(() {
+                          minprice=0;
+                        });
+                      },
+                      style: ElevatedButton.styleFrom(
+                        primary: Colors.lightBlue[100],
+                        padding: EdgeInsets.all(10),
+                        elevation: 0,
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            minprice.toStringAsFixed(2),
+                            style: TextStyle(fontSize: 16,color: Colors.black),
+                          ),
+                          SizedBox(width: 3),
+                          Icon(Icons.close,color: Colors.black,),
+                        ],
+                      ),
+                    ):SizedBox(height: 0,),
+                    maxprice!=100?
+                    ElevatedButton(
+
+                      onPressed: () {
+                        setState(() {
+                          maxprice=100;
+                        });
+                      },
+                      style: ElevatedButton.styleFrom(
+                        primary: Colors.lightBlue[100],
+                        padding: EdgeInsets.all(10),
+                        elevation: 0,
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            maxprice.toStringAsFixed(2),
+                            style: TextStyle(fontSize: 16,color: Colors.black),
+                          ),
+                          SizedBox(width: 3),
+                          Icon(Icons.close,color: Colors.black,),
+                        ],
+                      ),
+                    ):SizedBox(height: 0,),
+                  ],
+                )
+                    :SizedBox(height: 0,),
+              ],
+            ),Column(
+              children: [
+                DealsFilter||AnnouncesFilter||ProductsFilter? Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    DealsFilter?
+                    ElevatedButton(
+
+                      onPressed: () {
+                        setState(() {
+                          DealsFilter=false;
+                        });
+                      },
+                      style: ElevatedButton.styleFrom(
+                        primary: Colors.lightBlue[100],
+                        padding: EdgeInsets.all(10),
+                        elevation: 0,
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            "Deals",
+                            style: TextStyle(fontSize: 16,color: Colors.black),
+                          ),
+                          SizedBox(width: 3),
+                          Icon(Icons.close,color: Colors.black,),
+                        ],
+                      ),
+                    ):SizedBox(height: 0,),
+                    /** Announce filter box **/
+                    AnnouncesFilter?
+                    ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          AnnouncesFilter=false;
+                        });
+                      },
+                      style: ElevatedButton.styleFrom(
+                        primary: Colors.lightBlue[100],
+                        padding: EdgeInsets.all(10),
+                        elevation: 0,
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+
+                          Text(
+                            "Announces",
+                            style: TextStyle(fontSize: 16,color: Colors.black),
+                          ),
+                          SizedBox(width: 3),
+                          Icon(Icons.close,color: Colors.black,),
+
+                        ],
+                      ),
+                    ):SizedBox(height: 0,),
+
+                    ProductsFilter?
+                    ElevatedButton(
+
+                      onPressed: () {
+                        setState(() {
+                          ProductsFilter=false;
+                        });
+                      },
+                      style: ElevatedButton.styleFrom(
+                        primary: Colors.lightBlue[100],
+                        padding: EdgeInsets.all(10),
+                        elevation: 0,
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            "Products",
+                            style: TextStyle(fontSize: 16,color: Colors.black),
+                          ),
+                          SizedBox(width: 3),
+                          Icon(Icons.close,color: Colors.black,),
+                        ],
+                      ),
+                    ):SizedBox(height: 0,)
+              ],
+            ):SizedBox(height: 0,),
+            ]
             ),
-            // Section 2 - category
-            Container(
+            SizedBox(height: 20,),
+
+            /** end filter and search & show filters section* */
+
+            /** Section 3 - category **/
+             Container(
               width: MediaQuery.of(context).size.width,
               color: Colors.indigo, //Color.fromRGBO(1,120,186, 1),
               padding: EdgeInsets.only(top: 12, bottom: 24),
@@ -279,31 +506,9 @@ class _HomePageState extends State<HomePage> {
                 ],
               ),
             ),
-            // Section 3 - banner
-            // Container(
-            //   height: 106,
-            //   padding: EdgeInsets.symmetric(vertical: 16),
-            //   child: ListView.separated(
-            //     padding: EdgeInsets.symmetric(horizontal: 16),
-            //     scrollDirection: Axis.horizontal,
-            //     itemCount: 3,
-            //     separatorBuilder: (context, index) {
-            //       return SizedBox(width: 16);
-            //     },
-            //     itemBuilder: (context, index) {
-            //       return Container(
-            //         width: 230,
-            //         height: 106,
-            //         decoration: BoxDecoration(color: AppColor.primarySoft, borderRadius: BorderRadius.circular(15)),
-            //       );
-            //     },
-            //   ),
-            // ),
-
-            // Section 4 - Flash Sale
 
 
-            // Section 5 - product list
+            /** Section 4 - product list **/
 
             Padding(
               padding: EdgeInsets.only(left: 16, top: 16),
@@ -329,7 +534,6 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
             ),
-
           ],
         ),
       ]),

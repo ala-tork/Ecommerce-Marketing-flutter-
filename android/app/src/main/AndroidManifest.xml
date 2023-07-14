@@ -1,4 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Required to fetch data from the internet. -->
+
     <application
         android:label="ecommerceversiontwo"
         android:name="${applicationName}"
