@@ -1,26 +1,34 @@
-class Categories {
+class CategoriesModel {
   int? idCateg;
   String? title;
   String? description;
   String? image;
   int? idparent;
-  int? active;
+  List<CategoriesModel>? children;
+  int? Active;
 
-  Categories(
-      {this.idCateg,
-        this.title,
-        this.description,
-        this.image,
-        this.idparent,
-        this.active});
+  CategoriesModel({
+     this.idCateg,
+     this.title,
+     this.description,
+     this.image,
+    this.idparent,
+    this.children = const [],
+    this.Active
+  });
 
-  Categories.fromJson(Map<String, dynamic> json) {
-    idCateg = json['idCateg'];
-    title = json['title'];
-    description = json['description'];
-    image = json['image'];
-    idparent = json['idparent'];
-    active = json['active'];
+  factory CategoriesModel.fromJson(Map<String, dynamic> json) {
+    return CategoriesModel(
+      idCateg: json['idCateg'],
+      title: json['title'],
+      description: json['description'],
+      image: json['image'],
+      idparent: json['idparent'],
+      children: (json['children'] as List<dynamic>?)
+          ?.map((childJson) => CategoriesModel.fromJson(childJson))
+          .toList(),
+      Active: json['active'],
+    );
   }
 
   Map<String, dynamic> toJson() {
@@ -30,7 +38,8 @@ class Categories {
     data['description'] = this.description;
     data['image'] = this.image;
     data['idparent'] = this.idparent;
-    data['active'] = this.active;
+    data['children'] = this.children;
+    data['active'] = this.Active;
     return data;
   }
 }

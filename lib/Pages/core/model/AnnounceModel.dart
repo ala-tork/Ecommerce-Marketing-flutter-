@@ -19,7 +19,7 @@ class AnnounceModel {
   String? imagePrinciple;
   String? videoName;
   int? idCateg;
-  Categories? categories;
+  CategoriesModel? categories;
   int? idCountrys;
   Countries? countries;
   int? idCity;
@@ -57,7 +57,7 @@ class AnnounceModel {
     videoName = json['videoName'];
     idCateg = json['idCateg'];
     categories = json['categories'] != null
-        ? new Categories.fromJson(json['categories'])
+        ? new CategoriesModel.fromJson(json['categories'])
         : null;
     idCountrys = json['idCountrys'];
     countries = json['countries'] != null

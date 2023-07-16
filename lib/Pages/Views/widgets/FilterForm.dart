@@ -1,11 +1,16 @@
+import 'dart:convert';
+
+import 'package:ecommerceversiontwo/Pages/core/model/CategoryModel.dart';
 import 'package:flutter/material.dart';
+import  'package:http/http.dart' as http;
+
 
 class FilterForm extends StatefulWidget {
   final String? country;
-  final String? category;
+  final CategoriesModel? category;
   final double? minprice;
   final double? maxprice;
-  const FilterForm({super.key, this.country="AllCountrys", this.category="AllCategorys", this.minprice, this.maxprice});
+  const FilterForm({super.key, this.country="AllCountrys", this.category, this.minprice, this.maxprice});
 
   @override
   State<FilterForm> createState() => _FilterFormState();
@@ -17,25 +22,55 @@ class _FilterFormState extends State<FilterForm> {
   TextEditingController _minController = TextEditingController();
   TextEditingController _maxController = TextEditingController();
   String? _country="All Countrys";
-  String? _category="All Categorys";
+  CategoriesModel? _category;
 
   final _countrys=["All Countrys","tunisia","algeria","french"];
 
 
-  final _categorys=["All Categorys","Clothes","Food","Drinks"];
+  //final _categorys=["All Categorys","Clothes","Food","Drinks"];
+
+  List<CategoriesModel> _categorys =[];
+
+  Future<List<CategoriesModel>> apicall() async {
+    http.Response response;
+    response = await http.get(Uri.parse("https://10.0.2.2:7058/api/CategoriesControler/GetAllCategories"));
+
+    if (response.statusCode == 200) {
+      List<CategoriesModel> categoryList = (jsonDecode(response.body) as List)
+          .map((json) => CategoriesModel.fromJson(json))
+          .toList();
+
+      return categoryList;
+    } else {
+      print(response.body);
+      throw Exception('Failed to fetch Categories');
+    }
+  }
+
+  CategoriesModel? selectedCategory;
 
 
   @override
   void initState()  {
     super.initState();
+    fetchData();
     _minValue= widget.minprice  as double;
     _maxValue= widget.maxprice as double ;
     _minController.text = _minValue.toStringAsFixed(2);
     _maxController.text = _maxValue.toStringAsFixed(2);
     _country=widget.country.toString();
-    _category=widget.category.toString();
+    //_category=widget.category;
   }
-
+  Future<void> fetchData() async {
+    try {
+      List<CategoriesModel> categories = await apicall();
+      setState(() {
+        _categorys = categories;
+      });
+    } catch (e) {
+      print('Error fetching categories: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -139,15 +174,52 @@ class _FilterFormState extends State<FilterForm> {
                       border: Border.all(color: Colors.grey), // Add border color
                       borderRadius: BorderRadius.circular(8), // Add border radius
                     ),
-                    child:
-                    DropdownButton(
+                    child:/** dropdown list of categorys **/
+                    Padding(
+                      padding: const EdgeInsets.all(0),
+                      child: FutureBuilder<List<CategoriesModel>>(
+                        future: apicall(),
+                        builder: (BuildContext context, AsyncSnapshot<List<CategoriesModel>> snapshot) {
+                          if (snapshot.connectionState == ConnectionState.waiting) {
+                            // Display a loading indicator while waiting for data
+                            return CircularProgressIndicator();
+                          } else if (snapshot.hasError) {
+                            // Handle the error case
+                            return Text('Failed to fetch data');
+                          } else {
+                            return
+                              DropdownButton<CategoriesModel>(
+                                padding: EdgeInsets.symmetric(horizontal: 7),
+                                disabledHint: Text("Categorys"),
+                                value: _category!=null?_category:_categorys[1],
+                                items: _categorys.map((e) => DropdownMenuItem<CategoriesModel>(child: Text(e.title.toString()),value: e,)).toList(),
+                                onChanged:(CategoriesModel? x){
+                                  setState(() {
+                                    _category=x;
+                                  });
+                                },
+                                icon: Icon(Icons.category_outlined),
+                                iconEnabledColor: Colors.teal,
+                                style: TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 18
+                                ),
+                                borderRadius: BorderRadius.circular(10),
+                              );
+                            //
+                          }
+                        },
+                      ),
+                    ),
+                    /*DropdownButton<CategoriesModel>(
                       padding: EdgeInsets.symmetric(horizontal: 7),
                       disabledHint: Text("Categorys"),
-                      value: _category,
-                      items: _categorys.map((e) => DropdownMenuItem<String>(child: Text(e),value: e,)).toList(),
-                      onChanged:(val){
+                      value: selectedCategory,
+                      items: _categorys.map((e) => DropdownMenuItem<CategoriesModel>(child: Text(e.title.toString()),value: e,)).toList(),
+                      onChanged:(CategoriesModel? x){
                         setState(() {
-                          _category=val.toString();
+                          selectedCategory=x;
                         });
                       },
                       icon: Icon(Icons.category_outlined),
@@ -158,7 +230,7 @@ class _FilterFormState extends State<FilterForm> {
                           fontSize: 18
                       ),
                       borderRadius: BorderRadius.circular(10),
-                    ),
+                    ),*/
                   ),
                 ],
               ),
@@ -193,14 +265,12 @@ class _FilterFormState extends State<FilterForm> {
               ),
             ],
           ),
-
-          //end ranger
-
-
         ],
       ),
     );
   }
+
+
   @override
   void dispose() {
     _minController.dispose();

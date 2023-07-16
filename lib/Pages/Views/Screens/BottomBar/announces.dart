@@ -5,6 +5,7 @@ import 'package:ecommerceversiontwo/Pages/Views/Screens/searchPage.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/FilterForm.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/dummy_search_widget1.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/AnnounceModel.dart';
+import 'package:ecommerceversiontwo/Pages/core/model/CategoryModel.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -24,7 +25,7 @@ class Announces extends StatefulWidget {
 class _AnnouncesState extends State<Announces> {
 
   String country="All Countrys";
-  String category="All Categorys";
+  CategoriesModel category = CategoriesModel();
   double minprice=0;
   double maxprice=100;
 
@@ -32,26 +33,24 @@ class _AnnouncesState extends State<Announces> {
     int MaxPage =0;
     int page=0;
 
+
   Future<List<AnnounceModel>> apicall() async {
     print(page);
-    http.Response response, nbads;
+    http.Response response, nbads,resCateg;
     response = await http.get(Uri.parse("https://10.0.2.2:7058/api/First/ShowMore?page=${page}"));
     nbads = await http.get(Uri.parse("https://10.0.2.2:7058/api/First/NbrAds"));
-
     if (response.statusCode == 200) {
       var responseBody = response.body;
       gridMap.addAll((jsonDecode(responseBody) as List)
           .map((json) => AnnounceModel.fromJson(json))
           .toList());
-
+      //nbr Page
       int x = int.parse(nbads.body);
-      MaxPage = x ~/ 4; // Perform integer division
-
-      if (x % 4 > 0) { // Check if there is a remainder
-        MaxPage += 1; // Add 1 to MaxPage
+      MaxPage = x ~/ 4;
+      if (x % 4 > 0) {
+        MaxPage += 1;
       }
-
-      print(MaxPage);
+      //print(MaxPage);
       return gridMap;
     } else {
       print(response.body);
@@ -185,7 +184,7 @@ class _AnnouncesState extends State<Announces> {
               ],
             ),
             /** Show filters **/
-            country.isNotEmpty&&country !="All Countrys"||category.isNotEmpty&&category !="All Categorys"||minprice!=0||maxprice!=100? Row(
+            country.isNotEmpty&&country !="All Countrys"||category!=null||minprice!=0||maxprice!=100? Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 country.isNotEmpty&&country!="All Countrys"?
@@ -213,11 +212,12 @@ class _AnnouncesState extends State<Announces> {
                     ],
                   ),
                 ):SizedBox(height: 0,),
-                category.isNotEmpty&&category!="All Categorys"?
+                category!.idCateg!=null?
                 ElevatedButton(
                   onPressed: () {
                     setState(() {
-                      category="All Categorys";
+                      CategoriesModel? c=CategoriesModel();
+                      category=CategoriesModel();
                     });
                   },
                   style: ElevatedButton.styleFrom(
@@ -230,7 +230,7 @@ class _AnnouncesState extends State<Announces> {
                     children: [
 
                       Text(
-                        category,
+                        category!.title.toString(),
                         style: TextStyle(fontSize: 16,color: Colors.black),
                       ),
                       SizedBox(width: 3),
