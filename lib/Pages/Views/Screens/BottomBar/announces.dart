@@ -6,10 +6,11 @@ import 'package:ecommerceversiontwo/Pages/Views/widgets/FilterForm.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/dummy_search_widget1.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/AnnounceModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/CategoryModel.dart';
+import 'package:ecommerceversiontwo/Pages/core/model/CountriesModel.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert';
+
 import '../../widgets/GridAnnounces.dart';
 import '../../widgets/custom_icon_button_widget.dart';
 import '../messagePage.dart';
@@ -24,8 +25,8 @@ class Announces extends StatefulWidget {
 
 class _AnnouncesState extends State<Announces> {
 
-  String country="All Countrys";
-  CategoriesModel category = CategoriesModel();
+  CountriesModel? country;
+  CategoriesModel? category;
   double minprice=0;
   double maxprice=100;
 
@@ -37,8 +38,8 @@ class _AnnouncesState extends State<Announces> {
   Future<List<AnnounceModel>> apicall() async {
     print(page);
     http.Response response, nbads,resCateg;
-    response = await http.get(Uri.parse("https://10.0.2.2:7058/api/First/ShowMore?page=${page}"));
-    nbads = await http.get(Uri.parse("https://10.0.2.2:7058/api/First/NbrAds"));
+    response = await http.get(Uri.parse("https://10.0.2.2:7058/api/Ads/ShowMore?page=${page}"));
+    nbads = await http.get(Uri.parse("https://10.0.2.2:7058/api/Ads/NbrAds"));
     if (response.statusCode == 200) {
       var responseBody = response.body;
       gridMap.addAll((jsonDecode(responseBody) as List)
@@ -184,15 +185,16 @@ class _AnnouncesState extends State<Announces> {
               ],
             ),
             /** Show filters **/
-            country.isNotEmpty&&country !="All Countrys"||category!=null||minprice!=0||maxprice!=100? Row(
+            country!=null||category!=null||minprice!=0||maxprice!=100? Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                country.isNotEmpty&&country!="All Countrys"?
+                country!.idCountrys!=null?
                 ElevatedButton(
 
                   onPressed: () {
                     setState(() {
-                      country="All Countrys";
+                      CountriesModel? p;
+                      country=p;
                     });
                   },
                   style: ElevatedButton.styleFrom(
@@ -204,7 +206,7 @@ class _AnnouncesState extends State<Announces> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        country,
+                        country!.title.toString(),
                         style: TextStyle(fontSize: 16,color: Colors.black),
                       ),
                       SizedBox(width: 3),
@@ -212,12 +214,12 @@ class _AnnouncesState extends State<Announces> {
                     ],
                   ),
                 ):SizedBox(height: 0,),
-                category!.idCateg!=null?
+                category!=null?
                 ElevatedButton(
                   onPressed: () {
                     setState(() {
-                      CategoriesModel? c=CategoriesModel();
-                      category=CategoriesModel();
+                      CategoriesModel? c;
+                      category=c;
                     });
                   },
                   style: ElevatedButton.styleFrom(

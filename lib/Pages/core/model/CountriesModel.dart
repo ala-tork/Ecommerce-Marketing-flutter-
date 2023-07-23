@@ -1,4 +1,7 @@
-class Countries {
+import  'package:http/http.dart' as http;
+import 'dart:convert';
+
+class CountriesModel {
   int? idCountrys;
   String? title;
   String? flag;
@@ -6,14 +9,15 @@ class Countries {
   String? phoneCode;
   int? active;
 
-  Countries({this.idCountrys,
-    this.title,
-    this.flag,
-    this.code,
-    this.phoneCode,
-    this.active});
+  CountriesModel(
+      {this.idCountrys,
+        this.title,
+        this.flag,
+        this.code,
+        this.phoneCode,
+        this.active});
 
-  Countries.fromJson(Map<String, dynamic> json) {
+  CountriesModel.fromJson(Map<String, dynamic> json) {
     idCountrys = json['idCountrys'];
     title = json['title'];
     flag = json['flag'];
@@ -31,5 +35,22 @@ class Countries {
     data['phoneCode'] = this.phoneCode;
     data['active'] = this.active;
     return data;
+  }
+
+// get data from api
+
+  Future<List<CountriesModel>> GetData() async {
+    http.Response response;
+    response = await http.get(Uri.parse("https://10.0.2.2:7058/api/CountryControler/Countrys"));
+    if (response.statusCode == 200) {
+      var responseBody = response.body;
+      List<CountriesModel> countries=(jsonDecode(responseBody) as List)
+          .map((json) => CountriesModel.fromJson(json))
+          .toList();
+      return countries;
+    } else {
+      print(response.body);
+      throw Exception('Failed to fetch data');
+    }
   }
 }

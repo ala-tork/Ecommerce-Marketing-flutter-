@@ -140,7 +140,7 @@ class _AnounceDetailsState extends State<AnounceDetails> {
                     height: 310,
                     color: Colors.white,
                     child: Image.network(
-                      "${announce.imagePrinciple}",
+                      announce.imagePrinciple.toString(),
                       fit: BoxFit.cover,
                     ),
                   ),

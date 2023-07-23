@@ -1,12 +1,7 @@
 
-import 'dart:convert';
-import 'dart:developer';
-
 import 'package:ecommerceversiontwo/Pages/core/model/CategoryModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/CitiesModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/CountriesModel.dart';
-import 'package:http/http.dart' as http;
-import 'package:http/http.dart';
 
 
 
@@ -21,9 +16,9 @@ class AnnounceModel {
   int? idCateg;
   CategoriesModel? categories;
   int? idCountrys;
-  Countries? countries;
+  CountriesModel? countries;
   int? idCity;
-  Cities? cities;
+  CitiesModel? cities;
   String? locations;
   int? active;
   bool? like;
@@ -61,11 +56,11 @@ class AnnounceModel {
         : null;
     idCountrys = json['idCountrys'];
     countries = json['countries'] != null
-        ? new Countries.fromJson(json['countries'])
+        ? new CountriesModel.fromJson(json['countries'])
         : null;
     idCity = json['idCity'];
     cities =
-    json['cities'] != null ? new Cities.fromJson(json['cities']) : null;
+    json['cities'] != null ? new CitiesModel.fromJson(json['cities']) : null;
     locations = json['locations'];
     active = json['active'];
     like=false;

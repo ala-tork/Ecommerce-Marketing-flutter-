@@ -1,16 +1,19 @@
 import 'dart:convert';
 
 import 'package:ecommerceversiontwo/Pages/core/model/CategoryModel.dart';
+import 'package:ecommerceversiontwo/Pages/core/model/CitiesModel.dart';
+import 'package:ecommerceversiontwo/Pages/core/model/CountriesModel.dart';
+import 'package:ecommerceversiontwo/Pages/core/model/FeaturesModel.dart';
 import 'package:flutter/material.dart';
 import  'package:http/http.dart' as http;
 
 
 class FilterForm extends StatefulWidget {
-  final String? country;
+  final CountriesModel? country;
   final CategoriesModel? category;
   final double? minprice;
   final double? maxprice;
-  const FilterForm({super.key, this.country="AllCountrys", this.category, this.minprice, this.maxprice});
+  const FilterForm({super.key, this.country, this.category, this.minprice, this.maxprice});
 
   @override
   State<FilterForm> createState() => _FilterFormState();
@@ -21,56 +24,89 @@ class _FilterFormState extends State<FilterForm> {
   double _maxValue = 100;
   TextEditingController _minController = TextEditingController();
   TextEditingController _maxController = TextEditingController();
-  String? _country="All Countrys";
-  CategoriesModel? _category;
-
-  final _countrys=["All Countrys","tunisia","algeria","french"];
 
 
-  //final _categorys=["All Categorys","Clothes","Food","Drinks"];
 
+  // category variabales
   List<CategoriesModel> _categorys =[];
-
-  Future<List<CategoriesModel>> apicall() async {
-    http.Response response;
-    response = await http.get(Uri.parse("https://10.0.2.2:7058/api/CategoriesControler/GetAllCategories"));
-
-    if (response.statusCode == 200) {
-      List<CategoriesModel> categoryList = (jsonDecode(response.body) as List)
-          .map((json) => CategoriesModel.fromJson(json))
-          .toList();
-
-      return categoryList;
-    } else {
-      print(response.body);
-      throw Exception('Failed to fetch Categories');
-    }
-  }
-
+  CategoriesModel? _category;
+  int CategoryId=0;
   CategoriesModel? selectedCategory;
+  //country Variables
+  List<CountriesModel> _countrys=[];
+  CountriesModel? _country ;
+  int CountryId=0;
+  // city variables
+  List<CitiesModel> _cities=[];
+  CitiesModel? _city;
+  //features variables
+  List<FeaturesModel> _features=[];
+  FeaturesModel? _fiture;
 
 
   @override
   void initState()  {
     super.initState();
+    fetchCities(CountryId);
+    fetchCountries();
+    fetchFeatures(CategoryId);
     fetchData();
     _minValue= widget.minprice  as double;
     _maxValue= widget.maxprice as double ;
     _minController.text = _minValue.toStringAsFixed(2);
     _maxController.text = _maxValue.toStringAsFixed(2);
-    _country=widget.country.toString();
-    //_category=widget.category;
+    //_country=widget.country;
   }
+  /** fetch categorys */
   Future<void> fetchData() async {
     try {
-      List<CategoriesModel> categories = await apicall();
+      List<CategoriesModel> categories = await CategoriesModel().GetData();
       setState(() {
         _categorys = categories;
       });
+
     } catch (e) {
       print('Error fetching categories: $e');
     }
   }
+  /** fetch countrys */
+  Future<void> fetchCountries() async {
+    try {
+      List<CountriesModel> countries = await CountriesModel().GetData();
+      setState(() {
+        _countrys = countries;
+      });
+
+    } catch (e) {
+      print('Error fetching countrys: $e');
+    }
+  }
+  /** fetch Cities */
+  Future<void> fetchCities(int id) async {
+    try {
+      List<CitiesModel> cities = await CitiesModel().GetData(id);
+      setState(() {
+        _cities = cities;
+
+      });
+
+    } catch (e) {
+      print('Error fetching Cites: $e');
+    }
+  }
+
+  /** fetch Features */
+  Future<void> fetchFeatures(int idcateg) async {
+    try {
+      List<FeaturesModel> features = await FeaturesModel().GetData(idcateg);
+      setState(() {
+        _features = features;
+      });
+    } catch (e) {
+      print('Error fetching Features: $e');
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -88,7 +124,7 @@ class _FilterFormState extends State<FilterForm> {
                 child: Text("Price",style: TextStyle(fontSize: 20),),
               ),
 
-              //price slider
+              /** price slider*/
               RangeSlider(
                 values: RangeValues(_minValue, _maxValue),
                 min: 0,
@@ -102,7 +138,7 @@ class _FilterFormState extends State<FilterForm> {
                   });
                 },
               ),
-              // price box show
+              /** price box show*/
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
@@ -140,34 +176,67 @@ class _FilterFormState extends State<FilterForm> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  /** Countrys list */
                   Container(
-                    margin:EdgeInsets.fromLTRB(30, 30, 10, 40),
-                  decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey), // Add border color
-                  borderRadius: BorderRadius.circular(8), // Add border radius
-                  ),
-                  child:
-                  DropdownButton<String>(
-                    padding: EdgeInsets.symmetric(horizontal: 7),
-                    disabledHint: Text("countrys"),
-                      value: _country,
-                      items: _countrys.map((e) => DropdownMenuItem<String>(child: Text(e),value: e,)).toList(),
-                      onChanged:(val){
-                          setState(() {
-                            _country=val.toString();
-                          });
-                      },
-                    icon: Icon(Icons.map_outlined),
-                    iconEnabledColor: Colors.teal,
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18
+                    margin:EdgeInsets.fromLTRB(10, 30, 10, 40),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey),
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                    borderRadius: BorderRadius.circular(10),
+                    child: FutureBuilder<List<CountriesModel>>(
+                      future: CountriesModel().GetData(),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          return CircularProgressIndicator();
+                        } else if (snapshot.hasError) {
+                          return Text('Error: ${snapshot.error}');
+                        } else {
+                          //_countrys = snapshot.data!;
+
+                          //_country=_countrys![0];
+                          if (_countrys != null && _countrys!.isNotEmpty) {
+                            return Column(
+                              children: [
+
+                                Container(
+                                  child:DropdownButton(
+                                    padding: EdgeInsets.symmetric(horizontal: 7),
+                                    disabledHint: Text("Select Country"),
+                                    value: _country,
+                                    items: _countrys!.map((e) => DropdownMenuItem<CountriesModel>(
+                                      child:
+                                      Text(e.title.toString()
+                                      ),
+                                      value: e,)).toList(),
+
+                                    onChanged:(CountriesModel? val){
+                                      setState(() {
+                                        _country=val;
+                                        CountryId=int.parse(val!.idCountrys.toString());
+                                        fetchCities(CountryId);
+                                      });
+                                    },
+                                    icon: Icon(Icons.map_outlined),
+                                    iconEnabledColor: Colors.teal,
+                                    style: TextStyle(
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 18
+                                    ),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ), //
+                                ),
+                              ],
+                            );
+                          } else {
+                            return Text('No data available');
+                          }
+                        }
+                      },
+                    ),
                   ),
-                ),
                   SizedBox(width: 5,),
+                  /** Category list */
                   Container(
                     margin:EdgeInsets.fromLTRB(30, 30, 10, 40),
                     decoration: BoxDecoration(
@@ -178,7 +247,7 @@ class _FilterFormState extends State<FilterForm> {
                     Padding(
                       padding: const EdgeInsets.all(0),
                       child: FutureBuilder<List<CategoriesModel>>(
-                        future: apicall(),
+                        future: CategoriesModel().GetData(),
                         builder: (BuildContext context, AsyncSnapshot<List<CategoriesModel>> snapshot) {
                           if (snapshot.connectionState == ConnectionState.waiting) {
                             // Display a loading indicator while waiting for data
@@ -191,11 +260,13 @@ class _FilterFormState extends State<FilterForm> {
                               DropdownButton<CategoriesModel>(
                                 padding: EdgeInsets.symmetric(horizontal: 7),
                                 disabledHint: Text("Categorys"),
-                                value: _category!=null?_category:_categorys[1],
+                                value: _category,
                                 items: _categorys.map((e) => DropdownMenuItem<CategoriesModel>(child: Text(e.title.toString()),value: e,)).toList(),
                                 onChanged:(CategoriesModel? x){
                                   setState(() {
                                     _category=x;
+                                    CategoryId=int.parse(x!.idCateg.toString());
+                                    fetchFeatures(CategoryId);
                                   });
                                 },
                                 icon: Icon(Icons.category_outlined),
@@ -212,28 +283,74 @@ class _FilterFormState extends State<FilterForm> {
                         },
                       ),
                     ),
-                    /*DropdownButton<CategoriesModel>(
-                      padding: EdgeInsets.symmetric(horizontal: 7),
-                      disabledHint: Text("Categorys"),
-                      value: selectedCategory,
-                      items: _categorys.map((e) => DropdownMenuItem<CategoriesModel>(child: Text(e.title.toString()),value: e,)).toList(),
-                      onChanged:(CategoriesModel? x){
-                        setState(() {
-                          selectedCategory=x;
-                        });
-                      },
-                      icon: Icon(Icons.category_outlined),
-                      iconEnabledColor: Colors.teal,
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18
-                      ),
-                      borderRadius: BorderRadius.circular(10),
-                    ),*/
                   ),
                 ],
               ),
+              CountryId != 0 || CategoryId!=0?
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if(CategoryId!=0)
+                  /** Cities list */
+                  Container(
+                    margin:EdgeInsets.fromLTRB(10, 30, 10, 40),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: FutureBuilder<List<CitiesModel>>(
+                      future: CitiesModel().GetData(CountryId),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          return CircularProgressIndicator();
+                        } else if (snapshot.hasError) {
+                          return Text('Error: ${snapshot.error}');
+                        } else {
+                          print(_cities);
+                          //_countrys = snapshot.data!;
+
+                          //_country=_countrys![0];
+                          if (_cities.length!=0&& _cities!.isNotEmpty) {
+                            return Column(
+                              children: [
+
+                                Container(
+                                  child:DropdownButton(
+                                    padding: EdgeInsets.symmetric(horizontal: 7),
+                                    disabledHint: Text("Select Cities"),
+                                    value: _city,
+                                    items: _cities!.map((e) => DropdownMenuItem<CitiesModel>(
+                                      child:
+                                      Text(e.title.toString()
+                                      ),
+                                      value: e,)).toList(),
+
+                                    onChanged:(CitiesModel? city){
+                                      setState(() {
+                                        _city=city;
+                                      });
+                                    },
+                                    icon: Icon(Icons.map_outlined),
+                                    iconEnabledColor: Colors.teal,
+                                    style: TextStyle(
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 18
+                                    ),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ), //
+                                ),
+                              ],
+                            );
+                          } else {
+                            return Text('No data available');
+                          }
+                        }
+                      },
+                    ),
+                  ),
+                ],
+              ):SizedBox(height: 0,),
               //end drop down buttons
               SizedBox(height: 50,),
               Row(
@@ -242,7 +359,7 @@ class _FilterFormState extends State<FilterForm> {
                   ElevatedButton(
                     onPressed: () {
                       Navigator.pop(
-                          context,{'country':_country,'category':_category,'minprice':_minValue,'maxprice':_maxValue}
+                          context,{'country':_country,'category':_category,'city':_city,'minprice':_minValue,'maxprice':_maxValue}
                       );
                     },
                     style: ElevatedButton.styleFrom(

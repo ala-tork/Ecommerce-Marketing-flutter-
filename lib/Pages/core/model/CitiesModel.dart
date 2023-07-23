@@ -1,19 +1,21 @@
 import 'package:ecommerceversiontwo/Pages/core/model/CountriesModel.dart';
+import  'package:http/http.dart' as http;
+import 'dart:convert';
 
-class Cities {
+class CitiesModel {
   int? idCity;
   String? title;
   int? idCountry;
-  Countries? countries;
+  CountriesModel? countries;
 
-  Cities({this.idCity, this.title, this.idCountry, this.countries});
+  CitiesModel({this.idCity, this.title, this.idCountry, this.countries});
 
-  Cities.fromJson(Map<String, dynamic> json) {
+  CitiesModel.fromJson(Map<String, dynamic> json) {
     idCity = json['idCity'];
     title = json['title'];
     idCountry = json['idCountry'];
     countries = json['countries'] != null
-        ? new Countries.fromJson(json['countries'])
+        ? new CountriesModel.fromJson(json['countries'])
         : null;
   }
 
@@ -26,5 +28,21 @@ class Cities {
       data['countries'] = this.countries?.toJson();
     }
     return data;
+  }
+
+// get cities data by country id
+  Future<List<CitiesModel>> GetData(int countryId) async {
+    http.Response response;
+    response = await http.get(Uri.parse("https://10.0.2.2:7058/api/CitiesControler/$countryId"));
+    if (response.statusCode == 200) {
+      List<CitiesModel> citiesList = (jsonDecode(response.body) as List)
+          .map((json) => CitiesModel.fromJson(json))
+          .toList();
+      //print(response.body);
+      return citiesList;
+    } else {
+      print(response.body);
+      throw Exception('Failed to fetch Cities');
+    }
   }
 }
