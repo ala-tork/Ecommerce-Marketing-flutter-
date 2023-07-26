@@ -59,4 +59,17 @@ class CategoriesModel {
       throw Exception('Failed to fetch Categories');
     }
   }
+  Future<CategoriesModel> GetCategoryById( int id) async {
+    http.Response response;
+    response = await http.get(Uri.parse("https://10.0.2.2:7058/api/CategoriesControler/$id"));
+    print(response.body);
+    if (response.statusCode == 200) {
+      CategoriesModel categ = (jsonDecode(response.body));
+
+      return categ;
+    } else {
+      print(response.body);
+      throw Exception('Failed to fetch Categorie by ID');
+    }
+  }
 }

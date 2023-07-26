@@ -2,7 +2,9 @@
 import 'package:ecommerceversiontwo/Pages/core/model/CategoryModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/CitiesModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/CountriesModel.dart';
-
+import 'package:ecommerceversiontwo/Pages/core/model/CreateAnnounceModel.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 
 class AnnounceModel {
@@ -91,78 +93,29 @@ class AnnounceModel {
     data['active'] = this.active;
     return data;
   }
+
+  Future<bool> deleteData(int id) async {
+    final String apiUrl = "https://10.0.2.2:7058/api/Ads?id=$id";
+
+    try {
+      final response = await http.delete(Uri.parse(apiUrl),);
+
+      if (response.statusCode == 200) {
+
+        return true;
+      } else {
+        print("Failed to delete Ads. Status code: ${response.statusCode}");
+        return false;
+      }
+    } catch (e) {
+      print("Error deleting item: $e");
+      return false;
+    }
+  }
+
+
+
 }
 
 
 
-/*class AnnounceModel{
-  int? id;
-  String? title;
-  String? description;
-  String? details;
-  double? price;
-  String? images;
-  String? videoName;
-  bool? boosted;
-  DateTime? datepub;
-  int? idCategorei;
-  int?  iduser;
-  int? idpays;
-  int? idcity;
-  int? Active;
-  String? Location;
-  bool? like;
-
-  AnnounceModel({
-    this.id,
-    this.title,
-    this.description,
-    this.details,
-    this.price,
-    this.images,
-    this.boosted,
-    this.datepub,
-    this.idCategorei,
-    this.iduser,
-    this.idpays,
-    this.idcity,
-    this.Active,
-    this.like,
-    this.Location,
-  });
-
-  AnnounceModel.fromJson(Map<String, dynamic> json) {
-    id = json['idAds'];
-    title = json['title'];
-    description = json['description'];
-    details = json['details'];
-    price = json['price'].toDouble();
-    images = json['imagePrinciple'];
-    videoName = json['videoName'];
-    idCategorei = json['idCateg'];
-    idpays = json['idCountrys'];
-    idcity = json['idCity'];
-    Location = json['locations'];
-    Active = json['active'];
-    like=false;
-    boosted=false;
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['idAds'] = this.id;
-    data['title'] = this.title;
-    data['description'] = this.description;
-    data['details'] = this.details;
-    data['price'] = this.price;
-    data['imagePrinciple'] = this.images;
-    data['videoName'] = this.videoName;
-    data['idCateg'] = this.idCategorei;
-    data['idCountrys'] = this.idpays;
-    data['idCity'] = this.idcity;
-    data['locations'] = this.Location;
-    data['active'] = this.Active;
-    return data;
-  }
-
-}*/

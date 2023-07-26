@@ -68,7 +68,7 @@ class _GridBState extends State<GridB> {
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(16),
                     image: DecorationImage(
-                        image: NetworkImage(gridMap[index].imagePrinciple), fit: BoxFit.cover),
+                        image: NetworkImage("https://10.0.2.2:7058"+gridMap[index].imagePrinciple), fit: BoxFit.cover),
                   ),
                 ),
                 // item details

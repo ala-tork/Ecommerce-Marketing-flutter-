@@ -41,8 +41,8 @@ class _ImageViewerState extends State<ImageViewer> {
                   (index) => Container(
                 width: MediaQuery.of(context).size.width,
                 height: MediaQuery.of(context).size.height,
-                child: Image.asset(
-                  widget.imageUrl[index],
+                child: Image.network(
+                  "https://10.0.2.2:7058"+widget.imageUrl[index],
                   fit: BoxFit.contain,
                 ),
               ),

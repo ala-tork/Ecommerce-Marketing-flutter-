@@ -39,6 +39,8 @@ class _HomePageState extends State<HomePage> {
     AdsModel(title:"ITIWIT",shortDescription:"CANOE KAYAK CONFORTABLE",price:1890,ImagePrinciple : "assets/images/Announces/deals1.png"),
     AdsModel(title:"OLAIAN",shortDescription:"SURFER BOARDSHORT",price:50,ImagePrinciple : "assets/images/Announces/deals2.png"),
     AdsModel(title:"SUBEA",shortDescription:"CHAUSSURES ELASTIQUE ADULTE",price:50,ImagePrinciple :"assets/images/Announces/deals3.png"),
+    AdsModel(title:"SUBEA",shortDescription:"CHAUSSURES ELASTIQUE ADULTE",price:50,ImagePrinciple :"assets/images/Announces/deals3.png"),
+
   ];
 
   late Timer flashsaleCountdownTimer;
@@ -442,6 +444,7 @@ class _HomePageState extends State<HomePage> {
             ]
             ),
             SizedBox(height: 20,),
+            //Image.network("https://10.0.2.2:7058/Assets/images/e64b8a5f-a7d6-478b-aaef-e2444b72d894_pc.jpeg"),
 
             /** end filter and search & show filters section* */
 
@@ -536,7 +539,8 @@ class _HomePageState extends State<HomePage> {
             ),
           ],
         ),
-      ]),
+      ]
+      ),
 
     );
   }

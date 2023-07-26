@@ -11,6 +11,7 @@ import 'package:ecommerceversiontwo/Pages/core/model/CountriesModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/CreateAnnounceModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/FeaturesModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/FeaturesValuesModel.dart';
+import 'package:ecommerceversiontwo/Pages/core/model/ImageModel.dart';
 import 'package:flutter/material.dart';
 import 'package:form_builder_image_picker/form_builder_image_picker.dart';
 import 'package:image_picker/image_picker.dart';
@@ -67,12 +68,13 @@ class _AddAnnouncesState extends State<AddAnnounces> {
 
     if(title.toString().isNotEmpty && description.toString().isNotEmpty &&
         (details!=null && details.text.length!=0) && price.toString().isNotEmpty
-        && CategoryId!=0 && _country!=null  && _city!=null ){
+        && CategoryId!=0 && _country!=null  && _city!=null && _imagesid.length!=0 ){
       announce = CreateAnnounce(
         title: title.text,
         description: description.text,
         details: details.text,
         price: int.parse(price.text),
+        imagePrinciple: _imagesid[0].title,
         idCateg: CategoryId,
         idCountrys: _country!.idCountrys!,
         idCity: _city!.idCity!,
@@ -108,13 +110,13 @@ class _AddAnnouncesState extends State<AddAnnounces> {
 //pick the image
   //image picker
   List<File> _image = [];
-  List<int> _imagesid=[];
+  List<ImageModel> _imagesid=[];
 
   Future getImage(source) async{
     final image = await ImagePicker().pickImage(source: source);
     if (image==null) return ;
     final imageTemporary = File(image.path);
-    int response = await CreateAnnounce().AddImage(imageTemporary);
+    ImageModel response = await ImageModel().addImage(imageTemporary);
     // Handle the response as needed
     print(response);
     setState(() {
@@ -131,8 +133,8 @@ class _AddAnnouncesState extends State<AddAnnounces> {
     Map<String, dynamic> response = await an.createAd(announce!);
     // Handle the response as needed
     print(response);
+    //save features values
     var x =AnnounceModel.fromJson(response);
-
     List<ListFeaturesFeatureValues> lfv = getFeatures();
     print(lfv);
     if(lfv!=null && lfv.length!=0){
@@ -144,9 +146,12 @@ class _AddAnnouncesState extends State<AddAnnounces> {
         //print(fvres);
       });
     }
+    print("//////////////////////// : ${_imagesid!.length}");
+    print("//////////////////////// : ${_imagesid[0].IdImage}");
     //update the images
     for(var i=0;i<_imagesid!.length;i++){
-      await CreateAnnounce().UpdateImages(_imagesid[i], int.parse(x.idAds.toString()));
+      print(int.parse(_imagesid[i].IdImage.toString()));
+      await ImageModel().UpdateImages(int.parse(_imagesid[i].IdImage.toString()), int.parse(x.idAds.toString()));
     }
   }
 
@@ -715,9 +720,10 @@ class _AddAnnouncesState extends State<AddAnnounces> {
                                   btnOkOnPress: (){}
                               ).show();
                             }else{
-                              Map<String, dynamic> adData = announce!.toJson();
-                              print(adData);;
+                              //Map<String, dynamic> adData = announce!.toJson();
+                              //print(adData);
                               sendAdToApi();
+                              Navigator.pop(context);
                             }
                           },
                           child: Text("Add Annonces",style: TextStyle(fontSize: 20),),
