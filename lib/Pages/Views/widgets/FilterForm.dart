@@ -3,7 +3,9 @@ import 'dart:convert';
 import 'package:ecommerceversiontwo/Pages/core/model/CategoryModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/CitiesModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/CountriesModel.dart';
+import 'package:ecommerceversiontwo/Pages/core/model/CreateAnnounceModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/FeaturesModel.dart';
+import 'package:ecommerceversiontwo/Pages/core/model/FeaturesValuesModel.dart';
 import 'package:flutter/material.dart';
 import  'package:http/http.dart' as http;
 
@@ -28,7 +30,7 @@ class _FilterFormState extends State<FilterForm> {
 
 
   // category variabales
-  List<CategoriesModel> _categorys =[];
+ /* List<CategoriesModel> _categorys =[];
   CategoriesModel? _category;
   int CategoryId=0;
   CategoriesModel? selectedCategory;
@@ -41,22 +43,68 @@ class _FilterFormState extends State<FilterForm> {
   CitiesModel? _city;
   //features variables
   List<FeaturesModel> _features=[];
-  FeaturesModel? _fiture;
+  FeaturesModel? _fiture;*/
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+  // category variabales
+  List<CategoriesModel> _categorys =[];
+  CategoriesModel? _category;
+  int CategoryId=0;
+  CategoriesModel? selectedCategory;
 
 
-  @override
+  //country Variables
+  List<CountriesModel> _countrys=[];
+  CountriesModel? _country ;
+  int CountryId=0;
+
+  // city variables
+  List<CitiesModel> _cities=[];
+  CitiesModel? _city;
+
+  //features variables
+  List<FeaturesModel> _features=[];
+  FeaturesModel? _feature;
+  int FeatureId=0;
+  int indexOfFeature=0;
+
+  //FeaturesValues variables
+  List<FeaturesValuesModel> _featuresValues=[];
+  FeaturesValuesModel? _featurevalue;
+
+
+
+
+  // get the features of the announce
+  List<ListFeaturesFeatureValues> getFeatures() {
+
+    List<ListFeaturesFeatureValues> lst = [];
+    _features.forEach((f) {
+      if (f.selected == true && f.value != null) {
+        ListFeaturesFeatureValues lfv = ListFeaturesFeatureValues(
+          featureId: int.parse(f.idF.toString()),
+          featureValueId: int.parse(f.value.toString()),
+        );
+        lst.add(lfv);
+      }
+    });
+    return lst;
+  }
+
+
+
+
+ /* @override
   void initState()  {
     super.initState();
     fetchCities(CountryId);
     fetchCountries();
     fetchFeatures(CategoryId);
+    fetchFeaturesValues(FeatureId);
     fetchData();
-    _minValue= widget.minprice  as double;
-    _maxValue= widget.maxprice as double ;
-    _minController.text = _minValue.toStringAsFixed(2);
-    _maxController.text = _maxValue.toStringAsFixed(2);
+
     //_country=widget.country;
-  }
+  }*/
+
   /** fetch categorys */
   Future<void> fetchData() async {
     try {
@@ -106,6 +154,41 @@ class _FilterFormState extends State<FilterForm> {
       print('Error fetching Features: $e');
     }
   }
+
+  /** fetch Features Values */
+  Future<void> fetchFeaturesValues(int idfeature) async {
+    try {
+      List<FeaturesValuesModel> featuresValues = await FeaturesValuesModel().GetData(idfeature);
+      setState(() {
+        _featuresValues = featuresValues;
+        if(_features[indexOfFeature].selected==true){
+          _features[indexOfFeature].valuesList=_featuresValues;
+        }else{
+          _features[indexOfFeature].valuesList=[];
+        }
+
+      });
+      //print(featuresValues);
+    } catch (e) {
+      print('Error fetching Features Values : $e');
+    }
+  }
+
+  @override
+  void initState()  {
+    super.initState();
+    fetchCities(CountryId);
+    fetchCountries();
+    fetchFeatures(CategoryId);
+    fetchFeaturesValues(FeatureId);
+    fetchData();
+    _minValue= widget.minprice  as double;
+    _maxValue= widget.maxprice as double ;
+    _minController.text = _minValue.toStringAsFixed(2);
+    _maxController.text = _maxValue.toStringAsFixed(2);
+    //_country=widget.country;
+  }
+
 
 
   @override
@@ -172,13 +255,13 @@ class _FilterFormState extends State<FilterForm> {
 
               SizedBox(height: 20,),
 
-              //country list
+              /** country and city*/
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   /** Countrys list */
                   Container(
-                    margin:EdgeInsets.fromLTRB(10, 30, 10, 40),
+                    margin:EdgeInsets.fromLTRB(10, 30, 10, 0),
                     decoration: BoxDecoration(
                       border: Border.all(color: Colors.grey),
                       borderRadius: BorderRadius.circular(8),
@@ -202,7 +285,7 @@ class _FilterFormState extends State<FilterForm> {
                                   child:DropdownButton(
                                     padding: EdgeInsets.symmetric(horizontal: 7),
                                     disabledHint: Text("Select Country"),
-                                    value: _country,
+                                    value: _country!=null?_country:_countrys[0],
                                     items: _countrys!.map((e) => DropdownMenuItem<CountriesModel>(
                                       child:
                                       Text(e.title.toString()
@@ -217,7 +300,7 @@ class _FilterFormState extends State<FilterForm> {
                                       });
                                     },
                                     icon: Icon(Icons.map_outlined),
-                                    iconEnabledColor: Colors.teal,
+                                    iconEnabledColor: Colors.indigo,
                                     style: TextStyle(
                                         color: Colors.black,
                                         fontWeight: FontWeight.bold,
@@ -235,13 +318,78 @@ class _FilterFormState extends State<FilterForm> {
                       },
                     ),
                   ),
-                  SizedBox(width: 5,),
-                  /** Category list */
+                  /** Cities list */
+                  if(CountryId!=0 && _cities.isNotEmpty)
+                    Container(
+                      margin:EdgeInsets.fromLTRB(10, 30, 10, 0),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: FutureBuilder<List<CitiesModel>>(
+                        future: CitiesModel().GetData(CountryId),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState == ConnectionState.waiting) {
+                            return CircularProgressIndicator();
+                          } else if (snapshot.hasError) {
+                            return Text('Error: ${snapshot.error}');
+                          } else {
+                            //print(_cities);
+                            //_countrys = snapshot.data!;
+
+                            //_country=_countrys![0];
+                            if (_cities.length!=0&& _cities!.isNotEmpty) {
+                              return Column(
+                                children: [
+
+                                  Container(
+                                    child:DropdownButton(
+                                      padding: EdgeInsets.symmetric(horizontal: 7),
+                                      disabledHint: Text("Select Cities"),
+                                      value: _city!=null?_city:_cities[0],
+                                      items: _cities!.map((e) => DropdownMenuItem<CitiesModel>(
+                                        child:
+                                        Text(e.title.toString()
+                                        ),
+                                        value: e,)).toList(),
+
+                                      onChanged:(CitiesModel? city){
+                                        setState(() {
+                                          _city=city;
+                                        });
+                                      },
+                                      icon: Icon(Icons.map_outlined),
+                                      iconEnabledColor: Colors.indigo,
+                                      style: TextStyle(
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 18
+                                      ),
+                                      borderRadius: BorderRadius.circular(10),
+                                    ), //
+                                  ),
+                                ],
+                              );
+                            } else {
+                              return Text('No data available');
+                            }
+                          }
+                        },
+                      ),
+                    ),
+                ],
+              ),
+
+              /** Category && Features */
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
                   Container(
-                    margin:EdgeInsets.fromLTRB(30, 30, 10, 40),
+                    margin:EdgeInsets.fromLTRB(10, 30, 10, 0),
                     decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey), // Add border color
-                      borderRadius: BorderRadius.circular(8), // Add border radius
+                      border: Border.all(color: Colors.grey),
+                      borderRadius: BorderRadius.circular(8),
                     ),
                     child:/** dropdown list of categorys **/
                     Padding(
@@ -260,7 +408,7 @@ class _FilterFormState extends State<FilterForm> {
                               DropdownButton<CategoriesModel>(
                                 padding: EdgeInsets.symmetric(horizontal: 7),
                                 disabledHint: Text("Categorys"),
-                                value: _category,
+                                value: _category!=null?_category:_categorys[0],
                                 items: _categorys.map((e) => DropdownMenuItem<CategoriesModel>(child: Text(e.title.toString()),value: e,)).toList(),
                                 onChanged:(CategoriesModel? x){
                                   setState(() {
@@ -270,7 +418,7 @@ class _FilterFormState extends State<FilterForm> {
                                   });
                                 },
                                 icon: Icon(Icons.category_outlined),
-                                iconEnabledColor: Colors.teal,
+                                iconEnabledColor: Colors.indigo,
                                 style: TextStyle(
                                     color: Colors.black,
                                     fontWeight: FontWeight.bold,
@@ -283,74 +431,76 @@ class _FilterFormState extends State<FilterForm> {
                         },
                       ),
                     ),
+
                   ),
+                ],
+              ),SizedBox(height: 20,),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  if (CategoryId != 0 && _features.isNotEmpty)
+                  /** features list */
+                    ..._features.asMap().entries.map((entry) {
+                      int index = entry.key;
+                      FeaturesModel f = entry.value;
+                      return Column(
+                        children: [
+                          SizedBox(width: 10),
+                          Text(
+                            f.title.toString(),
+                            style: TextStyle(fontSize: 17.0),
+                          ),
+                          SizedBox(width: 3),
+                          Checkbox(
+                            value: f.selected,
+                            onChanged: (x) {
+                              setState(() {
+                                //print(_features[0].valuesList);
+                                f.selected = x as bool;
+                                indexOfFeature=index;
+                                FeatureId=int.parse(f.idF.toString());
+                                fetchFeaturesValues(FeatureId);
+                              });
+                            },
+                          ),
+                          if(f.valuesList!.isNotEmpty)
+                            ...f.valuesList!.map((fv) =>
+                                Column(
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      children: [
+                                        Container(
+                                          height:30,
+                                          width:150,
+                                          child:
+                                          RadioListTile(
+                                            title: Text(fv.title.toString()),
+                                            value: fv.idFv,
+                                            groupValue: f.value,
+                                            onChanged: (value){
+                                              setState(() {
+                                                f.value=value;
+                                                print(f.value);
+                                              });
+                                            },
+                                          ),
+                                        ),
+
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                            ).toList(),
+                          SizedBox(height: 10,)
+                        ],
+                      );
+                    }).toList(),
+                  SizedBox(width: 10),
                 ],
               ),
-              CountryId != 0 || CategoryId!=0?
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  if(CategoryId!=0)
-                  /** Cities list */
-                  Container(
-                    margin:EdgeInsets.fromLTRB(10, 30, 10, 40),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: FutureBuilder<List<CitiesModel>>(
-                      future: CitiesModel().GetData(CountryId),
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.waiting) {
-                          return CircularProgressIndicator();
-                        } else if (snapshot.hasError) {
-                          return Text('Error: ${snapshot.error}');
-                        } else {
-                          print(_cities);
-                          //_countrys = snapshot.data!;
-
-                          //_country=_countrys![0];
-                          if (_cities.length!=0&& _cities!.isNotEmpty) {
-                            return Column(
-                              children: [
-
-                                Container(
-                                  child:DropdownButton(
-                                    padding: EdgeInsets.symmetric(horizontal: 7),
-                                    disabledHint: Text("Select Cities"),
-                                    value: _city,
-                                    items: _cities!.map((e) => DropdownMenuItem<CitiesModel>(
-                                      child:
-                                      Text(e.title.toString()
-                                      ),
-                                      value: e,)).toList(),
-
-                                    onChanged:(CitiesModel? city){
-                                      setState(() {
-                                        _city=city;
-                                      });
-                                    },
-                                    icon: Icon(Icons.map_outlined),
-                                    iconEnabledColor: Colors.teal,
-                                    style: TextStyle(
-                                        color: Colors.black,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 18
-                                    ),
-                                    borderRadius: BorderRadius.circular(10),
-                                  ), //
-                                ),
-                              ],
-                            );
-                          } else {
-                            return Text('No data available');
-                          }
-                        }
-                      },
-                    ),
-                  ),
-                ],
-              ):SizedBox(height: 0,),
               //end drop down buttons
               SizedBox(height: 50,),
               Row(

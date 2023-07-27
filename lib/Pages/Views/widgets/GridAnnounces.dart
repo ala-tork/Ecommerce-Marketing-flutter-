@@ -16,7 +16,7 @@ class _GridBState extends State<GridB> {
   void initState() {
     // TODO: implement initState
     gridMap = widget.data;
-    //print(gridMap);
+    print(gridMap[0].title);
     super.initState();
   }
   @override

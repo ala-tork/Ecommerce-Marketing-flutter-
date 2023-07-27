@@ -4,8 +4,10 @@ import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/searchPage.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/FilterForm.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/dummy_search_widget1.dart';
+import 'package:ecommerceversiontwo/Pages/core/model/AdsFilterModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/AnnounceModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/CategoryModel.dart';
+import 'package:ecommerceversiontwo/Pages/core/model/CitiesModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/CountriesModel.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -27,6 +29,7 @@ class _AnnouncesState extends State<Announces> {
 
   CountriesModel? country;
   CategoriesModel? category;
+  CitiesModel? city;
   double minprice=0;
   double maxprice=100;
 
@@ -34,7 +37,7 @@ class _AnnouncesState extends State<Announces> {
     int MaxPage =0;
     int page=0;
 
-
+/*
   Future<List<AnnounceModel>> apicall() async {
     print(page);
     http.Response response, nbads,resCateg;
@@ -57,7 +60,48 @@ class _AnnouncesState extends State<Announces> {
       print(response.body);
       throw Exception('Failed to fetch data');
     }
+  }*/
+
+  Future<List<AnnounceModel>> apicall() async {
+    AdsFilterModel adsFilter = AdsFilterModel(pageNumber: page, idFeaturesValues: []);
+    if (country != null) {
+      adsFilter.idCountrys = country!.idCountrys;
+    }
+    if (category != null) {
+      adsFilter.idCategory = category!.idCateg;
+    }
+    if (city != null) {
+      adsFilter.idCity = city!.idCity;
+    }
+
+    try {
+      Map<String, dynamic> response = await adsFilter.getFilteredAds(adsFilter);
+
+      if (response["ads"] != null) {
+        List<dynamic> adsJsonList = response["ads"];
+        gridMap.addAll(adsJsonList
+            .map((json) => AnnounceModel.fromJson(json))
+            .toList());
+
+        print(gridMap[0].title);
+
+        //nbr Page
+        int x = response["totalItems"];
+        MaxPage = x ~/ 4;
+        if (x % 4 > 0) {
+          MaxPage += 1;
+        }
+        return gridMap;
+      } else {
+        print(response["ads"]);
+        throw Exception('Failed to fetch Ads');
+      }
+    } catch (e) {
+      print('Error: $e');
+      throw Exception('An error occurred: $e');
+    }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -171,8 +215,10 @@ class _AnnouncesState extends State<Announces> {
                             setState(() {
                               country = (value as Map)['country'];
                               category = (value as Map)['category'];
+                              city = (value as Map)['city'];
                               minprice = (value as Map)['minprice'];
                               maxprice = (value as Map)['maxprice'];
+                              gridMap=[];
                             });
 
                           });
@@ -188,13 +234,14 @@ class _AnnouncesState extends State<Announces> {
             country!=null||category!=null||minprice!=0||maxprice!=100? Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                country!.idCountrys!=null?
+                country!=null?
                 ElevatedButton(
 
                   onPressed: () {
                     setState(() {
                       CountriesModel? p;
                       country=p;
+                      gridMap=[];
                     });
                   },
                   style: ElevatedButton.styleFrom(
@@ -218,8 +265,8 @@ class _AnnouncesState extends State<Announces> {
                 ElevatedButton(
                   onPressed: () {
                     setState(() {
-                      CategoriesModel? c;
-                      category=c;
+                      category=null;
+                      gridMap=[];
                     });
                   },
                   style: ElevatedButton.styleFrom(
@@ -248,6 +295,7 @@ class _AnnouncesState extends State<Announces> {
                   onPressed: () {
                     setState(() {
                       minprice=0;
+                      gridMap=[];
                     });
                   },
                   style: ElevatedButton.styleFrom(
@@ -273,6 +321,7 @@ class _AnnouncesState extends State<Announces> {
                   onPressed: () {
                     setState(() {
                       maxprice=100;
+                      gridMap=[];
                     });
                   },
                   style: ElevatedButton.styleFrom(
@@ -311,7 +360,7 @@ class _AnnouncesState extends State<Announces> {
                       Column(
                       children: [
                         GridB(data: gridMap),
-                        gridMap.length != 0 && page<MaxPage-1?
+                        gridMap.length != 0 && page<MaxPage?
                         ElevatedButton(
                             onPressed: () async {
                               if (page < MaxPage) {
