@@ -37,7 +37,7 @@ class _HomePageState extends State<HomePage> {
   //slide show variable
   List ad = [
     AdsModel(title:"ITIWIT",shortDescription:"CANOE KAYAK CONFORTABLE",price:1890,ImagePrinciple : "assets/images/Announces/deals1.png"),
-    AdsModel(title:"OLAIAN",shortDescription:"SURFER BOARDSHORT",price:50,ImagePrinciple : "assets/images/Announces/deals2.png"),
+    AdsModel(title:"OLAIAN",shortDescription:"SURFER BOARDSHORT",price:350,ImagePrinciple : "assets/images/Announces/deals2.png"),
     AdsModel(title:"SUBEA",shortDescription:"CHAUSSURES ELASTIQUE ADULTE",price:50,ImagePrinciple :"assets/images/Announces/deals3.png"),
     AdsModel(title:"SUBEA",shortDescription:"CHAUSSURES ELASTIQUE ADULTE",price:50,ImagePrinciple :"assets/images/Announces/deals3.png"),
 

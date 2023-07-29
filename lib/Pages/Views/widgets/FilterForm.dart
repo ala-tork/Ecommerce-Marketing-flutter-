@@ -211,7 +211,7 @@ class _FilterFormState extends State<FilterForm> {
               RangeSlider(
                 values: RangeValues(_minValue, _maxValue),
                 min: 0,
-                max: 100,
+                max: 10000,
                 onChanged: (values) {
                   setState(() {
                     _minValue = values.start;

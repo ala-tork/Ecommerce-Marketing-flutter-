@@ -20,7 +20,7 @@ class _MyAnnouncesState extends State<MyAnnounces> {
   int page = 0;
 
 //get all announces by user
-  Future<List<AnnounceModel>> apicall(int iduser) async {
+  Future<List<AnnounceModel>> apicall(int iduser ) async {
     print(page);
     http.Response response, nbads;
     response = await http.get(Uri.parse(
@@ -278,8 +278,13 @@ class _MyAnnouncesState extends State<MyAnnounces> {
                               if (page < MaxPage) {
                                 setState(() {
                                   page = page + 1;
+                                  apicall(1).then((data) {
+                                    setState(() {
+                                      announces = data;
+                                    });
+                                  });
                                 });
-                                //await apicall();
+
                               }
                             },
                             child: Text("Show More"),

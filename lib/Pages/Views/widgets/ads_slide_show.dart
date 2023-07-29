@@ -15,12 +15,6 @@ class AdsSlideShow extends StatelessWidget {
           elevation: 0,
           color: Colors.white,
           borderOnForeground: true,
-          /*shape: RoundedRectangleBorder(
-              side: BorderSide(
-                color: Colors.black.withOpacity(0.20),
-              ),
-              borderRadius: BorderRadius.circular(15.0)
-          ),*/
           child: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -29,7 +23,7 @@ class AdsSlideShow extends StatelessWidget {
                   height: 160,
                   decoration: BoxDecoration(
                     image: DecorationImage(
-                      image: AssetImage(adsShow.ImagePrinciple), // Replace with your image path
+                      image: AssetImage(adsShow.ImagePrinciple),
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -51,17 +45,6 @@ class AdsSlideShow extends StatelessWidget {
                           ),
                         ),
                       ),
-                      /*
-                              Align(
-                                alignment: Alignment.centerRight,
-                                child:Text(
-                                  '${annonces[index]["datepub"]}',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              )*/
                     ],
                   ),
                 ),

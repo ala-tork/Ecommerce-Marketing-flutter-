@@ -31,38 +31,13 @@ class _AnnouncesState extends State<Announces> {
   CategoriesModel? category;
   CitiesModel? city;
   double minprice=0;
-  double maxprice=100;
+  double maxprice=0;
+  List<AnnounceModel> gridMap = [];
+  int MaxPage =0;
+  int page=1;
 
-    List<AnnounceModel> gridMap = [];
-    int MaxPage =0;
-    int page=0;
 
-/*
-  Future<List<AnnounceModel>> apicall() async {
-    print(page);
-    http.Response response, nbads,resCateg;
-    response = await http.get(Uri.parse("https://10.0.2.2:7058/api/Ads/ShowMore?page=${page}"));
-    nbads = await http.get(Uri.parse("https://10.0.2.2:7058/api/Ads/NbrAds"));
-    if (response.statusCode == 200) {
-      var responseBody = response.body;
-      gridMap.addAll((jsonDecode(responseBody) as List)
-          .map((json) => AnnounceModel.fromJson(json))
-          .toList());
-      //nbr Page
-      int x = int.parse(nbads.body);
-      MaxPage = x ~/ 4;
-      if (x % 4 > 0) {
-        MaxPage += 1;
-      }
-      //print(MaxPage);
-      return gridMap;
-    } else {
-      print(response.body);
-      throw Exception('Failed to fetch data');
-    }
-  }*/
-
-  Future<List<AnnounceModel>> apicall() async {
+/*  Future<List<AnnounceModel>> apicall() async {
     AdsFilterModel adsFilter = AdsFilterModel(pageNumber: page, idFeaturesValues: []);
     if (country != null) {
       adsFilter.idCountrys = country!.idCountrys;
@@ -91,6 +66,58 @@ class _AnnouncesState extends State<Announces> {
         if (x % 4 > 0) {
           MaxPage += 1;
         }
+        return gridMap;
+      } else {
+        print(response["ads"]);
+        throw Exception('Failed to fetch Ads');
+      }
+    } catch (e) {
+      print('Error: $e');
+      throw Exception('An error occurred: $e');
+    }
+  }*/
+
+  Future<List<AnnounceModel>> apicall() async {
+    AdsFilterModel adsFilter = AdsFilterModel(pageNumber: page, idFeaturesValues: []);
+    if (country != null) {
+      adsFilter.idCountrys = country!.idCountrys;
+    }
+    if (category != null) {
+      adsFilter.idCategory = category!.idCateg;
+    }
+    if (city != null) {
+      adsFilter.idCity = city!.idCity;
+    }
+    if(minprice!=0 || maxprice!=0)
+      {
+        adsFilter.minPrice=minprice;
+        adsFilter.maxPrice=maxprice;
+      }
+
+    try {
+      Map<String, dynamic> response = await adsFilter.getFilteredAds(adsFilter);
+
+      if (response["ads"] != null) {
+        List<dynamic> adsJsonList = response["ads"];
+
+        // If it's the first page clear the gridMap list before adding new data
+        if (page == 1) {
+
+            gridMap.clear();
+            gridMap.addAll(adsJsonList.map((json) => AnnounceModel.fromJson(json)).toList());
+        } else {
+
+            gridMap.addAll(adsJsonList.map((json) => AnnounceModel.fromJson(json)).toList());
+
+        }
+
+        //nbr Page
+        int x = response["totalItems"];
+        MaxPage = x ~/ 4;
+        if (x % 4 > 0) {
+          MaxPage += 1;
+        }
+
         return gridMap;
       } else {
         print(response["ads"]);
@@ -231,7 +258,7 @@ class _AnnouncesState extends State<Announces> {
               ],
             ),
             /** Show filters **/
-            country!=null||category!=null||minprice!=0||maxprice!=100? Row(
+            country!=null||category!=null||city!=null||minprice!=0||maxprice!=100? Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 country!=null?
@@ -254,6 +281,32 @@ class _AnnouncesState extends State<Announces> {
                     children: [
                       Text(
                         country!.title.toString(),
+                        style: TextStyle(fontSize: 16,color: Colors.black),
+                      ),
+                      SizedBox(width: 3),
+                      Icon(Icons.close,color: Colors.black,),
+                    ],
+                  ),
+                ):SizedBox(height: 0,),
+                city!=null?
+                ElevatedButton(
+
+                  onPressed: () {
+                    setState(() {
+                      city=null;
+                      gridMap=[];
+                    });
+                  },
+                  style: ElevatedButton.styleFrom(
+                    primary: Colors.lightBlue[100],
+                    padding: EdgeInsets.all(10),
+                    elevation: 0,
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        city!.title.toString(),
                         style: TextStyle(fontSize: 16,color: Colors.black),
                       ),
                       SizedBox(width: 3),
@@ -315,12 +368,12 @@ class _AnnouncesState extends State<Announces> {
                     ],
                   ),
                 ):SizedBox(height: 0,),
-                maxprice!=100?
+                maxprice!=0?
                 ElevatedButton(
 
                   onPressed: () {
                     setState(() {
-                      maxprice=100;
+                      maxprice=0;
                       gridMap=[];
                     });
                   },
@@ -367,8 +420,6 @@ class _AnnouncesState extends State<Announces> {
                                 setState(() {
                                   page = page + 1;
                                 });
-
-                                //await apicall();
                               }
                             },
                             child: Text("Show More"),
