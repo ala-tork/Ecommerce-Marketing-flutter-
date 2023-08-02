@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:ecommerceversiontwo/Pages/core/model/AnnounceModel.dart';
+import 'package:ecommerceversiontwo/Pages/core/model/AdsModels/AnnounceModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/FeaturesModel.dart';
 import  'package:http/http.dart' as http;
 import 'dart:convert';
@@ -72,13 +72,13 @@ class CreateAnnounce {
       "active": active,
     };
   }
-
+/*
   Future<Map<String, dynamic>> createAd(CreateAnnounce adModel) async {
 
     var request = http.MultipartRequest('POST', Uri.parse("https://10.0.2.2:7058/api/Ads/CreateAds"));
 
     // Convert adModel to JSON
-    Map<String, dynamic> adData = adModel.toJsonUpdate();
+    Map<String, dynamic> adData = adModel.toJson();
 
     // Add other fields to the request
     adData.forEach((key, value) {
@@ -121,7 +121,7 @@ class CreateAnnounce {
       return null;
     }
   }
-
+*/
 
 
 }

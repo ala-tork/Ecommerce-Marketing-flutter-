@@ -2,37 +2,37 @@ import 'package:ecommerceversiontwo/Pages/Views/Screens/AnnouncesCRUD/EditeAnnou
 import 'package:ecommerceversiontwo/Pages/Views/Screens/MyAppBAr.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/AdsFeaturesModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/AdsModels/AnnounceModel.dart';
+import 'package:ecommerceversiontwo/Pages/core/model/Deals/DealsModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/ImageModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/AdsFeaturesServices/AdsFeaturesService.dart';
-import 'package:ecommerceversiontwo/Pages/core/services/AnnouncesServices/AnnounceService.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-class MyAnnounces extends StatefulWidget {
-  const MyAnnounces({super.key});
+class MyDeals extends StatefulWidget {
+  const MyDeals({super.key});
 
   @override
-  State<MyAnnounces> createState() => _MyAnnouncesState();
+  State<MyDeals> createState() => _MyDealsState();
 }
 
-class _MyAnnouncesState extends State<MyAnnounces> {
-  List<AnnounceModel> announces = [];
+class _MyDealsState extends State<MyDeals> {
+  List<DealsModel> deals = [];
   int MaxPage = 0;
   int page = 0;
 
-//get all announces by user
-  Future<List<AnnounceModel>> apicall(int iduser ) async {
+//get all Deals by user
+  Future<List<DealsModel>> apicall(int iduser ) async {
     print(page);
     http.Response response, nbads;
     response = await http.get(Uri.parse(
-        "https://10.0.2.2:7058/api/Ads/ShowMoreByUser?iduser=${iduser}&page=${page}"));
+        "https://10.0.2.2:7058/api/Deals/showmore/${iduser}?page=${page}"));
     nbads = await http.get(Uri.parse(
-        "https://10.0.2.2:7058/api/Ads/NbrAdsByUser?iduser=${iduser}"));
+        "https://10.0.2.2:7058/api/Deals/nbDealsByUser/${iduser}"));
     if (response.statusCode == 200) {
       var responseBody = response.body;
-      announces.addAll((jsonDecode(responseBody) as List)
-          .map((json) => AnnounceModel.fromJson(json))
+      deals.addAll((jsonDecode(responseBody) as List)
+          .map((json) => DealsModel.fromJson(json))
           .toList());
       //nbr Page
       int x = int.parse(nbads.body);
@@ -41,24 +41,24 @@ class _MyAnnouncesState extends State<MyAnnounces> {
         MaxPage += 1;
       }
 
-      return announces;
+      return deals;
     } else {
       print(response.body);
       throw Exception('Failed to fetch data');
     }
   }
 
-  //delete announce
+  //delete Deal
   void deleteItem(int id) async {
-    bool imgdel = await ImageModel().deleteData(id);
-    bool Af = await AdsFeaturesService().deleteData(id);
+    bool imgdel = await ImageModel().deleteDealImage(id);
+    bool Af = await AdsFeaturesService().deleteDeals(id);
     if (imgdel && Af) {
-      bool isDeleted = await AnnounceService().deleteData(id);
+      bool isDeleted = await DealsModel().deleteData(id);
       if (isDeleted) {
         print("Item with ID $id deleted successfully.");
-        announces.removeWhere((element) => element.idAds == id);
+        deals.removeWhere((element) => element.idDeal == id);
         setState(() {
-          announces;
+          deals;
         });
       } else {
         print("Failed to delete item with ID $id.");
@@ -71,7 +71,7 @@ class _MyAnnouncesState extends State<MyAnnounces> {
     super.initState();
     apicall(1).then((data) {
       setState(() {
-        announces = data;
+        deals = data;
       });
     });
   }
@@ -82,7 +82,15 @@ class _MyAnnouncesState extends State<MyAnnounces> {
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.indigo,
         onPressed: () {
-          Navigator.of(context).pushNamed("AddAnnounce");
+          Navigator.of(context).pushNamed("AddDeals").then((value) =>                                 setState(() {
+            page = page + 1;
+            apicall(1).then((data) {
+              setState(() {
+                deals = data;
+              });
+            });
+          })
+          );
         },
         child: Icon(
           Icons.add,
@@ -91,7 +99,7 @@ class _MyAnnouncesState extends State<MyAnnounces> {
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endContained,
       appBar: MyAppBar(
-        title: "My Announces",
+        title: "My Deals",
       ),
       body: Padding(
         padding: const EdgeInsets.fromLTRB(8.0, 20.0, 8.0, 8.0),
@@ -102,9 +110,9 @@ class _MyAnnouncesState extends State<MyAnnounces> {
                 padding: const EdgeInsets.fromLTRB(0, 0, 0, 70.0),
                 child: ListView.builder(
                     shrinkWrap: true,
-                    itemCount: announces.length + 1,
+                    itemCount: deals.length + 1,
                     itemBuilder: (context, index) {
-                      if (index < announces.length) {
+                      if (index < deals.length) {
                         return Padding(
                           padding: const EdgeInsets.symmetric(
                               horizontal: 12, vertical: 12),
@@ -130,7 +138,7 @@ class _MyAnnouncesState extends State<MyAnnounces> {
                                           color: Colors.black.withOpacity(0)),
                                       image: DecorationImage(
                                         image: NetworkImage(
-                                            'https://10.0.2.2:7058${announces[index].imagePrinciple}'),
+                                            'https://10.0.2.2:7058${deals[index].imagePrinciple}'),
                                         // Replace with your image path
                                         fit: BoxFit.fill,
                                       ),
@@ -145,7 +153,7 @@ class _MyAnnouncesState extends State<MyAnnounces> {
                                           child: Align(
                                             alignment: Alignment.centerLeft,
                                             child: Text(
-                                              '${announces[index].title}',
+                                              '${deals[index].title}',
                                               style: TextStyle(
                                                 fontSize: 18,
                                                 fontWeight: FontWeight.bold,
@@ -162,7 +170,7 @@ class _MyAnnouncesState extends State<MyAnnounces> {
                                     child: Row(
                                       children: [
                                         Text(
-                                          "${announces[index].description}",
+                                          "${deals[index].description}",
                                           style: TextStyle(
                                             fontSize: 16,
                                             fontWeight: FontWeight.bold,
@@ -178,7 +186,7 @@ class _MyAnnouncesState extends State<MyAnnounces> {
                                     child: Row(
                                       children: [
                                         Text(
-                                          "${announces[index].price} DT",
+                                          "${deals[index].price} DT",
                                           style: TextStyle(
                                               fontSize: 18,
                                               fontWeight: FontWeight.bold,
@@ -198,13 +206,13 @@ class _MyAnnouncesState extends State<MyAnnounces> {
                                       TextButton.icon(
                                         style: ButtonStyle(),
                                         onPressed: () {
-                                          Navigator.of(context)
+                                         /* Navigator.of(context)
                                               .push(
                                             MaterialPageRoute(
                                               builder: (context) =>
                                                   EditeAnnounce(
                                                       announce:
-                                                          announces[index]),
+                                                      deals[index]),
                                             ),
                                           )
                                               .then((value) {
@@ -213,13 +221,13 @@ class _MyAnnouncesState extends State<MyAnnounces> {
                                                   value['updatedAnnounce'];
                                               if (res != null) {
                                                 setState(() {
-                                                  announces.removeWhere((a) =>
-                                                      res.idAds == a.idAds);
-                                                  announces.add(res);
+                                                  deals.removeWhere((a) =>
+                                                      res.idAds == a.idDeal);
+                                                  deals.add(res);
                                                 });
                                               }
                                             }
-                                          });
+                                          });*/
                                         },
                                         icon: Icon(
                                           Icons.edit,
@@ -251,8 +259,8 @@ class _MyAnnouncesState extends State<MyAnnounces> {
                                       TextButton.icon(
                                         style: ButtonStyle(),
                                         onPressed: () {
-                                          deleteItem(int.parse(announces[index]
-                                              .idAds
+                                          deleteItem(int.parse(deals[index]
+                                              .idDeal
                                               .toString()));
                                         },
                                         icon: Icon(
@@ -274,7 +282,7 @@ class _MyAnnouncesState extends State<MyAnnounces> {
                           ),
                         );
                       } else {
-                        if (announces.length != 0 && page < MaxPage - 1)
+                        if (deals.length != 0 && page < MaxPage - 1)
                           return ElevatedButton(
                             onPressed: () async {
                               if (page < MaxPage) {
@@ -282,7 +290,7 @@ class _MyAnnouncesState extends State<MyAnnounces> {
                                   page = page + 1;
                                   apicall(1).then((data) {
                                     setState(() {
-                                      announces = data;
+                                      deals = data;
                                     });
                                   });
                                 });

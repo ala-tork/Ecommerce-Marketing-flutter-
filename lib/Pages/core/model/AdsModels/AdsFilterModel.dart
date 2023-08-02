@@ -50,7 +50,7 @@ class AdsFilterModel {
     return data;
   }
 
-
+/*
   //fileter data with pagination
   Future<Map<String, dynamic>> getFilteredAds(AdsFilterModel filter) async {
     print(filter.toJson());
@@ -71,5 +71,5 @@ class AdsFilterModel {
     } catch (e) {
       throw Exception('An error occurred: $e');
     }
-  }
+  }*/
 }

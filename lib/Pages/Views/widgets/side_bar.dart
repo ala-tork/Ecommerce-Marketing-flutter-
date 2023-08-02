@@ -1,3 +1,4 @@
+import 'package:ecommerceversiontwo/Pages/Views/Screens/DealsCrudViews/MyDealsList.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -77,7 +78,20 @@ class SideBar extends StatelessWidget {
                     fontSize: 18.0
                 ),),
               onTap: (){
-                Navigator.of(context).pushNamed("MyAnnounces");
+                Navigator.of(context).pushNamed("MyDeals");
+              },
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(15.0, 5.0, 0, 5.0),
+            child: ListTile(
+              leading: Icon(Icons.list_alt),
+              title: Text("My Deals",
+                style: TextStyle(
+                    fontSize: 18.0
+                ),),
+              onTap: (){
+                Navigator.of(context).pushNamed("MyDeals");
               },
             ),
           ),

@@ -1,8 +1,7 @@
-import 'package:ecommerceversiontwo/Pages/Views/Screens/BottomBar/announces.dart';
-import 'package:ecommerceversiontwo/Pages/Views/Screens/BottomBar/deals.dart';
+import 'package:ecommerceversiontwo/Pages/Views/Screens/BottomBar/AnnouceBottomBar/announces.dart';
+import 'package:ecommerceversiontwo/Pages/Views/Screens/BottomBar/DealsBotomBar/deals.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/BottomBar/store.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/HomePage.dart';
-import 'package:ecommerceversiontwo/Pages/Views/Screens/MyAppBAr.dart';
 import 'package:flutter/material.dart';
 
 class LandingPage extends StatefulWidget {

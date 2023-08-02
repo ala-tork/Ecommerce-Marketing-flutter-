@@ -4,14 +4,18 @@ import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/MyAppBAr.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/CustomButton.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/AdsFeaturesModel.dart';
-import 'package:ecommerceversiontwo/Pages/core/model/AnnounceModel.dart';
-import 'package:ecommerceversiontwo/Pages/core/model/CategoryModel.dart';
+import 'package:ecommerceversiontwo/Pages/core/model/AdsModels/AnnounceModel.dart';
+import 'package:ecommerceversiontwo/Pages/core/model/CategoriesModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/CitiesModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/CountriesModel.dart';
-import 'package:ecommerceversiontwo/Pages/core/model/CreateAnnounceModel.dart';
+import 'package:ecommerceversiontwo/Pages/core/model/AdsModels/CreateAnnounceModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/FeaturesModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/FeaturesValuesModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/ImageModel.dart';
+import 'package:ecommerceversiontwo/Pages/core/services/AdsFeaturesServices/AdsFeaturesService.dart';
+import 'package:ecommerceversiontwo/Pages/core/services/AnnouncesServices/AnnounceService.dart';
+import 'package:ecommerceversiontwo/Pages/core/services/CategoryService.dart';
+import 'package:ecommerceversiontwo/Pages/core/services/CityServices/CityService.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -129,7 +133,7 @@ class _AddAnnouncesState extends State<AddAnnounces> {
     //create the Announce
     CreateAnnounce();
     CreateAnnounce an = CreateAnnounce();
-    Map<String, dynamic> response = await an.createAd(announce!);
+    Map<String, dynamic> response = await AnnounceService().createAd(announce!);
     // Handle the response as needed
     print(response);
     //save features values
@@ -141,7 +145,7 @@ class _AddAnnouncesState extends State<AddAnnounces> {
         CreateAdsFeature fd =
         new CreateAdsFeature(idAds: int.parse(x.idAds.toString()),idFeature: int.parse(element.featureId.toString()),idFeaturesValues: int.parse(element.featureValueId.toString()),active: 1);
         print(fd.toJson());
-        await fd.Createadsfeature(fd);
+        await AdsFeaturesService().Createfeature(fd);
         //print(fvres);
       });
     }
@@ -194,7 +198,7 @@ class _AddAnnouncesState extends State<AddAnnounces> {
   /** fetch Cities */
   Future<void> fetchCities(int id) async {
     try {
-      List<CitiesModel> cities = await CitiesModel().GetData(id);
+      List<CitiesModel> cities = await CityService().GetData(id);
       setState(() {
         _cities = cities;
 
@@ -479,7 +483,7 @@ class _AddAnnouncesState extends State<AddAnnounces> {
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: FutureBuilder<List<CitiesModel>>(
-                                future: CitiesModel().GetData(CountryId),
+                                future: CityService().GetData(CountryId),
                                 builder: (context, snapshot) {
                                   if (snapshot.connectionState == ConnectionState.waiting) {
                                     return CircularProgressIndicator();

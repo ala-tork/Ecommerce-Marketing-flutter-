@@ -9,47 +9,50 @@ import 'package:ecommerceversiontwo/Pages/Views/widgets/selectable_circle_color.
 import 'package:ecommerceversiontwo/Pages/Views/widgets/selectable_circle_size.dart';
 import 'package:ecommerceversiontwo/Pages/app_color.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/AdsFeaturesModel.dart';
-import 'package:ecommerceversiontwo/Pages/core/model/AnnounceModel.dart';
+import 'package:ecommerceversiontwo/Pages/core/model/AdsModels/AnnounceModel.dart';
+import 'package:ecommerceversiontwo/Pages/core/model/Deals/DealsModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/ImageModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/Product.dart';
+import 'package:ecommerceversiontwo/Pages/core/services/AdsFeaturesServices/AdsFeaturesService.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
-class AnounceDetails extends StatefulWidget {
-  final AnnounceModel Announce;
-  AnounceDetails({required this.Announce});
+class DealsDetails extends StatefulWidget {
+  final DealsModel Deals;
+  DealsDetails({required this.Deals});
 
   @override
-  _AnounceDetailsState createState() => _AnounceDetailsState();
+  _DealsDetailsState createState() => _DealsDetailsState();
 }
 
-class _AnounceDetailsState extends State<AnounceDetails> {
+class _DealsDetailsState extends State<DealsDetails> {
   PageController productImageSlider = PageController();
   @override
   void initState()  {
     super.initState();
-    fetchAdsFeaturesByIDAds(widget.Announce.idAds!);
-    fetchImages(widget.Announce.idAds!);
+    fetchAdsFeaturesByIDAds(widget.Deals.idDeal!);
+    fetchImages(widget.Deals.idDeal!);
   }
   List<ImageModel> _images = [];
   List<String> _urlImages = [];
+
   /** fetch Images */
-  Future<void> fetchImages(int idAds) async {
+  Future<void> fetchImages(int iddeals) async {
     try {
-      List<ImageModel> images = await ImageModel().apicall(idAds);
+      List<ImageModel> images = await ImageModel().getImage(iddeals);
         _images=images;
         _images.forEach((i) { _urlImages.add(i.title!);});
       print(_images);
-      //print(featuresValues);
     } catch (e) {
       print('Error fetching Images: $e');
     }
   }
   List<AdsFeature> _AdsFeatures =[];
+
   /** fetch Ads features and chnage the features and the features values */
-  Future<void> fetchAdsFeaturesByIDAds(int idAds) async {
+  Future<void> fetchAdsFeaturesByIDAds(int idDeals) async {
     try {
-      List<AdsFeature> AfList = await AdsFeature().GetAdsFeaturesByIdAds(idAds);
+      List<AdsFeature> AfList = await AdsFeaturesService().GetDealsFeaturesByIdDeals(idDeals);
       setState(() {
         _AdsFeatures = AfList;
       });
@@ -61,7 +64,7 @@ class _AnounceDetailsState extends State<AnounceDetails> {
 
   @override
   Widget build(BuildContext context) {
-    AnnounceModel announce = widget.Announce;
+    DealsModel deal = widget.Deals;
 
 
 
@@ -132,7 +135,7 @@ class _AnounceDetailsState extends State<AnounceDetails> {
                 // appbar
                 Expanded(
                   child: CustomAppBar(
-                    title: '${announce.title}',
+                    title: '${deal.title}',
                     leftIcon: SvgPicture.asset('assets/icons/Arrow-left.svg'),
                     rightIcon: SvgPicture.asset(
                       'assets/icons/Bookmark.svg',
@@ -160,7 +163,7 @@ class _AnounceDetailsState extends State<AnounceDetails> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: FutureBuilder<void>(
-                    future: fetchImages(announce!.idAds!),
+                    future: fetchImages(deal!.idDeal!),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return CircularProgressIndicator();
@@ -226,7 +229,7 @@ class _AnounceDetailsState extends State<AnounceDetails> {
                           children: [
                             Expanded(
                               child: Text(
-                                announce.title.toString(),
+                                deal.title.toString(),
                                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700, fontFamily: 'poppins', color: AppColor.secondary),
                               ),
                             ),
@@ -240,11 +243,11 @@ class _AnounceDetailsState extends State<AnounceDetails> {
                       Container(
                         margin: EdgeInsets.only(bottom: 14),
                         child: Text(
-                          '${announce.price}+DT',
+                          '${deal.price}+DT',
                           style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, fontFamily: 'poppins', color: AppColor.primary),
                         ),
                       ),
-                      Text( announce.details!,
+                      Text( deal.details!,
                        // 'Bringing a new look to the Waffle sneaker family, the Nike Waffle One balances everything you love about heritage Nike running with fresh innovations.',
                         style: TextStyle(color: AppColor.secondary.withOpacity(0.7), height: 150 / 100),
                       ),

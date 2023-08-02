@@ -444,7 +444,6 @@ class _HomePageState extends State<HomePage> {
             ]
             ),
             SizedBox(height: 20,),
-            //Image.network("https://10.0.2.2:7058/Assets/images/e64b8a5f-a7d6-478b-aaef-e2444b72d894_pc.jpeg"),
 
             /** end filter and search & show filters section* */
 

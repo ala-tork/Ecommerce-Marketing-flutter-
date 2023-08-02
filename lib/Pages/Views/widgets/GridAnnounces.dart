@@ -1,4 +1,4 @@
-import 'package:ecommerceversiontwo/Pages/Views/Screens/AnnounceDetails.dart';
+import 'package:ecommerceversiontwo/Pages/Views/Screens/BottomBar/AnnouceBottomBar/AnnounceDetails.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/modals/add_to_cart.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';

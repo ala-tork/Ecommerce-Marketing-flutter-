@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:ecommerceversiontwo/Pages/Views/Screens/AnnouncesCRUD/EditeAnnounce.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/AnnouncesCRUD/MyAnnouncesList.dart';
+import 'package:ecommerceversiontwo/Pages/Views/Screens/DealsCrudViews/AddDeals.dart';
+import 'package:ecommerceversiontwo/Pages/Views/Screens/DealsCrudViews/MyDealsList.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/LandingPage.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/WelcomePage.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/wishlist.dart';
@@ -35,6 +37,8 @@ class MyApp extends StatelessWidget {
           "AddAnnounce": (context) => AddAnnounces(),
           "EditeAnnounce": (context) => EditeAnnounce(),
           "WishList": (context)=>WishList(),
+          "MyDeals" : (context)=>MyDeals(),
+          "AddDeals" : (context)=>AddDeals(),
         }
 
 

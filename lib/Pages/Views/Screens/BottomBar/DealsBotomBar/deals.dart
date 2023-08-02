@@ -3,114 +3,72 @@ import 'dart:convert';
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/searchPage.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/FilterForm.dart';
+import 'package:ecommerceversiontwo/Pages/Views/widgets/GridDeals.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/dummy_search_widget1.dart';
-import 'package:ecommerceversiontwo/Pages/core/model/AdsFilterModel.dart';
-import 'package:ecommerceversiontwo/Pages/core/model/AnnounceModel.dart';
-import 'package:ecommerceversiontwo/Pages/core/model/CategoryModel.dart';
+import 'package:ecommerceversiontwo/Pages/core/model/Deals/DealsFilterModel.dart';
+import 'package:ecommerceversiontwo/Pages/core/model/CategoriesModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/CitiesModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/CountriesModel.dart';
+import 'package:ecommerceversiontwo/Pages/core/model/Deals/DealsModel.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
-import '../../widgets/GridAnnounces.dart';
-import '../../widgets/custom_icon_button_widget.dart';
-import '../messagePage.dart';
+import '../../../widgets/GridAnnounces.dart';
+import '../../../widgets/custom_icon_button_widget.dart';
+import '../../messagePage.dart';
 
-class Announces extends StatefulWidget {
+class Deals extends StatefulWidget {
 
-  const Announces({super.key});
+  const Deals({super.key});
 
   @override
-  State<Announces> createState() => _AnnouncesState();
+  State<Deals> createState() => _DealsState();
 }
 
-class _AnnouncesState extends State<Announces> {
+class _DealsState extends State<Deals> {
 
   CountriesModel? country;
   CategoriesModel? category;
   CitiesModel? city;
   double minprice=0;
   double maxprice=0;
-  List<AnnounceModel> gridMap = [];
+  List<DealsModel> gridMap = [];
   int MaxPage =0;
   int page=1;
 
 
-/*  Future<List<AnnounceModel>> apicall() async {
-    AdsFilterModel adsFilter = AdsFilterModel(pageNumber: page, idFeaturesValues: []);
+
+
+  Future<List<DealsModel>> apicall() async {
+    DealsFilterModel DelasFilter = DealsFilterModel(pageNumber: page, idFeaturesValues: []);
     if (country != null) {
-      adsFilter.idCountrys = country!.idCountrys;
+      DelasFilter.idCountrys = country!.idCountrys;
     }
     if (category != null) {
-      adsFilter.idCategory = category!.idCateg;
+      DelasFilter.idCategory = category!.idCateg;
     }
     if (city != null) {
-      adsFilter.idCity = city!.idCity;
-    }
-
-    try {
-      Map<String, dynamic> response = await adsFilter.getFilteredAds(adsFilter);
-
-      if (response["ads"] != null) {
-        List<dynamic> adsJsonList = response["ads"];
-        gridMap.addAll(adsJsonList
-            .map((json) => AnnounceModel.fromJson(json))
-            .toList());
-
-        print(gridMap[0].title);
-
-        //nbr Page
-        int x = response["totalItems"];
-        MaxPage = x ~/ 4;
-        if (x % 4 > 0) {
-          MaxPage += 1;
-        }
-        return gridMap;
-      } else {
-        print(response["ads"]);
-        throw Exception('Failed to fetch Ads');
-      }
-    } catch (e) {
-      print('Error: $e');
-      throw Exception('An error occurred: $e');
-    }
-  }*/
-
-  Future<List<AnnounceModel>> apicall() async {
-    AdsFilterModel adsFilter = AdsFilterModel(pageNumber: page, idFeaturesValues: []);
-    if (country != null) {
-      adsFilter.idCountrys = country!.idCountrys;
-    }
-    if (category != null) {
-      adsFilter.idCategory = category!.idCateg;
-    }
-    if (city != null) {
-      adsFilter.idCity = city!.idCity;
+      DelasFilter.idCity = city!.idCity;
     }
     if(minprice!=0 || maxprice!=0)
-      {
-        adsFilter.minPrice=minprice;
-        adsFilter.maxPrice=maxprice;
-      }
-
+    {
+      DelasFilter.minPrice=minprice;
+      DelasFilter.maxPrice=maxprice;
+    }
     try {
-      Map<String, dynamic> response = await adsFilter.getFilteredAds(adsFilter);
+      Map<String, dynamic> response = await DelasFilter.getFilteredDeals(DelasFilter);
 
-      if (response["ads"] != null) {
-        List<dynamic> adsJsonList = response["ads"];
+      if (response["deals"] != null) {
+        List<dynamic> adsJsonList = response["deals"];
 
-        // If it's the first page clear the gridMap list before adding new data
         if (page == 1) {
 
-            gridMap.clear();
-            gridMap.addAll(adsJsonList.map((json) => AnnounceModel.fromJson(json)).toList());
+          gridMap.clear();
+          gridMap.addAll(adsJsonList.map((json) => DealsModel.fromJson(json)).toList());
         } else {
-
-            gridMap.addAll(adsJsonList.map((json) => AnnounceModel.fromJson(json)).toList());
-
+          gridMap.addAll(adsJsonList.map((json) => DealsModel.fromJson(json)).toList());
         }
-
         //nbr Page
         int x = response["totalItems"];
         MaxPage = x ~/ 4;
@@ -120,8 +78,8 @@ class _AnnouncesState extends State<Announces> {
 
         return gridMap;
       } else {
-        print(response["ads"]);
-        throw Exception('Failed to fetch Ads');
+        print(response["deals"]);
+        throw Exception('Failed to fetch Deals !!!!!!!!!!');
       }
     } catch (e) {
       print('Error: $e');
@@ -341,7 +299,7 @@ class _AnnouncesState extends State<Announces> {
                     ],
                   ),
                 ):SizedBox(height: 0,),
-                
+
                 minprice!=0?
                 ElevatedButton(
 
@@ -399,22 +357,20 @@ class _AnnouncesState extends State<Announces> {
                 :SizedBox(height: 0,),
             Padding(
               padding: const EdgeInsets.fromLTRB(8.0, 20.0, 8.0, 8.0),
-              child: FutureBuilder<List<AnnounceModel>>(
+              child: FutureBuilder<List<DealsModel>>(
                 future: apicall(),
-                builder: (BuildContext context, AsyncSnapshot<List<AnnounceModel>> snapshot) {
+                builder: (BuildContext context, AsyncSnapshot<List<DealsModel>> snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    // Display a loading indicator while waiting for data
                     return CircularProgressIndicator();
                   } else if (snapshot.hasError) {
-                    // Handle the error case
                     return Text('Failed to fetch data');
                   } else {
                     return
                       Column(
-                      children: [
-                        GridB(data: gridMap),
-                        gridMap.length != 0 && page<MaxPage?
-                        ElevatedButton(
+                        children: [
+                          GridDeals(data: gridMap),
+                          gridMap.length != 0 && page<MaxPage?
+                          ElevatedButton(
                             onPressed: () async {
                               if (page < MaxPage) {
                                 setState(() {
@@ -424,10 +380,10 @@ class _AnnouncesState extends State<Announces> {
                             },
                             child: Text("Show More"),
                           )
-                        :
+                              :
                           SizedBox(height: 0),
-                      ],
-                    );
+                        ],
+                      );
                     //
                   }
                 },

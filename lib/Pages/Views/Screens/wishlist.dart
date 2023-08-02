@@ -2,7 +2,7 @@ import 'package:ecommerceversiontwo/Pages/Views/Screens/MyAppBAr.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/searchPage.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/GridAnnounces.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/GridWishList.dart';
-import 'package:ecommerceversiontwo/Pages/core/model/AnnounceModel.dart';
+import 'package:ecommerceversiontwo/Pages/core/model/AdsModels/AnnounceModel.dart';
 import 'package:flutter/material.dart';
 
 import '../widgets/dummy_search_widget1.dart';

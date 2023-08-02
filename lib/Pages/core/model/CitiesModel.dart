@@ -29,7 +29,7 @@ class CitiesModel {
     }
     return data;
   }
-
+/*
 // get cities data by country id
   Future<List<CitiesModel>> GetData(int countryId) async {
     http.Response response;
@@ -44,5 +44,5 @@ class CitiesModel {
       print(response.body);
       throw Exception('Failed to fetch Cities');
     }
-  }
+  }*/
 }
