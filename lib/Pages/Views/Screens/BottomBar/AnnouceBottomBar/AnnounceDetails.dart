@@ -1,20 +1,21 @@
 import 'package:ecommerceversiontwo/Pages/Views/Screens/ImageViewer.dart';
-import 'package:ecommerceversiontwo/Pages/Views/Screens/reviewPage.dart';
+import 'package:ecommerceversiontwo/Pages/Views/Screens/SellerDetail.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/curstom_app_bar.dart';
-import 'package:ecommerceversiontwo/Pages/Views/widgets/modals/add_to_cart.dart';
-import 'package:ecommerceversiontwo/Pages/Views/widgets/rating_tag.dart';
-import 'package:ecommerceversiontwo/Pages/Views/widgets/review_tile.dart';
-import 'package:ecommerceversiontwo/Pages/Views/widgets/selectable_circle_color.dart';
-import 'package:ecommerceversiontwo/Pages/Views/widgets/selectable_circle_size.dart';
 import 'package:ecommerceversiontwo/Pages/app_color.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/AdsFeaturesModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/AdsModels/AnnounceModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/ImageModel.dart';
-import 'package:ecommerceversiontwo/Pages/core/model/Product.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/AdsFeaturesServices/AdsFeaturesService.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
+import 'package:shared_preferences/shared_preferences.dart';
+
 
 class AnounceDetails extends StatefulWidget {
   final AnnounceModel Announce;
@@ -26,13 +27,36 @@ class AnounceDetails extends StatefulWidget {
 }
 
 class _AnounceDetailsState extends State<AnounceDetails> {
+
   PageController productImageSlider = PageController();
+  /** User  */
+  String email="";
+  String firstname="";
+  String lastname="";
+  String phone="";
+  String country="";
+  String address="";
+  String _selectedCountry = '';
+  String selectedCountry = '';
+  String id="";
+  String? token;
 
   @override
   void initState() {
     super.initState();
+    GetToken();
     fetchAdsFeaturesByIDAds(widget.Announce.idAds!);
     fetchImages(widget.Announce.idAds!);
+    fetchUserData().then((user) {
+      setState(() {
+        email = user['email'];
+        firstname = user['firstname'];
+        lastname = user['lastname'];
+        phone = user['phone'];
+        address = user['address'];
+        country = user['country'];
+      });
+    });
   }
 
   List<ImageModel> _images = [];
@@ -68,6 +92,34 @@ class _AnounceDetailsState extends State<AnounceDetails> {
     }
   }
 
+
+  /** Get User */
+
+  Future<Map<String, dynamic>> fetchUserData() async {
+    final apiUrl = 'https://10.0.2.2:7058/User/GetUserById?id=${widget.Announce.iduser}';
+
+    try {
+      final response = await http.get(Uri.parse(apiUrl));
+      if (response.statusCode == 200) {
+        final jsonData = json.decode(response.body);
+        if (jsonData is Map<String, dynamic>) {
+          return jsonData;
+        } else {
+          throw Exception('Invalid response format');
+        }
+      } else {
+        throw Exception('Failed to fetch user data');
+      }
+    } catch (e) {
+      throw Exception('Error: $e');
+    }
+  }
+/** Get Token*/
+  void GetToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    token = prefs.getString('token');
+  }
+
   @override
   Widget build(BuildContext context) {
     AnnounceModel announce = widget.Announce;
@@ -80,9 +132,7 @@ class _AnounceDetailsState extends State<AnounceDetails> {
         padding: EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: Colors.white,
-          border: Border(
-            top: BorderSide(color: AppColor.border, width: 1),
-          ),
+          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 4)],
         ),
         child: Row(
           children: [
@@ -92,14 +142,12 @@ class _AnounceDetailsState extends State<AnounceDetails> {
               margin: EdgeInsets.only(right: 14),
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColor.secondary,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16)),
+                  primary: AppColor.secondary,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   elevation: 0,
                 ),
                 onPressed: () {},
-                child: SvgPicture.asset('assets/icons/Chat.svg',
-                    color: Colors.white),
+                child: SvgPicture.asset('assets/icons/Chat.svg', color: Colors.white),
               ),
             ),
             Expanded(
@@ -107,19 +155,18 @@ class _AnounceDetailsState extends State<AnounceDetails> {
                 height: 64,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColor.primary,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16)),
+                    primary: AppColor.primary,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                     elevation: 0,
                   ),
                   onPressed: () {
-                   /* showModalBottomSheet(
-                      context: context,
-                      backgroundColor: Colors.transparent,
-                      builder: (context) {
-                        return AddToCartModal();
-                      },
-                    );*/
+                    // showModalBottomSheet(
+                    //   context: context,
+                    //   backgroundColor: Colors.transparent,
+                    //   builder: (context) {
+                    //     return AddToCartModal();
+                    //   },
+                    // );
                   },
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -178,7 +225,7 @@ class _AnounceDetailsState extends State<AnounceDetails> {
               shrinkWrap: true,
               physics: BouncingScrollPhysics(),
               children: [
-                // Section 1 -  product image
+                // Section 1 - product image
                 Container(
                   margin: EdgeInsets.fromLTRB(10, 30, 10, 0),
                   decoration: BoxDecoration(
@@ -203,9 +250,9 @@ class _AnounceDetailsState extends State<AnounceDetails> {
                                 onTap: () {
                                   Navigator.of(context).push(
                                     MaterialPageRoute(
-                                        builder: (context) => ImageViewer(
-                                              imageUrl: _urlImages,
-                                            )
+                                      builder: (context) => ImageViewer(
+                                        imageUrl: _urlImages,
+                                      ),
                                     ),
                                   );
                                 },
@@ -218,9 +265,8 @@ class _AnounceDetailsState extends State<AnounceDetails> {
                                     controller: productImageSlider,
                                     children: List.generate(
                                       _images.length,
-                                      (index) => Image.network(
-                                        "https://10.0.2.2:7058" +
-                                            _images![index].title!.toString(),
+                                          (index) => Image.network(
+                                        "https://10.0.2.2:7058" + _images![index].title!.toString(),
                                         fit: BoxFit.cover,
                                       ),
                                     ),
@@ -255,15 +301,16 @@ class _AnounceDetailsState extends State<AnounceDetails> {
                               child: Text(
                                 announce.title.toString(),
                                 style: TextStyle(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.w700,
-                                    fontFamily: 'poppins',
-                                    color: AppColor.secondary),
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.w700,
+                                  fontFamily: 'poppins',
+                                  color: AppColor.secondary,
+                                ),
                               ),
                             ),
                             /*RatingTag(
-                              value: product.rating,
-                            ),*/
+                          value: product.rating,
+                        ),*/
                           ],
                         ),
                       ),
@@ -273,50 +320,109 @@ class _AnounceDetailsState extends State<AnounceDetails> {
                         child: Text(
                           '${announce.price}+DT',
                           style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w700,
-                              fontFamily: 'poppins',
-                              color: AppColor.primary),
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            fontFamily: 'poppins',
+                            color: AppColor.primary,
+                          ),
                         ),
                       ),
                       Text(
                         announce.details!,
-                        // 'Bringing a new look to the Waffle sneaker family, the Nike Waffle One balances everything you love about heritage Nike running with fresh innovations.',
                         style: TextStyle(
-                            color: AppColor.secondary.withOpacity(0.7),
-                            height: 150 / 100),
+                          color: AppColor.secondary.withOpacity(0.7),
+                          height: 150 / 100,
+                        ),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          /* Text(
+                            phone,
+                            style: TextStyle(
+                              color: AppColor.secondary.withOpacity(1),
+                              height: 150 / 100,
+                            ),
+                          ),
+                          SizedBox(width: 40),*/
+                          Column(
+                            children: [
+                              TextButton(
+                                child: Text(
+                                  firstname + lastname,
+                                  style: TextStyle(
+                                    color: AppColor.secondary.withOpacity(1),
+                                    height: 150 / 100,
+                                  ),
+                                ),
+                                onPressed: () {
+                                  SellerDetailsPopUp().showDialogFunc(context,
+                                      "https://cdn.pixabay.com/photo/2020/07/01/12/58/icon-5359553_1280.png",
+                                      firstname + lastname,
+                                      email,
+                                      phone);
+                                },
+                              ),
+                              RatingBar.builder(
+                                initialRating: 3.5,
+                                minRating: 1,
+                                direction: Axis.horizontal,
+                                allowHalfRating: true,
+                                itemCount: 5,
+                                itemSize: 15,
+                                itemBuilder: (context, _) => Icon(
+                                  Icons.star,
+                                  color: Colors.amber,
+                                ),
+                                onRatingUpdate: (rating) {
+                                },
+                                ignoreGestures: true,
+                              ),
+                            ],
+                          ),
+                          SizedBox(
+                            width: 15,
+                          ),
+                          CircleAvatar(
+                            radius: 35,
+                            backgroundImage: NetworkImage(
+                                "https://cdn.pixabay.com/photo/2020/07/01/12/58/icon-5359553_1280.png"),
+                          ),
+                        ],
                       ),
                     ],
                   ),
                 ),
-                //Features Table
-                if(_AdsFeatures.isNotEmpty)
-                DataTable(
-                  columns: [
-                    DataColumn(
-                      label: Text(
-                        'Characteristic',
-                        style: TextStyle(fontWeight: FontWeight.bold),
+
+                /** Features Table */
+                if (_AdsFeatures.isNotEmpty)
+                  DataTable(
+                    columns: [
+                      DataColumn(
+                        label: Text(
+                          'Characteristic',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
                       ),
-                    ),
-                    DataColumn(
-                      label: Text(
-                        'Value',
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                      DataColumn(
+                        label: Text(
+                          'Value',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
                       ),
-                    ),
-                  ],
-                  rows: _AdsFeatures.map((characteristic) {
-                    return DataRow(
-                      cells: [
-                        DataCell(Text(characteristic.features!.title!)),
-                        DataCell(Text(characteristic.featuresValues!.title!)),
-                      ],
-                    );
-                  }).toList(),
-                )
+                    ],
+                    rows: _AdsFeatures.map((characteristic) {
+                      return DataRow(
+                        cells: [
+                          DataCell(Text(characteristic.features!.title!)),
+                          DataCell(Text(characteristic.featuresValues!.title!)),
+                        ],
+                      );
+                    }).toList(),
+                  )
                 // Section 3 - Color Picker
-                /*Container(
+                /*
+                Container(
                   width: MediaQuery.of(context).size.width,
                   padding: EdgeInsets.symmetric(horizontal: 16),
                   margin: EdgeInsets.only(bottom: 20),
@@ -433,5 +539,6 @@ class _AnounceDetailsState extends State<AnounceDetails> {
         ],
       ),
     );
+
   }
 }

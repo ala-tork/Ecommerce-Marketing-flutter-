@@ -2,6 +2,8 @@ import 'package:ecommerceversiontwo/Pages/Views/Screens/BottomBar/AnnouceBottomB
 import 'package:ecommerceversiontwo/Pages/Views/widgets/modals/add_to_cart.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
+
 class GridB extends StatefulWidget {
   final  data;
   const GridB({super.key, required this.data,});
@@ -99,7 +101,7 @@ class _GridBState extends State<GridB> {
                         ),
                       ),
                       Text(
-                        '${gridMap[index].countries.title}',
+                        '${gridMap[index].locations}',
                         style: TextStyle(
                           color: Colors.grey,
                           fontSize: 13,

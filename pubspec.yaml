@@ -41,6 +41,13 @@ dependencies:
   image_picker: ^0.8.7+4
   awesome_dialog: ^3.0.2
   http: ^0.13.3
+  shared_preferences:
+  jwt_decoder:
+  video_player:
+  chewie:
+  dots_indicator:
+  mailer:
+  flutter_rating_bar:
 
 
   # The following adds the Cupertino Icons font to your application.

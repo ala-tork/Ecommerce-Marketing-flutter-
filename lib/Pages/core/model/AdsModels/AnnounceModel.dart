@@ -21,6 +21,7 @@ class AnnounceModel {
   CountriesModel? countries;
   int? idCity;
   CitiesModel? cities;
+  int? iduser;
   String? locations;
   int? active;
   bool? like;
@@ -39,6 +40,7 @@ class AnnounceModel {
         this.countries,
         this.idCity,
         this.cities,
+        this.iduser,
         this.locations,
         this.active,
         this.like
@@ -63,6 +65,7 @@ class AnnounceModel {
     idCity = json['idCity'];
     cities =
     json['cities'] != null ? new CitiesModel.fromJson(json['cities']) : null;
+    iduser= json['idUser'];
     locations = json['locations'];
     active = json['active'];
     like=false;
