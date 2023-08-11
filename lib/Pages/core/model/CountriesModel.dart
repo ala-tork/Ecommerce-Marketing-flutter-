@@ -38,7 +38,7 @@ class CountriesModel {
   }
 
 // get data from api
-
+/*
   Future<List<CountriesModel>> GetData() async {
     http.Response response;
     response = await http.get(Uri.parse("https://10.0.2.2:7058/api/CountryControler/Countrys"));
@@ -52,5 +52,5 @@ class CountriesModel {
       print(response.body);
       throw Exception('Failed to fetch data');
     }
-  }
+  }*/
 }

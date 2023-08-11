@@ -8,7 +8,11 @@ import 'package:ecommerceversiontwo/Pages/core/services/SearchService.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+
 class SearchPage extends StatefulWidget {
+  final String? data;
+
+  const SearchPage({super.key,this.data});
   @override
   _SearchPageState createState() => _SearchPageState();
 }
@@ -16,13 +20,22 @@ class SearchPage extends StatefulWidget {
 class _SearchPageState extends State<SearchPage> {
   List<SearchHistory> listSearchHistory = SearchService.listSearchHistory;
   List<PopularSearch> listPopularSearch = SearchService.listPopularSearch;
+
+
+  String inputText = '';
+
+  void executeFunction() {
+    print('Executing function with input: $inputText');
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+      appBar:  AppBar(
         automaticallyImplyLeading: false,
         centerTitle: false,
-        backgroundColor: AppColor.primary,
+        backgroundColor: Colors.indigo,
         elevation: 0,
         leading: IconButton(
           onPressed: () => Navigator.of(context).pop(),
@@ -33,30 +46,58 @@ class _SearchPageState extends State<SearchPage> {
         ),
         title: Container(
           height: 40,
-          child: TextField(
-            autofocus: false,
-            style: TextStyle(fontSize: 14, color: Colors.white),
-            decoration: InputDecoration(
-              hintStyle: TextStyle(fontSize: 14, color: Colors.white.withOpacity(0.3)),
-              hintText: 'Find a products...',
-              prefixIcon: Container(
-                padding: EdgeInsets.all(10),
-                child: SvgPicture.asset('assets/icons/Search.svg', color: Colors.white),
+          child: Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  onChanged: (text) {
+                    setState(() {
+                      inputText = text;
+                    });
+                  },
+                  /*onSubmitted: (text) {
+
+                  },*/
+                  autofocus: false,
+                  style: TextStyle(fontSize: 14, color: Colors.white),
+                  decoration: InputDecoration(
+                    hintStyle: TextStyle(fontSize: 14, color: Colors.white.withOpacity(0.3)),
+                    hintText: 'Find a product...',
+                    prefixIcon: Container(
+                      padding: EdgeInsets.all(10),
+                      child: SvgPicture.asset('assets/icons/Search.svg', color: Colors.white),
+                    ),
+                    contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 0),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.transparent, width: 1),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.white.withOpacity(0.1), width: 1),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    fillColor: Colors.white.withOpacity(0.1),
+                    filled: true,
+                  ),
+                ),
               ),
-              contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 0),
-              enabledBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.transparent, width: 1),
-                borderRadius: BorderRadius.circular(16),
+              SizedBox(width: 10),
+              TextButton(
+                onPressed: () {
+                  print(inputText);
+                  Navigator.pop(context,{
+                    'data':inputText,
+                  });
+                },
+                child: Text(
+                  'Search',
+                  style: TextStyle(color: Colors.white),
+                ),
               ),
-              focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.white.withOpacity(0.1), width: 1),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              fillColor: Colors.white.withOpacity(0.1),
-              filled: true,
-            ),
+            ],
           ),
-        ), systemOverlayStyle: SystemUiOverlayStyle.light,
+        ),
+        systemOverlayStyle: SystemUiOverlayStyle.light,
       ),
       body: ListView(
         shrinkWrap: true,

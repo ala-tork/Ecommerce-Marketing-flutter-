@@ -22,7 +22,7 @@ class _WishListState extends State<WishList> {
       title: "white sneaker with adidas logo",
       price: 255,
       imagePrinciple: "https://images.unsplash.com/photo-1600185365926-3a2ce3cdb9eb?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=725&q=80",
-      like:false,
+      //like:false,
       //boosted: false,
     ),
     AnnounceModel(
@@ -31,7 +31,7 @@ class _WishListState extends State<WishList> {
       price: 245,
       imagePrinciple:
       "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=387&q=80",
-      like:false,
+     // like:false,
       //boosted: false,
     ),
     AnnounceModel(
@@ -40,7 +40,7 @@ class _WishListState extends State<WishList> {
       price: 155,
       imagePrinciple:
       "https://images.unsplash.com/photo-1542291026-7eec264c27ff?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8c2hvZXN8ZW58MHx8MHx8&auto=format&fit=crop&w=500&q=60",
-      like:false,
+    //  like:false,
      // boosted: false,
     ),
     AnnounceModel(
@@ -49,7 +49,7 @@ class _WishListState extends State<WishList> {
       price: 275,
       imagePrinciple:
       "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=387&q=80",
-      like:false,
+    //  like:false,
       //boosted: false,
     ),
     AnnounceModel(
@@ -58,7 +58,7 @@ class _WishListState extends State<WishList> {
       price: 25,
       imagePrinciple:
       "https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=387&q=80",
-      like:false,
+      //like:false,
       //boosted: false,
     ),
     AnnounceModel(
@@ -67,7 +67,7 @@ class _WishListState extends State<WishList> {
       price: 27,
       imagePrinciple:
       "https://images.unsplash.com/photo-1602293589930-45aad59ba3ab?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=387&q=80",
-      like:false,
+     // like:false,
       //boosted: false,
     ),
     AnnounceModel(
@@ -76,7 +76,7 @@ class _WishListState extends State<WishList> {
       price: 55,
       imagePrinciple:
       "https://images.unsplash.com/photo-1554568218-0f1715e72254?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=387&q=80",
-      like:false,
+      //like:false,
       //boosted: false,
     ),
 

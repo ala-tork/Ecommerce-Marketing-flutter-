@@ -1,50 +1,9 @@
-import 'dart:io';
-
-import 'package:ecommerceversiontwo/Pages/core/model/AdsModels/AnnounceModel.dart';
+import 'package:ecommerceversiontwo/Pages/core/model/ImageModel.dart';
 import  'package:http/http.dart' as http;
 import 'dart:convert';
+import 'dart:io';
 
-
-class ImageModel {
-  int? IdImage;
-  String? title;
-  String? type;
-  int? idAds;
-  int? idDeals;
-  int? idProduct;
-  int? active;
-
-  ImageModel({
-    this.IdImage,
-    this.title,
-    this.type,
-    this.idAds,
-    this.idDeals,
-    this.idProduct,
-    this.active=1,
-  });
-
-  Map<String, dynamic> toJson() {
-    return {
-      "Title": title,
-      "Type": type,
-      "IdAds": idAds,
-      "IdDeals": idDeals,
-      "IdProduct": idProduct,
-      "Active": active,
-    };
-  }
-
-  ImageModel.fromJson(Map<String, dynamic> json) {
-    IdImage = json['idImage'];
-    title = json['title'];
-    type = json['type'];
-    idAds = json['idAds'];
-    idDeals = json['idDeals'];
-    idProduct = json['idProduct'];
-    active = json['active'];
-  }
-/*
+class ImageService{
   //save the image
   Future<ImageModel> addImage(File imagePath) async {
     var request =
@@ -106,7 +65,7 @@ class ImageModel {
         .get(Uri.parse("https://10.0.2.2:7058/api/ImagesControler?idAds=${Ads}"));
     if (response.statusCode == 200) {
       var responseBody = response.body;
-     List<ImageModel> images =(jsonDecode(responseBody) as List)
+      List<ImageModel> images =(jsonDecode(responseBody) as List)
           .map((json) => ImageModel.fromJson(json))
           .toList();
       return images;
@@ -158,6 +117,5 @@ class ImageModel {
       print("Error deleting item: $e");
       return false;
     }
-  }*/
-
+  }
 }

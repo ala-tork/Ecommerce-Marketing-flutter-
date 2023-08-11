@@ -1,13 +1,15 @@
 import 'package:ecommerceversiontwo/Pages/Views/Screens/BottomBar/DealsBotomBar/DealsDetails.dart';
+import 'package:ecommerceversiontwo/Pages/core/model/Deals/DealsModel.dart';
+import 'package:ecommerceversiontwo/Pages/core/model/LikesModel.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class GridDeals extends StatefulWidget {
   final data;
-
+  final int IdUser;
   const GridDeals({
     super.key,
-    required this.data,
+    required this.data, required this.IdUser,
   });
 
   @override
@@ -23,6 +25,56 @@ class _GridDealsState extends State<GridDeals> {
     super.initState();
   }
 
+
+  Future<void> deleteLike(int idLike, int idDeal) async {
+    bool isDeleted = await LikeModel().deleteLike(idLike);
+
+    if (isDeleted) {
+      print("Item with ID $idLike deleted successfully.");
+
+      for (DealsModel ad in gridMap) {
+        if (ad.idDeal == idDeal) {
+          setState(() {
+            ad.likeId=null;
+            ad.nbLike= ad.nbLike!-1;
+          });
+
+          break;
+        }
+      }
+    } else {
+      print("Failed to delete item with ID $idLike.");
+    }
+  }
+
+  Future<void> addLike(int idUser, int idDeal) async {
+    LikeModel like = LikeModel(idUser: idUser, idDeal: idDeal);
+
+    try {
+      LikeModel newLike = await like.addLike(like);
+
+      if (newLike != null) {
+        print("Like added successfully.");
+
+        for (DealsModel ad in gridMap) {
+          if (ad.idDeal == idDeal) {
+            setState(() {
+              ad.likeId = newLike.idLP;
+              ad.nbLike = (ad.nbLike ?? 0) + 1;
+            });
+            break;
+          }
+        }
+
+      } else {
+        print("Failed to add Like.");
+      }
+    } catch (e) {
+      print("Error adding Like: $e");
+    }
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return GridView.builder(
@@ -32,20 +84,18 @@ class _GridDealsState extends State<GridDeals> {
         crossAxisCount: 1,
         crossAxisSpacing: 10.0,
         mainAxisSpacing: 10.0,
-        mainAxisExtent: 300,
+        mainAxisExtent: 380,
       ),
       itemCount: gridMap.length,
       itemBuilder: (_, index) {
-        var pricewithdiscount = gridMap[index].price +
+        var pricewithdiscount = gridMap[index].price -
             ((gridMap[index].discount * gridMap[index].price) / 100);
         return GestureDetector(
           onTap: () {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => DealsDetails(
-                  Deals: gridMap[index],
-                ),
+                builder: (context) => DealsDetails( deals: gridMap[index],),
               ),
             );
           },
@@ -124,26 +174,28 @@ class _GridDealsState extends State<GridDeals> {
                         margin: EdgeInsets.only(top: 2, bottom: 8),
                         child: Row(
                           children: [
-                            Text(
-                              '${gridMap[index].price} DT',
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w700,
-                                fontFamily: 'Poppins',
-                                color: Colors.indigo,
+                            if(gridMap[index].discount! >0)
+                              Text("$pricewithdiscount DT"
+                                ,
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w700,
+                                  fontFamily: 'Poppins',
+                                  color: Colors.indigo,
+                                ),
                               ),
-                            ),
                             SizedBox(width: 8),
-                            if (gridMap[index].discount > 0)
+                            if (gridMap[index].discount! > 0)
                               Text(
-                                '$pricewithdiscount DT',
+                                '${gridMap[index].price} DT',
                                 style: TextStyle(
                                   fontSize: 16,
-                                  decoration: TextDecoration.lineThrough,
+                                  decoration: TextDecoration
+                                      .lineThrough,
                                   color: Colors.grey,
                                 ),
                               ),
-                            if (gridMap[index].discount > 0)
+                            if (gridMap[index].discount! > 0)
                               Text(
                                 '(${gridMap[index].discount}% off)',
                                 style: TextStyle(
@@ -151,15 +203,93 @@ class _GridDealsState extends State<GridDeals> {
                                   color: Colors.green,
                                 ),
                               ),
+                            if (gridMap[index].discount! ==null)
+                              Text("${gridMap[index].price} DT"
+                                ,
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w700,
+                                  fontFamily: 'Poppins',
+                                  color: Colors.indigo,
+                                ),
+                              ),
                           ],
                         ),
                       ),
-                      Text(
-                        '${gridMap[index].countries.title}',
-                        style: TextStyle(
-                          color: Colors.grey,
-                          fontSize: 13,
-                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'available until: ${gridMap[index].dateEND}',
+                            style: TextStyle(
+                              decoration: TextDecoration.underline,
+                              decorationColor: Colors.green,
+                              color: Colors.green,
+                              fontWeight: FontWeight.w500,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 10,),
+                      Row(
+                        mainAxisAlignment:
+                        MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'quantity : ${gridMap[index].quantity}',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.w400,
+                              fontSize: 16,
+                            ),
+                          ),
+                          Text(
+                            '${gridMap[index].locations}',
+                            style: TextStyle(
+                              color: Colors.grey,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Row(
+                            children: [
+                              IconButton(
+                                onPressed: () {
+                                  if (gridMap[index].likeId == null) {
+                                    addLike(widget.IdUser,gridMap[index].idDeal );
+                                  } else {
+                                    deleteLike(gridMap[index].likeId, gridMap[index].idDeal);
+
+                                  }
+                                },
+                                icon: gridMap[index].likeId == null
+                                    ? Icon(CupertinoIcons.heart)
+                                    : Icon(
+                                  CupertinoIcons.heart_fill,
+                                  color: Colors.red,
+                                ),
+                              ),
+                              Text("${gridMap[index].nbLike}")
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              IconButton(
+                                onPressed: () {
+                                 // AddToCartModal();
+                                },
+                                icon: Icon(
+                                  CupertinoIcons.star,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     ],
                   ),

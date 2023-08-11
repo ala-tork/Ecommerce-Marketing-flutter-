@@ -46,7 +46,7 @@ class FeaturesModel {
     return data;
   }
 
-
+/*
 // get Feature data by Category id
   Future<List<FeaturesModel>> GetData(int CategoryId) async {
     http.Response response,Adsfeatures;
@@ -61,5 +61,5 @@ class FeaturesModel {
       print(response.body);
       throw Exception('Failed to fetch Features');
     }
-  }
+  }*/
 }

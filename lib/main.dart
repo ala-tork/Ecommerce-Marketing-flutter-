@@ -9,11 +9,20 @@ import 'package:ecommerceversiontwo/Pages/Views/Screens/WelcomePage.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/wishlist.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/myhttpoverrides.dart';
 import 'package:flutter/material.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
 import 'Pages/Views/Screens/AnnouncesCRUD/AddAnnounce.dart';
 
 void main() async{
+  WidgetsFlutterBinding.ensureInitialized();
   HttpOverrides.global = MyHttpOverrides();
+  /** affect the sharedPrefirence of the boosted Silde SHow */
+  void AffectFalseToSlideShow() async{
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setBool('boostedSlideDialogShown', false);
+    prefs.setBool('Rules', false);
+  }
+  AffectFalseToSlideShow();
+
   runApp(const MyApp());
 }
 

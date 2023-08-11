@@ -1,3 +1,4 @@
+import 'package:ecommerceversiontwo/Pages/Views/Screens/DealsCrudViews/MyDealsList.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/products/productList.dart';
@@ -130,6 +131,23 @@ class _SideBarState extends State<SideBar> {
           ListTile(
             leading: Icon(Icons.list_alt),
             title: Text(
+              "My Deals",
+              style: TextStyle(
+                fontSize: 18.0,
+              ),
+            ),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => MyDeals(),
+                ),
+              );
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.list_alt),
+            title: Text(
               "My Products",
               style: TextStyle(
                 fontSize: 18.0,
@@ -173,7 +191,6 @@ class _SideBarState extends State<SideBar> {
             },
           ),
           SizedBox(height: 100.0),
-          SizedBox(height: 150.0),
           ListTile(
             leading: Icon(Icons.settings),
             title: Text(

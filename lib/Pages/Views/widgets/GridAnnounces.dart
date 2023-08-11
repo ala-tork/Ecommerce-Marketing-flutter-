@@ -1,12 +1,21 @@
 import 'package:ecommerceversiontwo/Pages/Views/Screens/BottomBar/AnnouceBottomBar/AnnounceDetails.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/modals/add_to_cart.dart';
+import 'package:ecommerceversiontwo/Pages/core/model/AdsModels/AnnounceModel.dart';
+import 'package:ecommerceversiontwo/Pages/core/model/LikesModel.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 
 class GridB extends StatefulWidget {
   final  data;
-  const GridB({super.key, required this.data,});
+  final int IdUser;
+  //final Function(int index) onRemoveLike;
+ // final Function(int index) onCreateLike;
+ // const GridB({Key? key, required this.data, required this.onRemoveLike, required this.onCreateLike})
+  //    : super(key: key);
+  const GridB({Key? key,required this.data, required this.IdUser});
 
   @override
   State<GridB> createState() => _GridBState();
@@ -18,9 +27,60 @@ class _GridBState extends State<GridB> {
   void initState() {
     // TODO: implement initState
     gridMap = widget.data;
-    //print(gridMap[0].title);
+    print(gridMap[0].likeId);
     super.initState();
   }
+  Future<void> deleteLike(int idLike, int idAds) async {
+    bool isDeleted = await LikeModel().deleteLike(idLike);
+
+    if (isDeleted) {
+      print("Item with ID $idLike deleted successfully.");
+
+      AnnounceModel? foundAd;
+
+      for (AnnounceModel ad in gridMap) {
+        if (ad.idAds == idAds) {
+          setState(() {
+            ad.likeId=null;
+            ad.nbLike= ad.nbLike!-1;
+          });
+
+          break;
+        }
+      }
+    } else {
+      print("Failed to delete item with ID $idLike.");
+    }
+  }
+
+  Future<void> addLike(int idUser, int idAds) async {
+    LikeModel like = LikeModel(idUser: idUser, idAd: idAds);
+
+    try {
+      LikeModel newLike = await like.addLike(like);
+      AnnounceModel? foundAd;
+
+      if (newLike != null) {
+        print("Like added successfully.");
+
+        for (AnnounceModel ad in gridMap) {
+          if (ad.idAds == idAds) {
+            setState(() {
+              ad.likeId = newLike.idLP;
+              ad.nbLike = (ad.nbLike ?? 0) + 1;
+            });
+            break;
+          }
+        }
+
+      } else {
+        print("Failed to add Like.");
+      }
+    } catch (e) {
+      print("Error adding Like: $e");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
 
@@ -33,7 +93,7 @@ class _GridBState extends State<GridB> {
         crossAxisCount: 2 ,
         crossAxisSpacing: 10.0,
         mainAxisSpacing: 10.0,
-        mainAxisExtent: 327,
+        mainAxisExtent: 330,
       ),
       itemCount: gridMap.length,
       itemBuilder: (_, index) {
@@ -88,17 +148,32 @@ class _GridBState extends State<GridB> {
                           color: Colors.black,
                         ),
                       ),
-                      Container(
-                        margin: EdgeInsets.only(top: 2, bottom: 8),
-                        child: Text(
-                          '${gridMap[index].price} DT',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w700,
-                            fontFamily: 'Poppins',
-                            color: Colors.indigo,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Container(
+                            margin: EdgeInsets.only(top: 2, bottom: 8),
+                            child: Text(
+                              '${gridMap[index].price} DT',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w700,
+                                fontFamily: 'Poppins',
+                                color: Colors.indigo,
+                              ),
+                            ),
                           ),
-                        ),
+                          Container(
+                            margin: EdgeInsets.only(top: 2, bottom: 8),
+                            child: Text(
+                              '${gridMap[index].DatePublication}',
+                              style: TextStyle(
+                                color: Colors.grey,
+                                fontSize: 13,
+                              ),
+                            )
+                          ),
+                        ],
                       ),
                       Text(
                         '${gridMap[index].locations}',
@@ -108,32 +183,40 @@ class _GridBState extends State<GridB> {
                         ),
                       ),
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          IconButton(
-                            onPressed: () {
-                              setState(() {
-                                if(gridMap[index].like==true){
-                                  gridMap[index].like=false;
-                                }else{
-                                  gridMap[index].like=true;
-                                }
-                              });
-                            },
-                            icon: gridMap[index].like == false ? Icon(
-                              CupertinoIcons.heart,
-                            ):Icon(
-                              CupertinoIcons.heart_fill,
-                              color: Colors.red,
-                            ),
+                          Row(
+                            children: [
+                              IconButton(
+                                onPressed: () {
+                                  if (gridMap[index].likeId == null) {
+                                    addLike(widget.IdUser,gridMap[index].idAds );
+                                  } else {
+                                    deleteLike(gridMap[index].likeId, gridMap[index].idAds);
+
+                                  }
+                                },
+                                icon: gridMap[index].likeId == null
+                                    ? Icon(CupertinoIcons.heart)
+                                    : Icon(
+                                  CupertinoIcons.heart_fill,
+                                  color: Colors.red,
+                                ),
+                              ),
+                              Text("${gridMap[index].nbLike}")
+                            ],
                           ),
-                          IconButton(
-                            onPressed: () {
-                              AddToCartModal();
-                            },
-                            icon: Icon(
-                              CupertinoIcons.star,
-                            ),
+                          Row(
+                            children: [
+                              IconButton(
+                                onPressed: () {
+                                 // AddToCartModal();
+                                },
+                                icon: Icon(
+                                  CupertinoIcons.star,
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),

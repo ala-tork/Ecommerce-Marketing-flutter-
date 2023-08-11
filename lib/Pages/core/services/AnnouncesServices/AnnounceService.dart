@@ -80,7 +80,6 @@ class AnnounceService{
 
   //fileter data with pagination
   Future<Map<String, dynamic>> getFilteredAds(AdsFilterModel filter) async {
-    print(filter.toJson());
     try {
 
       final response = await http.post(

@@ -1,11 +1,13 @@
 import 'dart:convert';
 
+import 'package:ecommerceversiontwo/Pages/core/model/BrandsModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/CategoriesModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/CitiesModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/CountriesModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/AdsModels/CreateAnnounceModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/FeaturesModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/FeaturesValuesModel.dart';
+import 'package:ecommerceversiontwo/Pages/core/services/BrandsServices/BrandsService.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/CityServices/CityService.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/CountriesServices/CountryService.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/FeaturesServices/FeaturesService.dart';
@@ -14,20 +16,21 @@ import 'package:flutter/material.dart';
 import  'package:http/http.dart' as http;
 
 
-class FilterForm extends StatefulWidget {
+class FilterFormDeals extends StatefulWidget {
   final CountriesModel? country;
   final CategoriesModel? category;
   final CitiesModel? city;
+  final BrandsModel? brand;
   final double? minprice;
   final double? maxprice;
   final List<FeaturesValuesModel>? featursValuesSelected;
-  const FilterForm({super.key, this.country, this.city, this.category,this.featursValuesSelected, this.minprice, this.maxprice});
+  const FilterFormDeals({super.key, this.country, this.city, this.category,this.featursValuesSelected, this.minprice, this.maxprice, this.brand });
 
   @override
-  State<FilterForm> createState() => _FilterFormState();
+  State<FilterFormDeals> createState() => _FilterFormDealsState();
 }
 
-class _FilterFormState extends State<FilterForm> {
+class _FilterFormDealsState extends State<FilterFormDeals> {
   double _minValue = 0;
   double _maxValue = 1000;
   TextEditingController _minController = TextEditingController();
@@ -64,7 +67,27 @@ class _FilterFormState extends State<FilterForm> {
   List<FeaturesValuesModel> _featuresValues=[];
   FeaturesValuesModel? _featurevalue;
 
+  //Brands
+  List<BrandsModel> _brands = [];
+  BrandsModel? _brand;
 
+  /** fetch Brands */
+  Future<void> fetchBrands() async {
+    try {
+      List<BrandsModel> Brands = await BrandsService().GetAllBrands();
+      setState(() {
+        _brands = Brands;
+     });
+      if(widget.brand!=null && _brands.isNotEmpty){
+        setState(() {
+          _brand = _brands.firstWhere((b) => b.idBrand == widget.brand!.idBrand);
+        });
+      }
+
+    } catch (e) {
+      print('Error fetching Brands: $e');
+    }
+  }
 
 
   // get the features of the announce
@@ -112,7 +135,7 @@ class _FilterFormState extends State<FilterForm> {
       setState(() {
         _countrys = countries;
       });
-     if (widget.country != null && _countrys.isNotEmpty) {
+      if (widget.country != null && _countrys.isNotEmpty) {
         setState(() {
           _country = _countrys.firstWhere((c) => c.idCountrys == widget.country!.idCountrys);
           CountryId = _country!.idCountrys!;
@@ -149,7 +172,7 @@ class _FilterFormState extends State<FilterForm> {
       setState(() {
         _features = features;
       });
-      print("////////////////////////////////// : ${widget.featursValuesSelected}");
+      //print("////////////////////////////////// : ${widget.featursValuesSelected}");
       for (var af in widget.featursValuesSelected!) {
         for (var f in _features) {
           if (f.idF == af.idF) {
@@ -190,7 +213,6 @@ class _FilterFormState extends State<FilterForm> {
         }
 
       });
-      //print(featuresValues);
     } catch (e) {
       print('Error fetching Features Values : $e');
     }
@@ -199,6 +221,7 @@ class _FilterFormState extends State<FilterForm> {
   @override
   void initState()  {
     super.initState();
+    fetchBrands();
     fetchCities(CountryId);
     fetchCountries();
     fetchFeatures(CategoryId);
@@ -208,13 +231,8 @@ class _FilterFormState extends State<FilterForm> {
     if(widget.maxprice!>0){
       _maxValue= widget.maxprice as double ;
     }
-    if(widget.country!=null){
-      print(" /////// / : ${widget.country!.title!}");
-      //_country=widget.country;
-    }
     _minController.text = _minValue.toStringAsFixed(2);
     _maxController.text = _maxValue.toStringAsFixed(2);
-    //_country=widget.country;
   }
 
 
@@ -303,9 +321,6 @@ class _FilterFormState extends State<FilterForm> {
                           } else if (snapshot.hasError) {
                             return Text('Error: ${snapshot.error}');
                           } else {
-                            //_countrys = snapshot.data!;
-
-                            //_country=_countrys![0];
                             if (_countrys != null && _countrys!.isNotEmpty) {
                               return Column(
                                 children: [
@@ -323,9 +338,11 @@ class _FilterFormState extends State<FilterForm> {
 
                                       onChanged:(CountriesModel? val){
                                         setState(() {
-                                          _country=val;
-                                          CountryId=int.parse(val!.idCountrys.toString());
-                                          fetchCities(CountryId);
+                                          if(val!.title!="All Countrys"){
+                                            _country=val;
+                                            CountryId=int.parse(val!.idCountrys.toString());
+                                            fetchCities(CountryId);
+                                          }
                                         });
                                       },
                                       icon: Icon(Icons.map_outlined),
@@ -404,6 +421,67 @@ class _FilterFormState extends State<FilterForm> {
                       ),
                   ],
                 ),
+                /** Brands */
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    if(_brands.isNotEmpty)
+                      Container(
+                        margin:EdgeInsets.fromLTRB(10, 30, 10, 0),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: FutureBuilder<List<BrandsModel>>(
+                          future: BrandsService().GetAllBrands(),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState == ConnectionState.waiting) {
+                              return CircularProgressIndicator();
+                            } else if (snapshot.hasError) {
+                              return Text('Error: ${snapshot.error}');
+                            } else {
+                              if (_brands!.isNotEmpty) {
+                                return Column(
+                                  children: [
+                                    Container(
+                                      child:DropdownButton(
+                                        padding: EdgeInsets.symmetric(horizontal: 7),
+                                        disabledHint: Text("Select Cities"),
+                                        value: _brand!=null?_brand:_brands[0],
+                                        items: _brands!.map((e) => DropdownMenuItem<BrandsModel>(
+                                          child:
+                                          Text(e.title.toString()
+                                          ),
+                                          value: e,)).toList(),
+
+                                        onChanged:(BrandsModel? b){
+                                          setState(() {
+                                            if(b!.title!="All Brands"){
+                                              _brand=b;
+                                            }
+                                          });
+                                        },
+                                        icon: Icon(Icons.branding_watermark),
+                                        iconEnabledColor: Colors.indigo,
+                                        style: TextStyle(
+                                            color: Colors.black,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 18
+                                        ),
+                                        borderRadius: BorderRadius.circular(10),
+                                      ), //
+                                    ),
+                                  ],
+                                );
+                              } else {
+                                return Text('No data available');
+                              }
+                            }
+                          },
+                        ),
+                      ),
+                  ],
+                ),
 
                 /** Category && Features */
 
@@ -423,10 +501,8 @@ class _FilterFormState extends State<FilterForm> {
                           future: CategoriesModel().GetData(),
                           builder: (BuildContext context, AsyncSnapshot<List<CategoriesModel>> snapshot) {
                             if (snapshot.connectionState == ConnectionState.waiting) {
-                              // Display a loading indicator while waiting for data
                               return CircularProgressIndicator();
                             } else if (snapshot.hasError) {
-                              // Handle the error case
                               return Text('Failed to fetch data');
                             } else {
                               return
@@ -437,9 +513,12 @@ class _FilterFormState extends State<FilterForm> {
                                   items: _categorys.map((e) => DropdownMenuItem<CategoriesModel>(child: Text(e.title.toString()),value: e,)).toList(),
                                   onChanged:(CategoriesModel? x){
                                     setState(() {
-                                      _category=x;
-                                      CategoryId=int.parse(x!.idCateg.toString());
-                                      fetchFeatures(CategoryId);
+                                      if(x!.title!="All Categories"){
+                                        _category=x;
+                                        CategoryId=int.parse(x!.idCateg.toString());
+                                        fetchFeatures(CategoryId);
+                                      }
+
                                     });
                                   },
                                   icon: Icon(Icons.category_outlined),
@@ -540,6 +619,7 @@ class _FilterFormState extends State<FilterForm> {
                               'country':_country,
                               'category':_category,
                               'city':_city,
+                              'brand' : _brand,
                               'minprice':_minValue,
                               'maxprice':_maxValue,
                               'featuresvalues': featuresvalues,

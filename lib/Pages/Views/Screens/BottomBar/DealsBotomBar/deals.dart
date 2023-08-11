@@ -1,20 +1,20 @@
-import 'dart:convert';
-
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/searchPage.dart';
-import 'package:ecommerceversiontwo/Pages/Views/widgets/FilterForm.dart';
+import 'package:ecommerceversiontwo/Pages/Views/widgets/FilterFormDeals.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/GridDeals.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/dummy_search_widget1.dart';
+import 'package:ecommerceversiontwo/Pages/core/model/BrandsModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/Deals/DealsFilterModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/CategoriesModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/CitiesModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/CountriesModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/Deals/DealsModel.dart';
+import 'package:ecommerceversiontwo/Pages/core/model/FeaturesValuesModel.dart';
+import 'package:ecommerceversiontwo/Pages/core/model/LikesModel.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-
-import '../../../widgets/GridAnnounces.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../widgets/custom_icon_button_widget.dart';
 import '../../messagePage.dart';
 
@@ -28,36 +28,76 @@ class Deals extends StatefulWidget {
 
 class _DealsState extends State<Deals> {
 
+  String? DealsName;
   CountriesModel? country;
   CategoriesModel? category;
   CitiesModel? city;
+  BrandsModel? brand;
   double minprice=0;
   double maxprice=0;
   List<DealsModel> gridMap = [];
   int MaxPage =0;
   int page=1;
+  List<FeaturesValuesModel> featuresvalues = [];
+  List<int> featuresvaluesid = [];
 
 
+  int? idUser;
+
+  Future<int> getuserId() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+    var decodedToken = JwtDecoder.decode(token!);
+    idUser = int.parse(decodedToken['id']);
+    print("id user is $idUser");
+    return idUser!;
+  }
+
+  Future<void> getLikeByIdUserIdAd() async {
+    try {
+      await getuserId();
+      List<DealsModel>listdeals=await apicall();
+      if (listdeals.length != 0) {
+        for (var a in listdeals) {
+          Map<String, dynamic> response = await LikeModel().getLikeDeals(idUser!, a.idDeal!);
+          a.nbLike=response["nbLike"];
+          if(response["like"]!=null)
+            a.likeId= await LikeModel.fromJson(response["like"]).idLP;
+        }
+      }
+
+    } catch (e) {
+      print('error fetching Likes: $e');
+    }
+  }
 
 
   Future<List<DealsModel>> apicall() async {
-    DealsFilterModel DelasFilter = DealsFilterModel(pageNumber: page, idFeaturesValues: []);
+    await getuserId();
+    DealsFilterModel deaslFilter = DealsFilterModel(pageNumber: page, idFeaturesValues: []);
+    if(DealsName!=null){
+      deaslFilter.DealsName=DealsName;
+    }
     if (country != null) {
-      DelasFilter.idCountrys = country!.idCountrys;
+      deaslFilter.idCountrys = country!.idCountrys;
     }
     if (category != null) {
-      DelasFilter.idCategory = category!.idCateg;
+      deaslFilter.idCategory = category!.idCateg;
     }
     if (city != null) {
-      DelasFilter.idCity = city!.idCity;
+      deaslFilter.idCity = city!.idCity;
     }
-    if(minprice!=0 || maxprice!=0)
+    if(brand !=null){
+      deaslFilter.IdBrans= brand!.idBrand;
+    }
+    if(minprice!=0)
     {
-      DelasFilter.minPrice=minprice;
-      DelasFilter.maxPrice=maxprice;
+      deaslFilter.minPrice=minprice;
     }
+    if(maxprice!=0){ deaslFilter.maxPrice=maxprice;}
+    if(featuresvaluesid.isNotEmpty){deaslFilter.idFeaturesValues=featuresvaluesid;}
     try {
-      Map<String, dynamic> response = await DelasFilter.getFilteredDeals(DelasFilter);
+      Map<String, dynamic> response = await deaslFilter.getFilteredDeals(deaslFilter);
 
       if (response["deals"] != null) {
         List<dynamic> adsJsonList = response["deals"];
@@ -102,7 +142,7 @@ class _DealsState extends State<Deals> {
         elevation: 1,
         iconTheme: IconThemeData(color: Colors.white),
         backgroundColor: Colors.indigo,
-        title: Text("Announces",
+        title: Text("Deals",
           style: TextStyle(
               color: Colors.white
           ),
@@ -172,7 +212,12 @@ class _DealsState extends State<Deals> {
                             MaterialPageRoute(
                               builder: (context) => SearchPage(),
                             ),
-                          );
+                          ).then((value) {
+                            setState(() {
+                              DealsName = (value as Map)['data'];
+                              print(DealsName);
+                            });
+                          } );
                         },
                       ),
                     ),
@@ -194,21 +239,35 @@ class _DealsState extends State<Deals> {
                               context: context,
                               isScrollControlled: true,
                               builder: (context) {
-                                return FilterForm(category: category,country: country,minprice: minprice,maxprice: maxprice,);
+                                return FilterFormDeals(
+                                  category: category,
+                                  country: country,
+                                  city: city,
+                                  brand: brand,
+                                  featursValuesSelected: featuresvalues,
+                                  minprice: minprice,
+                                  maxprice: maxprice,);
                               }
                           ).then((value){
                             setState(() {
+
                               country = (value as Map)['country'];
                               category = (value as Map)['category'];
                               city = (value as Map)['city'];
+                              brand = (value as Map)['brand'];
+                              print(brand);
                               minprice = (value as Map)['minprice'];
                               maxprice = (value as Map)['maxprice'];
-                              gridMap=[];
+                              featuresvalues = (value as Map)['featuresvalues'];
+                              featuresvaluesid = (value as Map)['featuresvaluesids'];
+                              print(featuresvaluesid);
+                              page = 1;
+                              gridMap = [];
                             });
 
                           });
                         },
-                        icon: Icon(Icons.filter_alt_rounded ,color: Colors.lightBlue,size: 30,)
+                        icon: Icon(Icons.filter_alt_rounded ,color: Colors.indigo,size: 30,)
                     ),
                     Text('Filter')
                   ],
@@ -216,7 +275,67 @@ class _DealsState extends State<Deals> {
               ],
             ),
             /** Show filters **/
-            country!=null||category!=null||city!=null||minprice!=0||maxprice!=100? Row(
+            DealsName!=null || brand!=null ?
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                DealsName!=null?
+                ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      DealsName=null;
+                      gridMap=[];
+                      page=1;
+                    });
+                  },
+                  style: ElevatedButton.styleFrom(
+                    primary: Colors.lightBlue[100],
+                    padding: EdgeInsets.all(10),
+                    elevation: 0,
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        DealsName!,
+                        style: TextStyle(fontSize: 16,color: Colors.black),
+                      ),
+                      SizedBox(width: 3),
+                      Icon(Icons.close,color: Colors.black,),
+                    ],
+                  ),
+                ):SizedBox(height: 0,),
+                brand!=null?
+                ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      brand=null;
+                      gridMap=[];
+                      page=1;
+                    });
+                  },
+                  style: ElevatedButton.styleFrom(
+                    primary: Colors.lightBlue[100],
+                    padding: EdgeInsets.all(10),
+                    elevation: 0,
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        brand!.title!,
+                        style: TextStyle(fontSize: 16,color: Colors.black),
+                      ),
+                      SizedBox(width: 3),
+                      Icon(Icons.close,color: Colors.black,),
+                    ],
+                  ),
+                ):SizedBox(height: 0,),
+                SizedBox(height: 28,)
+              ],
+            ):SizedBox(height: 0,),
+            country!=null||category!=null||city!=null?
+            Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 country!=null?
@@ -224,9 +343,11 @@ class _DealsState extends State<Deals> {
 
                   onPressed: () {
                     setState(() {
-                      CountriesModel? p;
-                      country=p;
+                      //CountriesModel? p;
+                      country=null;
+                      city=null;
                       gridMap=[];
+                      page=1;
                     });
                   },
                   style: ElevatedButton.styleFrom(
@@ -253,6 +374,7 @@ class _DealsState extends State<Deals> {
                     setState(() {
                       city=null;
                       gridMap=[];
+                      page=1;
                     });
                   },
                   style: ElevatedButton.styleFrom(
@@ -277,7 +399,10 @@ class _DealsState extends State<Deals> {
                   onPressed: () {
                     setState(() {
                       category=null;
+                      featuresvaluesid=[];
+                      featuresvalues=[];
                       gridMap=[];
+                      page=1;
                     });
                   },
                   style: ElevatedButton.styleFrom(
@@ -299,7 +424,12 @@ class _DealsState extends State<Deals> {
                     ],
                   ),
                 ):SizedBox(height: 0,),
-
+              ],
+            ):SizedBox(height: 0,),
+            minprice>0 || maxprice>0 ?
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
                 minprice!=0?
                 ElevatedButton(
 
@@ -307,6 +437,7 @@ class _DealsState extends State<Deals> {
                     setState(() {
                       minprice=0;
                       gridMap=[];
+                      page=1;
                     });
                   },
                   style: ElevatedButton.styleFrom(
@@ -333,6 +464,7 @@ class _DealsState extends State<Deals> {
                     setState(() {
                       maxprice=0;
                       gridMap=[];
+                      page=1;
                     });
                   },
                   style: ElevatedButton.styleFrom(
@@ -353,13 +485,46 @@ class _DealsState extends State<Deals> {
                   ),
                 ):SizedBox(height: 0,),
               ],
-            )
-                :SizedBox(height: 0,),
+            ):SizedBox(height: 0,),
+            /** show filter values*/
+            featuresvalues.length>0 ?
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: featuresvalues.map((e) {
+                return ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      featuresvalues.remove(e);
+                      featuresvaluesid.remove(e.idFv);
+                      gridMap = [];
+                      page = 1;
+                    });
+                    // apicall();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    primary: Colors.lightBlue[100],
+                    padding: EdgeInsets.all(10),
+                    elevation: 0,
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        e.title!,
+                        style: TextStyle(fontSize: 16, color: Colors.black),
+                      ),
+                      SizedBox(width: 3),
+                      Icon(Icons.close, color: Colors.black),
+                    ],
+                  ),
+                );
+              }).toList(),
+            ) : SizedBox(height: 0),
             Padding(
               padding: const EdgeInsets.fromLTRB(8.0, 20.0, 8.0, 8.0),
-              child: FutureBuilder<List<DealsModel>>(
-                future: apicall(),
-                builder: (BuildContext context, AsyncSnapshot<List<DealsModel>> snapshot) {
+              child: FutureBuilder<void>(
+                future: getLikeByIdUserIdAd(),
+                builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return CircularProgressIndicator();
                   } else if (snapshot.hasError) {
@@ -368,7 +533,7 @@ class _DealsState extends State<Deals> {
                     return
                       Column(
                         children: [
-                          GridDeals(data: gridMap),
+                          GridDeals(data: gridMap,IdUser: idUser!,),
                           gridMap.length != 0 && page<MaxPage?
                           ElevatedButton(
                             onPressed: () async {

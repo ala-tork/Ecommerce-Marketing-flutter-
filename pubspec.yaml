@@ -48,6 +48,10 @@ dependencies:
   dots_indicator:
   mailer:
   flutter_rating_bar:
+  flutter_phone_direct_caller: ^2.1.1
+  url_launcher: ^6.1.12
+  carousel_slider: ^4.2.1
+  intl:
 
 
   # The following adds the Cupertino Icons font to your application.

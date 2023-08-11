@@ -16,8 +16,14 @@ import 'package:ecommerceversiontwo/Pages/core/services/AdsFeaturesServices/AdsF
 import 'package:ecommerceversiontwo/Pages/core/services/AnnouncesServices/AnnounceService.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/CategoryService.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/CityServices/CityService.dart';
+import 'package:ecommerceversiontwo/Pages/core/services/CountriesServices/CountryService.dart';
+import 'package:ecommerceversiontwo/Pages/core/services/FeaturesServices/FeaturesService.dart';
+import 'package:ecommerceversiontwo/Pages/core/services/FeaturesValuesServices/FeaturesValuesService.dart';
+import 'package:ecommerceversiontwo/Pages/core/services/ImageServices/ImageService.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AddAnnounces extends StatefulWidget {
   const AddAnnounces({super.key});
@@ -65,10 +71,23 @@ class _AddAnnouncesState extends State<AddAnnounces> {
 
   String? error ="";
 
+
+  int? idUser ;
+
+  Future<int> getuserId() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+    var decodedToken = JwtDecoder.decode(token!);
+    idUser = int.parse(decodedToken['id']);
+    print("id user is $idUser");
+    return idUser!;
+  }
+
+
+
 // Function to create the announce object
   CreateAnnounce? announce;
-  void createAnnounceObject() {
-
+  void createAnnounceObject(int userid) async  {
     if(title.toString().isNotEmpty && description.toString().isNotEmpty &&
         (details!=null && details.text.length!=0) && price.toString().isNotEmpty
         && CategoryId!=0 && _country!=null  && _city!=null && _imagesid.length!=0 ){
@@ -81,6 +100,7 @@ class _AddAnnouncesState extends State<AddAnnounces> {
         idCateg: CategoryId,
         idCountrys: _country!.idCountrys!,
         idCity: _city!.idCity!,
+        IdUser : userid,
         locations: "${_country!.title}, ${_city!.title}",
 
         //images:_image,
@@ -119,7 +139,7 @@ class _AddAnnouncesState extends State<AddAnnounces> {
     final image = await ImagePicker().pickImage(source: source);
     if (image==null) return ;
     final imageTemporary = File(image.path);
-    ImageModel response = await ImageModel().addImage(imageTemporary);
+    ImageModel response = await ImageService().addImage(imageTemporary);
     // Handle the response as needed
     print(response);
     setState(() {
@@ -131,8 +151,8 @@ class _AddAnnouncesState extends State<AddAnnounces> {
   //save the announce
   void sendAdToApi() async {
     //create the Announce
-    CreateAnnounce();
-    CreateAnnounce an = CreateAnnounce();
+    await getuserId();
+    createAnnounceObject(idUser!);
     Map<String, dynamic> response = await AnnounceService().createAd(announce!);
     // Handle the response as needed
     print(response);
@@ -154,7 +174,7 @@ class _AddAnnouncesState extends State<AddAnnounces> {
     //update the images
     for(var i=0;i<_imagesid!.length;i++){
       print(int.parse(_imagesid[i].IdImage.toString()));
-      await ImageModel().UpdateImages(int.parse(_imagesid[i].IdImage.toString()), int.parse(x.idAds.toString()));
+      await ImageService().UpdateImages(int.parse(_imagesid[i].IdImage.toString()), int.parse(x.idAds.toString()));
     }
   }
 
@@ -186,7 +206,7 @@ class _AddAnnouncesState extends State<AddAnnounces> {
   /** fetch countrys */
   Future<void> fetchCountries() async {
     try {
-      List<CountriesModel> countries = await CountriesModel().GetData();
+      List<CountriesModel> countries = await CountrySerice().GetData();
       setState(() {
         _countrys = countries;
       });
@@ -212,7 +232,7 @@ class _AddAnnouncesState extends State<AddAnnounces> {
   /** fetch Features */
   Future<void> fetchFeatures(int idcateg) async {
     try {
-      List<FeaturesModel> features = await FeaturesModel().GetData(idcateg);
+      List<FeaturesModel> features = await FeaturesService().GetData(idcateg);
       setState(() {
         _features = features;
       });
@@ -224,7 +244,7 @@ class _AddAnnouncesState extends State<AddAnnounces> {
   /** fetch Features Values */
   Future<void> fetchFeaturesValues(int idfeature) async {
     try {
-      List<FeaturesValuesModel> featuresValues = await FeaturesValuesModel().GetData(idfeature);
+      List<FeaturesValuesModel> featuresValues = await FeaturesValuesService().GetData(idfeature);
       setState(() {
         _featuresValues = featuresValues;
         if(_features[indexOfFeature].selected==true){
@@ -423,7 +443,7 @@ class _AddAnnouncesState extends State<AddAnnounces> {
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: FutureBuilder<List<CountriesModel>>(
-                              future: CountriesModel().GetData(),
+                              future: CountrySerice().GetData(),
                               builder: (context, snapshot) {
                                 if (snapshot.connectionState == ConnectionState.waiting) {
                                   return CircularProgressIndicator();
@@ -702,7 +722,10 @@ class _AddAnnouncesState extends State<AddAnnounces> {
                           textColor: Colors.white,
                           color: Colors.indigo,
                           onPressed: () async {
-                            createAnnounceObject();
+                            await getuserId().then((value){
+                              createAnnounceObject(value);
+                            });
+
                            if(error!.isNotEmpty){
                               print(error);
 

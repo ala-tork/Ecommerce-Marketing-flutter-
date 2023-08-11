@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class AdsFilterModel {
+  String? adsName;
   int? idCountrys;
   int? idCity;
   List<int?>? idFeaturesValues;
@@ -11,6 +12,7 @@ class AdsFilterModel {
   int pageNumber;
 
   AdsFilterModel({
+    this.adsName,
     this.idCountrys,
     this.idCity,
     this.idFeaturesValues,
@@ -22,6 +24,7 @@ class AdsFilterModel {
 
   factory AdsFilterModel.fromJson(Map<String, dynamic> json) {
     return AdsFilterModel(
+      adsName :json['adsName'],
       idCountrys: json['IdCountrys'],
       idCity: json['IdCity'],
       idFeaturesValues: List<int?>.from(json['IdFeaturesValues']),
@@ -34,6 +37,8 @@ class AdsFilterModel {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = Map<String, dynamic>();
+    if(this.adsName!=null)
+      data['adsName'] = this.adsName;
     if(this.idCountrys!=null)
     data['IdCountrys'] = this.idCountrys;
     if(this.idCity!=null)

@@ -17,8 +17,15 @@ import 'package:ecommerceversiontwo/Pages/core/services/AdsFeaturesServices/AdsF
 import 'package:ecommerceversiontwo/Pages/core/services/BrandsServices/BrandsService.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/CategoryService.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/CityServices/CityService.dart';
+import 'package:ecommerceversiontwo/Pages/core/services/CountriesServices/CountryService.dart';
+import 'package:ecommerceversiontwo/Pages/core/services/FeaturesServices/FeaturesService.dart';
+import 'package:ecommerceversiontwo/Pages/core/services/FeaturesValuesServices/FeaturesValuesService.dart';
+import 'package:ecommerceversiontwo/Pages/core/services/ImageServices/ImageService.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AddDeals extends StatefulWidget {
   const AddDeals({super.key});
@@ -38,6 +45,7 @@ class _AddDealsState extends State<AddDeals> {
   TextEditingController description = new TextEditingController();
   TextEditingController details = new TextEditingController();
   TextEditingController images = new TextEditingController();
+  TextEditingController EndDate = TextEditingController();
   bool? boost;
 
 
@@ -73,9 +81,20 @@ class _AddDealsState extends State<AddDeals> {
 
   String? error ="";
 
+  int? idUser ;
+
+  Future<int> getuserId() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+    var decodedToken = JwtDecoder.decode(token!);
+    idUser = int.parse(decodedToken['id']);
+    print("id user is $idUser");
+    return idUser!;
+  }
+
 // Function to create the Deals object
   CreateDealsModel? deals;
-  void createDealsObject() {
+  void createDealsObject(int userId) async {
 
     if(
     title.toString().isNotEmpty && description.toString().isNotEmpty &&
@@ -95,10 +114,11 @@ class _AddDealsState extends State<AddDeals> {
         idCountrys: _country!.idCountrys!,
         idCity: _city!.idCity!,
         idBrand: _brand!.idBrand,
-        idUser: 1,
+        idUser: userId,
         locations: "${_country!.title}, ${_city!.title}",
         active: 1,
       );
+      if(EndDate!=null){deals!.dateEND=EndDate.text;}
         error="";
     }else{
         error="pleace complete all the form ";
@@ -132,7 +152,7 @@ class _AddDealsState extends State<AddDeals> {
     final image = await ImagePicker().pickImage(source: source);
     if (image==null) return ;
     final imageTemporary = File(image.path);
-    ImageModel response = await ImageModel().addImage(imageTemporary);
+    ImageModel response = await ImageService().addImage(imageTemporary);
     print(response);
     setState(() {
       this._imagesid.add(response);
@@ -142,10 +162,10 @@ class _AddDealsState extends State<AddDeals> {
 
   //save the deal
   void sendAdToApi() async {
-    createDealsObject();
-    CreateDealsModel dl = CreateDealsModel();
-    print(deals!.toJson());
-    Map<String, dynamic> response = await dl.createDeal(deals!);
+    await getuserId();
+    createDealsObject(idUser!);
+
+    Map<String, dynamic> response = await deals!.createDeal(deals!);
     print(response);
     var x = await DealsModel.fromJson(response);
     print(x.idDeal);
@@ -165,7 +185,7 @@ class _AddDealsState extends State<AddDeals> {
     //update the images
     for(var i=0;i<_imagesid!.length;i++){
       print(int.parse(_imagesid[i].IdImage.toString()));
-      await ImageModel().UpdateDelaImages(int.parse(_imagesid[i].IdImage.toString()), int.parse(x.idDeal.toString()));
+      await ImageService().UpdateDelaImages(int.parse(_imagesid[i].IdImage.toString()), int.parse(x.idDeal.toString()));
     }
   }
 
@@ -197,7 +217,7 @@ class _AddDealsState extends State<AddDeals> {
   /** fetch countrys */
   Future<void> fetchCountries() async {
     try {
-      List<CountriesModel> countries = await CountriesModel().GetData();
+      List<CountriesModel> countries = await CountrySerice().GetData();
       setState(() {
         _countrys = countries;
       });
@@ -235,7 +255,7 @@ class _AddDealsState extends State<AddDeals> {
   /** fetch Features */
   Future<void> fetchFeatures(int idcateg) async {
     try {
-      List<FeaturesModel> features = await FeaturesModel().GetData(idcateg);
+      List<FeaturesModel> features = await FeaturesService().GetData(idcateg);
       setState(() {
         _features = features;
       });
@@ -247,7 +267,7 @@ class _AddDealsState extends State<AddDeals> {
   /** fetch Features Values */
   Future<void> fetchFeaturesValues(int idfeature) async {
     try {
-      List<FeaturesValuesModel> featuresValues = await FeaturesValuesModel().GetData(idfeature);
+      List<FeaturesValuesModel> featuresValues = await FeaturesValuesService().GetData(idfeature);
       setState(() {
         _featuresValues = featuresValues;
         if(_features[indexOfFeature].selected==true){
@@ -391,6 +411,35 @@ class _AddDealsState extends State<AddDeals> {
                           ),
                         ),
                       ),
+                      TextField(
+                        controller: EndDate,
+                        decoration: InputDecoration(
+                            icon: Icon(Icons.calendar_today),
+                            labelText: "End Date"
+                        ),
+                        readOnly: true,
+                        //set it true, so that user will not able to edit text
+                        onTap: () async {
+                          DateTime? pickedDate = await showDatePicker(
+                              context: context,
+                              initialDate: DateTime.now(),
+                              firstDate: DateTime(2000),
+                              //DateTime.now() - not to allow to choose before today.
+                              lastDate: DateTime(2050));
+
+                          if (pickedDate != null) {
+                            print(pickedDate); //pickedDate output format => 2021-03-10 00:00:00.000
+                            String formattedDate =
+                            DateFormat('yyyy-MM-dd').format(pickedDate);
+                            print(
+                                formattedDate); //formatted date output using intl package =>  2021-03-16
+                            setState(() {
+                              EndDate.text =
+                                  formattedDate; //set output date to TextField value.
+                            });
+                          } else {}
+                        },
+                      ),
 
                       /** country and city*/
                       Row(
@@ -404,7 +453,7 @@ class _AddDealsState extends State<AddDeals> {
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: FutureBuilder<List<CountriesModel>>(
-                              future: CountriesModel().GetData(),
+                              future: CountrySerice().GetData(),
                               builder: (context, snapshot) {
                                 if (snapshot.connectionState == ConnectionState.waiting) {
                                   return CircularProgressIndicator();
@@ -516,6 +565,7 @@ class _AddDealsState extends State<AddDeals> {
                             ),
                         ],
                       ),
+                      /** Brands */
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -810,7 +860,10 @@ class _AddDealsState extends State<AddDeals> {
                           textColor: Colors.white,
                           color: Colors.indigo,
                           onPressed: () async {
-                            createDealsObject();
+                            await getuserId().then((value){
+                              createDealsObject(value);
+                            });
+
                            if(error!.isNotEmpty){
                               print(error);
 

@@ -3,8 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 
 class SellerDetailsPopUp {
-  void showDialogFunc(
-      BuildContext context, String img, String title, String email, String phone) {
+  void showDialogFunc(BuildContext context, String img, String title, String email, String phone) {
     showDialog(
       context: context,
       builder: (context) {
@@ -25,8 +24,8 @@ class SellerDetailsPopUp {
                 ],
               ),
               padding: EdgeInsets.all(20),
-              height: 500,
-              width: MediaQuery.of(context).size.width * 0.8,
+              height: 600,
+              width: MediaQuery.of(context).size.width * 0.9,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
@@ -46,35 +45,6 @@ class SellerDetailsPopUp {
                       color: AppColor.primary,
                       fontWeight: FontWeight.bold,
                     ),
-                  ),
-                  SizedBox(height: 15),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        "Rating : ",
-                        style: TextStyle(
-                          fontSize: 25,
-                          color: AppColor.primary,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      RatingBar.builder(
-                        initialRating: 3.5,
-                        minRating: 1,
-                        direction: Axis.horizontal,
-                        allowHalfRating: true,
-                        itemCount: 5,
-                        itemSize: 30,
-                        itemBuilder: (context, _) => Icon(
-                          Icons.star,
-                          color: Colors.amber,
-                        ),
-                        onRatingUpdate: (rating) {
-                        },
-                        ignoreGestures: true,
-                      ),
-                    ],
                   ),
                   SizedBox(height: 15),
                   Container(
@@ -99,6 +69,92 @@ class SellerDetailsPopUp {
                     ),
                   ),
                   SizedBox(height: 20),
+                  SizedBox(height: 15),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "response time : ",
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        "between 1 and 2 hours ",
+                        style: TextStyle(
+                          fontSize: 15,
+                          color: AppColor.primary,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 15),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "quality of service: ",
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        "medium",
+                        style: TextStyle(
+                          fontSize: 15,
+                          color: AppColor.primary,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 15),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "delivery time : ",
+                        style: TextStyle(
+                          fontSize: 20,
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        "between 1 and 2 days ",
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: AppColor.primary,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 15),
+                  Expanded(
+                    child: Align(
+                      alignment: Alignment.bottomCenter,
+                      child: RatingBar.builder(
+                        initialRating: 3.5,
+                        minRating: 1,
+                        direction: Axis.horizontal,
+                        allowHalfRating: true,
+                        itemCount: 5,
+                        itemSize: 30,
+                        itemBuilder: (context, _) => Icon(
+                          Icons.star,
+                          color: Colors.amber,
+                        ),
+                        onRatingUpdate: (rating) {},
+                        ignoreGestures: true,
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),

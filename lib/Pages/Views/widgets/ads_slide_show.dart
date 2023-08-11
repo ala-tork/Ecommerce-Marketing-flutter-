@@ -1,15 +1,16 @@
 import 'package:ecommerceversiontwo/Pages/Views/widgets/rating_tag.dart';
+import 'package:ecommerceversiontwo/Pages/core/model/AdsModels/AnnounceModel.dart';
 import 'package:flutter/material.dart';
 import '../../core/model/adsModel.dart';
 
 class AdsSlideShow extends StatelessWidget {
+  final AnnounceModel adsShow;
 
-  final AdsModel adsShow;
   AdsSlideShow({required this.adsShow});
 
   @override
   Widget build(BuildContext context) {
-    return  Stack(
+    return Stack(
       children: <Widget>[
         Card(
           elevation: 0,
@@ -23,11 +24,10 @@ class AdsSlideShow extends StatelessWidget {
                   height: 160,
                   decoration: BoxDecoration(
                     image: DecorationImage(
-                      image: AssetImage(adsShow.ImagePrinciple),
+                      image: NetworkImage("https://10.0.2.2:7058${adsShow!.imagePrinciple!}"),
                       fit: BoxFit.cover,
                     ),
                   ),
-
                 ),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(15, 10, 0, 0),
@@ -56,12 +56,11 @@ class AdsSlideShow extends StatelessWidget {
                         child: Align(
                           alignment: Alignment.centerLeft,
                           child: Text(
-                            '${adsShow.shortDescription}',
+                            '${adsShow.description}',
                             style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.grey[500]
-                            ),
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.grey[500]),
                           ),
                         ),
                       ),
@@ -72,24 +71,24 @@ class AdsSlideShow extends StatelessWidget {
                   padding: const EdgeInsets.fromLTRB(15, 10, 0, 0),
                   child: Row(
                     children: [
-                      Text("${adsShow.price} DT",
+                      Text(
+                        "${adsShow.price} DT",
                         style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            color: Colors.indigo
-                        ),
+                            color: Colors.indigo),
                       )
                     ],
-
                   ),
                 ),
-                SizedBox(height: 20,),
-
+                SizedBox(
+                  height: 20,
+                ),
               ],
             ),
           ),
         ),
-       /* Image.asset(
+        /* Image.asset(
           adsShow.ImagePrinciple,
           fit: BoxFit.cover,
           width: double.infinity,

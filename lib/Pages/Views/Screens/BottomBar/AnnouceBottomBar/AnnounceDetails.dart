@@ -1,21 +1,24 @@
+import 'package:ecommerceversiontwo/Pages/Views/Screens/BottomBar/AnnouceBottomBar/AnnounceCard.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/ImageViewer.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/SellerDetail.dart';
+import 'package:ecommerceversiontwo/Pages/Views/widgets/ads_slide_show.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/curstom_app_bar.dart';
 import 'package:ecommerceversiontwo/Pages/app_color.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/AdsFeaturesModel.dart';
+import 'package:ecommerceversiontwo/Pages/core/model/AdsModels/AdsFilterModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/AdsModels/AnnounceModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/ImageModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/AdsFeaturesServices/AdsFeaturesService.dart';
+import 'package:ecommerceversiontwo/Pages/core/services/AnnouncesServices/AnnounceService.dart';
+import 'package:ecommerceversiontwo/Pages/core/services/ImageServices/ImageService.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:jwt_decoder/jwt_decoder.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+import 'package:lecle_flutter_carousel_pro/lecle_flutter_carousel_pro.dart';
 import 'dart:convert';
 
-import 'package:shared_preferences/shared_preferences.dart';
-
+import 'package:url_launcher/url_launcher.dart';
 
 class AnounceDetails extends StatefulWidget {
   final AnnounceModel Announce;
@@ -27,24 +30,26 @@ class AnounceDetails extends StatefulWidget {
 }
 
 class _AnounceDetailsState extends State<AnounceDetails> {
-
   PageController productImageSlider = PageController();
+
   /** User  */
-  String email="";
-  String firstname="";
-  String lastname="";
-  String phone="";
-  String country="";
-  String address="";
+  String email = "";
+  String firstname = "";
+  String lastname = "";
+  String phone = "";
+  String country = "";
+  String address = "";
   String _selectedCountry = '';
   String selectedCountry = '';
-  String id="";
-  String? token;
+  String id = "";
+
+  //
+  List<AnnounceModel> similar = [];
 
   @override
   void initState() {
     super.initState();
-    GetToken();
+    GetSimilar(widget.Announce, 1);
     fetchAdsFeaturesByIDAds(widget.Announce.idAds!);
     fetchImages(widget.Announce.idAds!);
     fetchUserData().then((user) {
@@ -57,20 +62,21 @@ class _AnounceDetailsState extends State<AnounceDetails> {
         country = user['country'];
       });
     });
+    print("Like IDDDDDDDDD :${widget.Announce.likeId}");
   }
 
+  /** fetch Images */
   List<ImageModel> _images = [];
   List<String> _urlImages = [];
 
-  /** fetch Images */
   Future<void> fetchImages(int idAds) async {
     try {
-      List<ImageModel> images = await ImageModel().apicall(idAds);
+      List<ImageModel> images = await ImageService().apicall(idAds);
       _images = images;
       _images.forEach((i) {
         _urlImages.add(i.title!);
       });
-      print(_images);
+      //print(_images);
       //print(featuresValues);
     } catch (e) {
       print('Error fetching Images: $e');
@@ -82,21 +88,22 @@ class _AnounceDetailsState extends State<AnounceDetails> {
   /** fetch Ads features and chnage the features and the features values */
   Future<void> fetchAdsFeaturesByIDAds(int idAds) async {
     try {
-      List<AdsFeature> AfList = await AdsFeaturesService().GetAdsFeaturesByIdAds(idAds);
+      List<AdsFeature> AfList =
+          await AdsFeaturesService().GetAdsFeaturesByIdAds(idAds);
       setState(() {
         _AdsFeatures = AfList;
       });
-      print(_AdsFeatures);
+      //print(_AdsFeatures);
     } catch (e) {
       print('Error fetching AdsFeatures: $e');
     }
   }
 
-
   /** Get User */
 
   Future<Map<String, dynamic>> fetchUserData() async {
-    final apiUrl = 'https://10.0.2.2:7058/User/GetUserById?id=${widget.Announce.iduser}';
+    final apiUrl =
+        'https://10.0.2.2:7058/User/GetUserById?id=${widget.Announce.iduser}';
 
     try {
       final response = await http.get(Uri.parse(apiUrl));
@@ -114,10 +121,39 @@ class _AnounceDetailsState extends State<AnounceDetails> {
       throw Exception('Error: $e');
     }
   }
-/** Get Token*/
-  void GetToken() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    token = prefs.getString('token');
+
+  /** Get similar Announce */
+
+  Future<List<AnnounceModel>> GetSimilar(AnnounceModel an, int page) async {
+    AdsFilterModel adsFilter =
+        AdsFilterModel(pageNumber: page, idFeaturesValues: []);
+    if (an.idCountrys != null) {
+      adsFilter.idCountrys = an.idCountrys;
+    }
+    if (an.idCateg != null) {
+      adsFilter.idCategory = an.idCateg;
+    }
+    try {
+      Map<String, dynamic> response =
+          await AnnounceService().getFilteredAds(adsFilter);
+
+      if (response["ads"] != null) {
+        List<dynamic> adsJsonList = response["ads"];
+        if (page == 1) {
+          similar.clear();
+          similar.addAll(
+              adsJsonList.map((json) => AnnounceModel.fromJson(json)).toList());
+        }
+        print("////////////////////////// : $similar");
+        return similar;
+      } else {
+        print(response["ads"]);
+        throw Exception('Failed to fetch Ads');
+      }
+    } catch (e) {
+      print('Error: $e');
+      throw Exception('An error occurred: $e');
+    }
   }
 
   @override
@@ -132,7 +168,9 @@ class _AnounceDetailsState extends State<AnounceDetails> {
         padding: EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: Colors.white,
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 4)],
+          boxShadow: [
+            BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 4)
+          ],
         ),
         child: Row(
           children: [
@@ -143,11 +181,13 @@ class _AnounceDetailsState extends State<AnounceDetails> {
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   primary: AppColor.secondary,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16)),
                   elevation: 0,
                 ),
                 onPressed: () {},
-                child: SvgPicture.asset('assets/icons/Chat.svg', color: Colors.white),
+                child: SvgPicture.asset('assets/icons/Chat.svg',
+                    color: Colors.white),
               ),
             ),
             Expanded(
@@ -156,17 +196,18 @@ class _AnounceDetailsState extends State<AnounceDetails> {
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     primary: AppColor.primary,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16)),
                     elevation: 0,
                   ),
-                  onPressed: () {
-                    // showModalBottomSheet(
-                    //   context: context,
-                    //   backgroundColor: Colors.transparent,
-                    //   builder: (context) {
-                    //     return AddToCartModal();
-                    //   },
-                    // );
+                  onPressed: () async {
+                    final Uri call = Uri(scheme: 'tel', path: phone.toString());
+                    //print(call);
+                    if (await canLaunchUrl(call)) {
+                      await launchUrl(call);
+                    } else {
+                      print("it cant launch");
+                    }
                   },
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -265,8 +306,9 @@ class _AnounceDetailsState extends State<AnounceDetails> {
                                     controller: productImageSlider,
                                     children: List.generate(
                                       _images.length,
-                                          (index) => Image.network(
-                                        "https://10.0.2.2:7058" + _images![index].title!.toString(),
+                                      (index) => Image.network(
+                                        "https://10.0.2.2:7058" +
+                                            _images![index].title!.toString(),
                                         fit: BoxFit.cover,
                                       ),
                                     ),
@@ -301,30 +343,48 @@ class _AnounceDetailsState extends State<AnounceDetails> {
                               child: Text(
                                 announce.title.toString(),
                                 style: TextStyle(
-                                  fontSize: 24,
+                                  fontSize: 20,
                                   fontWeight: FontWeight.w700,
-                                  fontFamily: 'poppins',
                                   color: AppColor.secondary,
                                 ),
                               ),
                             ),
-                            /*RatingTag(
-                          value: product.rating,
-                        ),*/
                           ],
                         ),
                       ),
                       // Section 3 - product info
-                      Container(
-                        margin: EdgeInsets.only(bottom: 14),
-                        child: Text(
-                          '${announce.price}+DT',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                            fontFamily: 'poppins',
-                            color: AppColor.primary,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Container(
+                            margin: EdgeInsets.only(top: 2, bottom: 8),
+                            child: Text(
+                              '${announce.price} DT',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w700,
+                                fontFamily: 'Poppins',
+                                color: Colors.indigo,
+                              ),
+                            ),
                           ),
+                          Container(
+                              margin: EdgeInsets.only(top: 2, bottom: 8),
+                              child: Text(
+                                '${announce.DatePublication}',
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 14,
+                                ),
+                              )
+                          ),
+                        ],
+                      ),
+                      Text(
+                        announce.locations!,
+                        style: TextStyle(
+                          color: AppColor.secondary.withOpacity(0.7),
+                          height: 150 / 100,
                         ),
                       ),
                       Text(
@@ -334,17 +394,10 @@ class _AnounceDetailsState extends State<AnounceDetails> {
                           height: 150 / 100,
                         ),
                       ),
+                      /** announcer info*/
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          /* Text(
-                            phone,
-                            style: TextStyle(
-                              color: AppColor.secondary.withOpacity(1),
-                              height: 150 / 100,
-                            ),
-                          ),
-                          SizedBox(width: 40),*/
                           Column(
                             children: [
                               TextButton(
@@ -356,7 +409,8 @@ class _AnounceDetailsState extends State<AnounceDetails> {
                                   ),
                                 ),
                                 onPressed: () {
-                                  SellerDetailsPopUp().showDialogFunc(context,
+                                  SellerDetailsPopUp().showDialogFunc(
+                                      context,
                                       "https://cdn.pixabay.com/photo/2020/07/01/12/58/icon-5359553_1280.png",
                                       firstname + lastname,
                                       email,
@@ -374,8 +428,7 @@ class _AnounceDetailsState extends State<AnounceDetails> {
                                   Icons.star,
                                   color: Colors.amber,
                                 ),
-                                onRatingUpdate: (rating) {
-                                },
+                                onRatingUpdate: (rating) {},
                                 ignoreGestures: true,
                               ),
                             ],
@@ -419,126 +472,82 @@ class _AnounceDetailsState extends State<AnounceDetails> {
                         ],
                       );
                     }).toList(),
-                  )
-                // Section 3 - Color Picker
-                /*
-                Container(
-                  width: MediaQuery.of(context).size.width,
-                  padding: EdgeInsets.symmetric(horizontal: 16),
-                  margin: EdgeInsets.only(bottom: 20),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Color',
-                        style: TextStyle(
-                          color: AppColor.secondary,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          fontFamily: 'poppins',
-                        ),
-                      ),
-                      SelectableCircleColor(
-                        colorWay: product.colors,
-                        margin: EdgeInsets.only(top: 12), padding: EdgeInsets.all(2),
-                      ),
-                    ],
                   ),
-                ),*/
-
-                // Section 4 - Size Picker
-                /*Container(
-                  width: MediaQuery.of(context).size.width,
-                  padding: EdgeInsets.symmetric(horizontal: 16),
-                  margin: EdgeInsets.only(bottom: 20),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Size',
-                        style: TextStyle(
-                          color: AppColor.secondary,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          fontFamily: 'poppins',
-                        ),
-                      ),
-                      SelectableCircleSize(
-                        productSize: product.sizes,
-                        selectedColor: Colors.red,
-                        margin: EdgeInsets.only(top: 12),
-                        padding: EdgeInsets.all( 12), baseColor: Colors.green,
-                        textStyle:TextStyle(color: Colors.yellow),
-                      ),
-                    ],
-                  ),
-                ),*/
-
-                // Section 5 - Reviews
-                /*Container(
-                  width: MediaQuery.of(context).size.width,
-                  padding: EdgeInsets.symmetric(horizontal: 16),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      ExpansionTile(
-                        initiallyExpanded: true,
-                        childrenPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 0),
-                        tilePadding: EdgeInsets.symmetric(vertical: 0, horizontal: 0),
-                        title: Text(
-                          'Reviews',
-                          style: TextStyle(
-                            color: AppColor.secondary,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                            fontFamily: 'poppins',
-                          ),
-                        ),
-                        expandedCrossAxisAlignment: CrossAxisAlignment.start,
+                SizedBox(height: 50,),
+                /** Similar */
+                FutureBuilder<List<AnnounceModel>>(
+                  future: GetSimilar(widget.Announce, 1),
+                  builder: (BuildContext context, AsyncSnapshot<List<AnnounceModel>> snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      // Display a loading indicator while waiting for data
+                      return CircularProgressIndicator();
+                    } else if (snapshot.hasError) {
+                      return Text('Failed to fetch Similar');
+                    } else {
+                      similar.removeWhere((e) => e.idAds == widget.Announce.idAds);
+                      return Row(
                         children: [
-                          ListView.separated(
-                            shrinkWrap: true,
-                            physics: NeverScrollableScrollPhysics(),
-                            itemBuilder: (context, index) => ReviewTile(review: product.reviews[index]),
-                            separatorBuilder: (context, index) => SizedBox(height: 16),
-                            itemCount: 2,
-                          ),
+                          /** similar list  **/
                           Container(
-                            margin: EdgeInsets.only(left: 52, top: 12, bottom: 6),
-                            child: ElevatedButton(
-                              onPressed: () {
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (context) => ReviewsPage(
-                                      reviews: product.reviews,
-                                    ),
+                            width: MediaQuery.of(context).size.width,
+                            color: AppColor.primarySoft, //Color.fromRGBO(1,120,186, 1),
+                            padding: EdgeInsets.only(top: 12, bottom: 24),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+
+                                Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 16),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        'Similar',
+                                        style: TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w600),
+                                      ),
+                                    ],
                                   ),
-                                );
-                              },
-                              child: Text(
-                                'See More Reviews',
-                                style: TextStyle(color: AppColor.secondary, fontWeight: FontWeight.w600),
-                              ),
-                              style: ElevatedButton.styleFrom(
-                                foregroundColor: AppColor.primary, elevation: 0, backgroundColor: AppColor.primarySoft,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                              ),
+                                ),
+                                // Category list
+                                Container(
+                                  margin: EdgeInsets.only(top: 12),
+                                  height: 340,
+                                  //width:100,
+                                  child: ListView.separated(
+                                    padding: EdgeInsets.symmetric(horizontal: 16),
+                                    itemCount: similar.length,
+                                    physics: BouncingScrollPhysics(),
+                                    scrollDirection: Axis.horizontal,
+                                    shrinkWrap: true,
+                                    separatorBuilder: (context, index) {
+                                      return SizedBox(width: 16);
+                                    },
+                                    itemBuilder: (context, index) {
+                                      return AnnounceCard(
+                                        data: similar[index],
+                                        //onTap: () {},
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ],
                             ),
-                          )
+                          ),
                         ],
-                      ),
-                    ],
-                  ),
-                )*/
+                      );
+                    }
+                  },
+                ),
+
               ],
             ),
           ),
         ],
       ),
     );
-
   }
 }

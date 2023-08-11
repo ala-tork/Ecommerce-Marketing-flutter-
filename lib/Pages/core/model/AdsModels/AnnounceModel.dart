@@ -23,8 +23,10 @@ class AnnounceModel {
   CitiesModel? cities;
   int? iduser;
   String? locations;
+  String? DatePublication;
   int? active;
-  bool? like;
+  int? likeId;
+  int? nbLike;
 
   AnnounceModel(
       {this.idAds,
@@ -42,8 +44,10 @@ class AnnounceModel {
         this.cities,
         this.iduser,
         this.locations,
+        this.DatePublication,
         this.active,
-        this.like
+        this.likeId,
+        this.nbLike
       });
 
   AnnounceModel.fromJson(Map<String, dynamic> json) {
@@ -67,8 +71,9 @@ class AnnounceModel {
     json['cities'] != null ? new CitiesModel.fromJson(json['cities']) : null;
     iduser= json['idUser'];
     locations = json['locations'];
+    DatePublication =json['datePublication'] ;
     active = json['active'];
-    like=false;
+    //like=false;
   }
 
   Map<String, dynamic> toJson() {

@@ -11,11 +11,14 @@ import 'package:ecommerceversiontwo/Pages/core/model/CategoriesModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/CitiesModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/CountriesModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/FeaturesValuesModel.dart';
+import 'package:ecommerceversiontwo/Pages/core/model/LikesModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/AnnouncesServices/AnnounceService.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/CategoryService.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:jwt_decoder/jwt_decoder.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../widgets/GridAnnounces.dart';
 import '../../../widgets/custom_icon_button_widget.dart';
@@ -33,6 +36,7 @@ class _AnnouncesState extends State<Announces> {
 // test category
   List<Category> categoryData = CategoryService.categoryData.cast<Category>();
 
+  String? adsName;
 
   CountriesModel? country;
   CategoriesModel? category;
@@ -45,48 +49,12 @@ class _AnnouncesState extends State<Announces> {
   List<FeaturesValuesModel> featuresvalues = [];
   List<int> featuresvaluesid = [];
 
-/*  Future<List<AnnounceModel>> apicall() async {
-    AdsFilterModel adsFilter = AdsFilterModel(pageNumber: page, idFeaturesValues: []);
-    if (country != null) {
-      adsFilter.idCountrys = country!.idCountrys;
-    }
-    if (category != null) {
-      adsFilter.idCategory = category!.idCateg;
-    }
-    if (city != null) {
-      adsFilter.idCity = city!.idCity;
-    }
-
-    try {
-      Map<String, dynamic> response = await adsFilter.getFilteredAds(adsFilter);
-
-      if (response["ads"] != null) {
-        List<dynamic> adsJsonList = response["ads"];
-        gridMap.addAll(adsJsonList
-            .map((json) => AnnounceModel.fromJson(json))
-            .toList());
-
-        print(gridMap[0].title);
-
-        //nbr Page
-        int x = response["totalItems"];
-        MaxPage = x ~/ 4;
-        if (x % 4 > 0) {
-          MaxPage += 1;
-        }
-        return gridMap;
-      } else {
-        print(response["ads"]);
-        throw Exception('Failed to fetch Ads');
-      }
-    } catch (e) {
-      print('Error: $e');
-      throw Exception('An error occurred: $e');
-    }
-  }*/
 
   Future<List<AnnounceModel>> apicall() async {
     AdsFilterModel adsFilter = AdsFilterModel(pageNumber: page, idFeaturesValues: []);
+    if(adsName!=null){
+      adsFilter.adsName=adsName;
+    }
     if (country != null) {
       adsFilter.idCountrys = country!.idCountrys;
     }
@@ -101,12 +69,7 @@ class _AnnouncesState extends State<Announces> {
         adsFilter.minPrice=minprice;
       }
     if(maxprice!=0){ adsFilter.maxPrice=maxprice;}
-    if(featuresvalues.isNotEmpty){
-      featuresvalues.map((e){
-        featuresvaluesid.add(e.idFv!);
-        adsFilter.idFeaturesValues=featuresvaluesid;
-      });
-    }
+    if(featuresvaluesid.isNotEmpty){adsFilter.idFeaturesValues=featuresvaluesid;}
     try {
       Map<String, dynamic> response = await AnnounceService().getFilteredAds(adsFilter);
 
@@ -118,7 +81,6 @@ class _AnnouncesState extends State<Announces> {
         } else {
             gridMap.addAll(adsJsonList.map((json) => AnnounceModel.fromJson(json)).toList());
         }
-
         //nbr Page
         int x = response["totalItems"];
         MaxPage = x ~/ 4;
@@ -137,6 +99,98 @@ class _AnnouncesState extends State<Announces> {
     }
   }
 
+  List<CategoriesModel> _categorys=[];
+  Future<void> fetchCategory() async {
+    try {
+      List<CategoriesModel> categories = await CategoriesModel().GetData();
+        _categorys = categories;
+      _categorys.removeWhere((element) => element.idCateg==1);
+    } catch (e) {
+      print('Error fetching categories: $e');
+    }
+  }
+  int? id ;
+  Future<void> getuserId() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+    var decodedToken = JwtDecoder.decode(token!);
+    id = int.parse(decodedToken['id']);
+    print("id user is $id");
+  }
+
+  Future<void> getLikeByIdUserIdAd() async {
+    try {
+      await getuserId();
+      List<AnnounceModel>listannounce=await apicall();
+      if (listannounce.length != 0) {
+        for (var a in listannounce) {
+          Map<String, dynamic> response = await LikeModel().getLikeAds(id!, a.idAds!);
+          a.nbLike=response["nbLike"];
+          if(response["like"]!=null)
+            a.likeId= await LikeModel.fromJson(response["like"]).idLP;
+        }
+        print(listannounce[0]);
+      }
+
+    } catch (e) {
+      print('error fetching Likes: $e');
+    }
+  }
+
+/*
+  Future<void> deleteLike(int idLike, int idAds) async {
+    bool isDeleted = await LikeModel().deleteLike(idLike);
+
+    if (isDeleted) {
+      print("Item with ID $idLike deleted successfully.");
+
+      AnnounceModel? foundAd;
+
+      for (AnnounceModel ad in gridMap) {
+        if (ad.idAds == idAds) {
+          setState(() {
+            ad.likeId=null;
+            ad.nbLike= ad.nbLike!-1;
+         });
+
+          break;
+        }
+      }
+    } else {
+      print("Failed to delete item with ID $idLike.");
+    }
+  }
+
+  Future<void> addLike(int idUser, int idAds) async {
+    LikeModel like = LikeModel(idUser: idUser, idAd: idAds);
+
+    try {
+      LikeModel newLike = await like.addLike(like);
+      AnnounceModel? foundAd;
+
+      if (newLike != null) {
+        print("Like added successfully.");
+
+        for (AnnounceModel ad in gridMap) {
+          if (ad.idAds == idAds) {
+            setState(() {
+              ad.likeId = newLike.idLP;
+              ad.nbLike = (ad.nbLike ?? 0) + 1;
+            });
+            break;
+          }
+        }
+
+      } else {
+        print("Failed to add Like.");
+      }
+    } catch (e) {
+      print("Error adding Like: $e");
+    }
+  }*/
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -152,7 +206,7 @@ class _AnnouncesState extends State<Announces> {
         elevation: 1,
         iconTheme: IconThemeData(color: Colors.white),
         backgroundColor: Colors.indigo,
-        title: Text("Announces",
+        title: Text("announcements",
           style: TextStyle(
               color: Colors.white
           ),
@@ -222,7 +276,12 @@ class _AnnouncesState extends State<Announces> {
                             MaterialPageRoute(
                               builder: (context) => SearchPage(),
                             ),
-                          );
+                          ).then((value) {
+                            setState(() {
+                              adsName = (value as Map)['data'];
+                              print(adsName);
+                            });
+                          } );
                         },
                       ),
                     ),
@@ -247,6 +306,8 @@ class _AnnouncesState extends State<Announces> {
                             return FilterForm(
                               category: category,
                               country: country,
+                              city: city,
+                              featursValuesSelected: featuresvalues,
                               minprice: minprice,
                               maxprice: maxprice,
                             );
@@ -258,7 +319,9 @@ class _AnnouncesState extends State<Announces> {
                             city = (value as Map)['city'];
                             minprice = (value as Map)['minprice'];
                             maxprice = (value as Map)['maxprice'];
-                            featuresvalues = (value as Map)['featuresvaluesid'];
+                            featuresvalues = (value as Map)['featuresvalues'];
+                            featuresvaluesid = (value as Map)['featuresvaluesids'];
+                            print(featuresvaluesid);
                             page = 1;
                             gridMap = [];
                           });
@@ -277,6 +340,39 @@ class _AnnouncesState extends State<Announces> {
               ],
             ),
             /** Show filters **/
+
+            adsName!=null ?
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      adsName=null;
+                      gridMap=[];
+                      page=1;
+                    });
+                  },
+                  style: ElevatedButton.styleFrom(
+                    primary: Colors.lightBlue[100],
+                    padding: EdgeInsets.all(10),
+                    elevation: 0,
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        adsName!,
+                        style: TextStyle(fontSize: 16,color: Colors.black),
+                      ),
+                      SizedBox(width: 3),
+                      Icon(Icons.close,color: Colors.black,),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 28,)
+              ],
+            ):SizedBox(height: 0,),
             country!=null||category!=null||city!=null?
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -343,6 +439,7 @@ class _AnnouncesState extends State<Announces> {
                     setState(() {
                       category=null;
                       featuresvaluesid=[];
+                      featuresvalues=[];
                       gridMap=[];
                       page=1;
                     });
@@ -437,9 +534,11 @@ class _AnnouncesState extends State<Announces> {
                   onPressed: () {
                     setState(() {
                       featuresvalues.remove(e);
+                      featuresvaluesid.remove(e.idFv);
                       gridMap = [];
                       page = 1;
                     });
+                   // apicall();
                   },
                   style: ElevatedButton.styleFrom(
                     primary: Colors.lightBlue[100],
@@ -461,19 +560,16 @@ class _AnnouncesState extends State<Announces> {
               }).toList(),
             ) : SizedBox(height: 0),
             Row(
-
               children: [
-
                 /** Section 3 - category **/
                 Container(
                   width: MediaQuery.of(context).size.width,
-                  color: Colors.indigo, //Color.fromRGBO(1,120,186, 1),
+                  color: Colors.indigo,
                   padding: EdgeInsets.only(top: 12, bottom: 24),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-
                       Padding(
                         padding: EdgeInsets.symmetric(horizontal: 16),
                         child: Row(
@@ -482,79 +578,112 @@ class _AnnouncesState extends State<Announces> {
                             Text(
                               'Category',
                               style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600),
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                           ],
                         ),
                       ),
                       // Category list
-                      Container(
-                        margin: EdgeInsets.only(top: 12),
-                        height: 96,
-                        child: ListView.separated(
-                          padding: EdgeInsets.symmetric(horizontal: 16),
-                          itemCount: categoryData.length,
-                          physics: BouncingScrollPhysics(),
-                          scrollDirection: Axis.horizontal,
-                          shrinkWrap: true,
-                          separatorBuilder: (context, index) {
-                            return SizedBox(width: 16);
-                          },
-                          itemBuilder: (context, index) {
-                            return CategoryCard(
-                              data: categoryData[index],
-                              onTap: () {},
+                      FutureBuilder<void>(
+                        future: fetchCategory(),
+                        builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
+                          if (snapshot.connectionState == ConnectionState.waiting) {
+                            return Center(
+                              child: CircularProgressIndicator(),
                             );
-                          },
-                        ),
+                          } else if (snapshot.hasError) {
+                            return Center(
+                              child: Text('Error fetching categories: ${snapshot.error}'),
+                            );
+                          } else {
+                            return Container(
+                              margin: EdgeInsets.only(top: 12),
+                              height: 96,
+                              child: ListView.separated(
+                                padding: EdgeInsets.symmetric(horizontal: 16),
+                                itemCount: _categorys.length,
+                                physics: BouncingScrollPhysics(),
+                                scrollDirection: Axis.horizontal,
+                                shrinkWrap: true,
+                                separatorBuilder: (context, index) {
+                                  return SizedBox(width: 16);
+                                },
+                                itemBuilder: (context, index) {
+                                  return CategoryCard(
+                                    data: _categorys[index],
+                                    onTap: (selectedCategory) {
+                                      setState(() {
+                                        category = selectedCategory;
+                                        gridMap=[];
+                                        page=1;
+                                        featuresvaluesid=[];
+                                        featuresvalues=[];
+                                      });
+                                    },
+                                  );
+                                },
+                              ),
+                            );
+                          }
+                        },
                       ),
                     ],
                   ),
                 ),
+
               ],
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(8.0, 20.0, 8.0, 8.0),
-              child: FutureBuilder<List<AnnounceModel>>(
-                future: apicall(),
-                builder: (BuildContext context, AsyncSnapshot<List<AnnounceModel>> snapshot) {
+              child: FutureBuilder<void>(
+                future: getLikeByIdUserIdAd(),
+                builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    // Display a loading indicator while waiting for data
                     return CircularProgressIndicator();
                   } else if (snapshot.hasError) {
-                    // Handle the error case
                     return Text('Failed to fetch data');
                   } else {
-                    return
-                      Column(
+                    return Column(
                       children: [
-                        GridB(data: gridMap),
-                        gridMap.length != 0 && page<MaxPage?
-                        ElevatedButton(
-                          onPressed: () async {
-                            if (page < MaxPage) {
-                              setState(() {
-                                page = page + 1;
-                              });
-                            }
+                        GridB(
+                          data: gridMap,
+                         IdUser: id!,
+                         /* onRemoveLike: (index) {
+                            deleteLike(gridMap[index]!.likeId!, gridMap[index]!.idAds!);
                           },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.indigo,
-                          ),
-                          child: Text("Show More"),
-                        )
-                        :
+                          onCreateLike: (index) {
+                            addLike(id!,  gridMap[index]!.idAds!) as AnnounceModel?;
+
+                          },*/
+                        ),
+                        if (gridMap.length != 0 && page < MaxPage)
+                          ElevatedButton(
+                            onPressed: () async {
+                              if (page < MaxPage) {
+                                setState(() {
+                                  page = page + 1;
+                                });
+                              }
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.indigo,
+                            ),
+                            child: Text("Show More"),
+                          )
+                        else
                           SizedBox(height: 0),
                       ],
                     );
-                    //
                   }
                 },
               ),
             ),
-            SizedBox(height: 30,)
+
+            SizedBox(height: 30,),
+
           ],
         ),
       ),

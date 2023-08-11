@@ -93,20 +93,23 @@ class AdsFeaturesService{
   }
   Future<bool> deleteDeals(int id) async {
     final String apiUrl = "https://10.0.2.2:7058/api/AdsFeatureControler/DeleteDealstFeatures?idDeals=$id";
-
     try {
-      final response = await http.delete(Uri.parse(apiUrl),);
+      final response = await http.delete(Uri.parse(apiUrl));
+
+      print("Response Status Code: ${response.statusCode}");
+      print("Response Body: ${response.body}");
 
       if (response.statusCode == 200) {
         return true;
       } else {
-        print("Failed to delete Deals Featues. Status code: ${response.statusCode}");
+        print("Failed to delete Deals Features. Status code: ${response.statusCode}");
         return false;
       }
     } catch (e) {
       print("Error deleting item: $e");
       return false;
     }
+
   }
 
 

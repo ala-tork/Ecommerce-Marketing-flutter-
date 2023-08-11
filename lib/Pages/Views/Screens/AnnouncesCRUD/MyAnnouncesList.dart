@@ -5,9 +5,13 @@ import 'package:ecommerceversiontwo/Pages/core/model/AdsModels/AnnounceModel.dar
 import 'package:ecommerceversiontwo/Pages/core/model/ImageModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/AdsFeaturesServices/AdsFeaturesService.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/AnnouncesServices/AnnounceService.dart';
+import 'package:ecommerceversiontwo/Pages/core/services/ImageServices/ImageService.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:jwt_decoder/jwt_decoder.dart';
 import 'dart:convert';
+
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MyAnnounces extends StatefulWidget {
   const MyAnnounces({super.key});
@@ -21,8 +25,19 @@ class _MyAnnouncesState extends State<MyAnnounces> {
   int MaxPage = 0;
   int page = 0;
 
+  int? idUser;
+
+  Future<int> getuserId() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+    var decodedToken = JwtDecoder.decode(token!);
+    idUser = int.parse(decodedToken['id']);
+    print("id user is $idUser");
+    return idUser!;
+  }
+
 //get all announces by user
-  Future<List<AnnounceModel>> apicall(int iduser ) async {
+  Future<List<AnnounceModel>> apicall(int iduser) async {
     print(page);
     http.Response response, nbads;
     response = await http.get(Uri.parse(
@@ -50,7 +65,7 @@ class _MyAnnouncesState extends State<MyAnnounces> {
 
   //delete announce
   void deleteItem(int id) async {
-    bool imgdel = await ImageModel().deleteData(id);
+    bool imgdel = await ImageService().deleteData(id);
     bool Af = await AdsFeaturesService().deleteData(id);
     if (imgdel && Af) {
       bool isDeleted = await AnnounceService().deleteData(id);
@@ -69,9 +84,11 @@ class _MyAnnouncesState extends State<MyAnnounces> {
   @override
   void initState() {
     super.initState();
-    apicall(1).then((data) {
-      setState(() {
-        announces = data;
+    getuserId().then((value) {
+      apicall(value).then((data) {
+        setState(() {
+          announces = data;
+        });
       });
     });
   }
@@ -174,16 +191,34 @@ class _MyAnnouncesState extends State<MyAnnounces> {
                                   ),
                                   Padding(
                                     padding:
-                                        const EdgeInsets.fromLTRB(15, 10, 0, 0),
+                                        const EdgeInsets.fromLTRB(10, 10, 0, 0),
                                     child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Text(
-                                          "${announces[index].price} DT",
-                                          style: TextStyle(
+                                        Container(
+                                          margin: EdgeInsets.only(
+                                              top: 2, bottom: 8),
+                                          child: Text(
+                                            '${announces[index].price} DT',
+                                            style: TextStyle(
                                               fontSize: 18,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.indigo),
-                                        )
+                                              fontWeight: FontWeight.w700,
+                                              fontFamily: 'Poppins',
+                                              color: Colors.indigo,
+                                            ),
+                                          ),
+                                        ),
+                                        Container(
+                                            margin: EdgeInsets.only(
+                                                top: 2, bottom: 8,right: 10),
+                                            child: Text(
+                                              '${announces[index].DatePublication}',
+                                              style: TextStyle(
+                                                color: Colors.grey,
+                                                fontSize: 14,
+                                              ),
+                                            )),
                                       ],
                                     ),
                                   ),
@@ -280,13 +315,14 @@ class _MyAnnouncesState extends State<MyAnnounces> {
                               if (page < MaxPage) {
                                 setState(() {
                                   page = page + 1;
-                                  apicall(1).then((data) {
-                                    setState(() {
-                                      announces = data;
+                                  getuserId().then((value) {
+                                    apicall(value).then((data) {
+                                      setState(() {
+                                        announces = data;
+                                      });
                                     });
                                   });
                                 });
-
                               }
                             },
                             child: Text("Show More"),

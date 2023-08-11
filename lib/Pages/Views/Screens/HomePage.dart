@@ -1,20 +1,28 @@
 import 'dart:async';
-
 import 'package:ecommerceversiontwo/Pages/Views/Screens/MyAppBAr.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/searchPage.dart';
+import 'package:ecommerceversiontwo/Pages/Views/widgets/BostedSlider.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/FilterAllForm.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/ads_slide_show.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/categoryCard.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/dummy_search_widget1.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/item_card.dart';
+import 'package:ecommerceversiontwo/Pages/Views/widgets/rulePopup.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/side_bar.dart';
+import 'package:ecommerceversiontwo/Pages/core/model/AdsModels/AdsFilterModel.dart';
+import 'package:ecommerceversiontwo/Pages/core/model/AdsModels/AnnounceModel.dart';
+import 'package:ecommerceversiontwo/Pages/core/model/CategoriesModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/Category.dart';
+import 'package:ecommerceversiontwo/Pages/core/model/Deals/DealsFilterModel.dart';
+import 'package:ecommerceversiontwo/Pages/core/model/Deals/DealsModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/Product.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/adsModel.dart';
+import 'package:ecommerceversiontwo/Pages/core/services/AnnouncesServices/AnnounceService.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/CategoryService.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/ProductService.dart';
 import 'package:flutter/material.dart';
 import 'package:lecle_flutter_carousel_pro/lecle_flutter_carousel_pro.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -22,6 +30,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+
+
   List<Category> categoryData = CategoryService.categoryData.cast<Category>();
   List <Product> productData = ProductService.productData;
 
@@ -35,70 +45,129 @@ class _HomePageState extends State<HomePage> {
   bool ProductsFilter = false;
 
   //slide show variable
-  List ad = [
-    AdsModel(title:"ITIWIT",shortDescription:"CANOE KAYAK CONFORTABLE",price:1890,ImagePrinciple : "assets/images/Announces/deals1.png"),
-    AdsModel(title:"OLAIAN",shortDescription:"SURFER BOARDSHORT",price:350,ImagePrinciple : "assets/images/Announces/deals2.png"),
-    AdsModel(title:"SUBEA",shortDescription:"CHAUSSURES ELASTIQUE ADULTE",price:50,ImagePrinciple :"assets/images/Announces/deals3.png"),
-    AdsModel(title:"SUBEA",shortDescription:"CHAUSSURES ELASTIQUE ADULTE",price:50,ImagePrinciple :"assets/images/Announces/deals3.png"),
+  int page =1;
+  int MaxPage=0;
+  List<AnnounceModel> adsSildeShow = [];
+  Future<List<AnnounceModel>> GetAnnounces() async {
+    AdsFilterModel adsFilter = AdsFilterModel(pageNumber: page, idFeaturesValues: []);
+    /*if (country != null) {
+      adsFilter.idCountrys = country!.idCountrys;
+    }
+    if (category != null) {
+      adsFilter.idCategory = category!.idCateg;
+    }
+    if (city != null) {
+      adsFilter.idCity = city!.idCity;
+    }
+    if(minprice!=0)
+    {
+      adsFilter.minPrice=minprice;
+    }
+    if(maxprice!=0){ adsFilter.maxPrice=maxprice;}
+    if(featuresvaluesid.isNotEmpty){adsFilter.idFeaturesValues=featuresvaluesid;}*/
+    try {
+      Map<String, dynamic> response = await AnnounceService().getFilteredAds(adsFilter);
 
-  ];
-
-  late Timer flashsaleCountdownTimer;
-  Duration flashsaleCountdownDuration = Duration(
-    hours: 24 - DateTime.now().hour,
-    minutes: 60 - DateTime.now().minute,
-    seconds: 60 - DateTime.now().second,
-  );
-
-  @override
-  void initState() {
-    super.initState();
-    startTimer();
-  }
-
-  void startTimer() {
-    Timer.periodic(Duration(seconds: 1), (_) {
-      setCountdown();
-    });
-  }
-
-  void setCountdown() {
-    if (this.mounted) {
-      setState(() {
-        final seconds = flashsaleCountdownDuration.inSeconds - 1;
-
-        if (seconds < 1) {
-          flashsaleCountdownTimer.cancel();
+      if (response["ads"] != null) {
+        List<dynamic> adsJsonList = response["ads"];
+        if (page == 1) {
+          adsSildeShow.clear();
+          adsSildeShow.addAll(adsJsonList.map((json) => AnnounceModel.fromJson(json)).toList());
         } else {
-          flashsaleCountdownDuration = Duration(seconds: seconds);
+          adsSildeShow.addAll(adsJsonList.map((json) => AnnounceModel.fromJson(json)).toList());
         }
-      });
+        //nbr Page
+        int x = response["totalItems"];
+        MaxPage = x ~/ 4;
+        if (x % 4 > 0) {
+          MaxPage += 1;
+        }
+
+        return adsSildeShow;
+      } else {
+        print(response["ads"]);
+        throw Exception('Failed to fetch Ads');
+      }
+    } catch (e) {
+      print('Error: $e');
+      throw Exception('An error occurred: $e');
+    }
+  }
+
+  //get deals
+  List<DealsModel>listbosted = [];
+
+  Future<List<DealsModel>> apicall() async {
+    DealsFilterModel DelasFilter = DealsFilterModel(pageNumber: 1, idFeaturesValues: []);
+    try {
+      Map<String, dynamic> response = await DelasFilter.getFilteredDeals(DelasFilter);
+
+      if (response["deals"] != null) {
+        List<dynamic> adsJsonList = response["deals"];
+
+        listbosted.addAll(adsJsonList.map((json) => DealsModel.fromJson(json)).toList());
+      }
+      return listbosted;
+    } catch (e) {
+      print('Error: $e');
+      throw Exception('An error occurred: $e');
+    }
+  }
+
+
+  List<CategoriesModel> _categorys=[];
+  Future<void> fetchCategory() async {
+    try {
+      List<CategoriesModel> categories = await CategoriesModel().GetData();
+      _categorys = categories;
+      _categorys.removeWhere((element) => element.idCateg==1);
+    } catch (e) {
+      print('Error fetching categories: $e');
     }
   }
 
   @override
-  void dispose() {
-    if (flashsaleCountdownTimer != null) {
-      flashsaleCountdownTimer.cancel();
-    }
+  void initState()  {
+    super.initState();
+    GetAnnounces();
+    apicall();
 
-    super.dispose();
+    _showBoostedSlideDialogOnFirstLaunch();
+    _showRulesOnFirstTimeOpenApp();
+    //startTimer();
+  }
+
+  Future<void> _showBoostedSlideDialogOnFirstLaunch() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool dialogShownBefore = prefs.getBool('boostedSlideDialogShown') ?? false;
+
+    if (!dialogShownBefore) {
+      await apicall();
+      BoostedSlide().showDialogFunc(context,listbosted);
+      prefs.setBool('boostedSlideDialogShown', true);
+    }
+  }
+  /** show dialog rules */
+  Future<void> _showRulesOnFirstTimeOpenApp() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool dialogShownBefore = prefs.getBool('Rules') ?? false;
+
+    if (!dialogShownBefore) {
+      await apicall();
+      showRulesDialog(context);
+      prefs.setBool('Rules', true);
+    }
+  }
+  void showRulesDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => RulesPopup(),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    String seconds = flashsaleCountdownDuration.inSeconds
-        .remainder(60)
-        .toString()
-        .padLeft(2, '0');
-    String minutes = flashsaleCountdownDuration.inMinutes
-        .remainder(60)
-        .toString()
-        .padLeft(2, '0');
-    String hours = flashsaleCountdownDuration.inHours
-        .remainder(24)
-        .toString()
-        .padLeft(2, '0');
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -106,7 +175,6 @@ class _HomePageState extends State<HomePage> {
       appBar: MyAppBar(Daimons: 122,title: "My App",),
       body:
       ListView(
-
         children:[
         ListView(
           shrinkWrap: true,
@@ -147,18 +215,33 @@ class _HomePageState extends State<HomePage> {
                 height: 300.0,
                 width: double.infinity,
                 //slide show
-                child: Carousel(
-                  //showIndicator: false,
-                  dotBgColor: Colors.transparent,
-                  dotSize: 6.0,
-                  dotColor: Colors.pink,
-                  dotIncreasedColor: Colors.indigo,
-
-                  images:
-                  ad.map((a) {
-                    return AdsSlideShow(adsShow: a);
-                  }).toList(),
+                child:
+                FutureBuilder<List<AnnounceModel>>(
+                  future: GetAnnounces(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    } else if (snapshot.hasError) {
+                      return Center(
+                        child: Text('Error loading Announce for slide show.'),
+                      );
+                    } else {
+                      List<AnnounceModel> adsSildeShow = snapshot.data ?? [];
+                      return Carousel(
+                        dotBgColor: Colors.transparent,
+                        dotSize: 6.0,
+                        dotColor: Colors.pink,
+                        dotIncreasedColor: Colors.indigo,
+                        images: adsSildeShow.map((a) {
+                          return AdsSlideShow(adsShow: a);
+                        }).toList(),
+                      );
+                    }
+                  },
                 ),
+
               ),
             ),
             Divider(
@@ -448,15 +531,14 @@ class _HomePageState extends State<HomePage> {
             /** end filter and search & show filters section* */
 
             /** Section 3 - category **/
-             Container(
+            Container(
               width: MediaQuery.of(context).size.width,
-              color: Colors.indigo, //Color.fromRGBO(1,120,186, 1),
+              color: Colors.indigo,
               padding: EdgeInsets.only(top: 12, bottom: 24),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 16),
                     child: Row(
@@ -465,45 +547,51 @@ class _HomePageState extends State<HomePage> {
                         Text(
                           'Category',
                           style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600),
-                        ),
-                        TextButton(
-                          onPressed: () {},
-                          child: Text(
-                            'View More',
-                            style: TextStyle(
-                                color: Colors.white.withOpacity(0.7),
-                                fontWeight: FontWeight.w400),
-                          ),
-                          style: TextButton.styleFrom(
-                            foregroundColor: Colors.white,
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ],
                     ),
                   ),
                   // Category list
-                  Container(
-                    margin: EdgeInsets.only(top: 12),
-                    height: 96,
-                    child: ListView.separated(
-                      padding: EdgeInsets.symmetric(horizontal: 16),
-                      itemCount: categoryData.length,
-                      physics: BouncingScrollPhysics(),
-                      scrollDirection: Axis.horizontal,
-                      shrinkWrap: true,
-                      separatorBuilder: (context, index) {
-                        return SizedBox(width: 16);
-                      },
-                      itemBuilder: (context, index) {
-                        return CategoryCard(
-                          data: categoryData[index],
-                          onTap: () {},
+                  FutureBuilder<void>(
+                    future: fetchCategory(),
+                    builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return Center(
+                          child: CircularProgressIndicator(),
                         );
-                      },
-                    ),
+                      } else if (snapshot.hasError) {
+                        return Center(
+                          child: Text('Error fetching categories: ${snapshot.error}'),
+                        );
+                      } else {
+                        return Container(
+                          margin: EdgeInsets.only(top: 12),
+                          height: 96,
+                          child: ListView.separated(
+                            padding: EdgeInsets.symmetric(horizontal: 16),
+                            itemCount: _categorys.length,
+                            physics: BouncingScrollPhysics(),
+                            scrollDirection: Axis.horizontal,
+                            shrinkWrap: true,
+                            separatorBuilder: (context, index) {
+                              return SizedBox(width: 16);
+                            },
+                            itemBuilder: (context, index) {
+                              return CategoryCard(
+                                data: _categorys[index],
+                                onTap: (selectedCategory) {
+                                  //TODO
+                                },
+                              );
+                            },
+                          ),
+                        );
+                      }
+                    },
                   ),
                 ],
               ),

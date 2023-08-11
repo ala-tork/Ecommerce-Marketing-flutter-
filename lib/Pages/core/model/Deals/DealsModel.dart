@@ -13,8 +13,8 @@ class DealsModel {
   int? discount;
   int? quantity;
   Null? idPricesDelevery;
-  Null? datePublication;
-  Null? dateEND;
+  String? datePublication;
+  String? dateEND;
   String? imagePrinciple;
   Null? videoName;
   int? idCateg;
@@ -31,6 +31,8 @@ class DealsModel {
   String? locations;
   Null? idBoost;
   int? active;
+  int? likeId;
+  int? nbLike;
 
   DealsModel(
       {this.idDeal,
@@ -58,7 +60,10 @@ class DealsModel {
         this.idPrize,
         this.locations,
         this.idBoost,
-        this.active});
+        this.active,
+        this.likeId,
+        this.nbLike
+      });
 
   DealsModel.fromJson(Map<String, dynamic> json) {
     idDeal = json['idDeal'];

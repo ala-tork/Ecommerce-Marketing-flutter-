@@ -34,7 +34,7 @@ class FeaturesValuesModel {
     }*/
     return data;
   }
-
+/*
   // get FeatureValues data by Feature
   Future<List<FeaturesValuesModel>> GetData(int FeatureId) async {
     http.Response response;
@@ -49,6 +49,6 @@ class FeaturesValuesModel {
       print(response.body);
       throw Exception('Failed to fetch Features Values');
     }
-  }
+  }*/
 
 }
