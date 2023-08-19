@@ -1,3 +1,4 @@
+import 'package:ecommerceversiontwo/ApiPaths.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/CategoriesModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/Category.dart';
 import 'package:flutter/material.dart';
@@ -30,7 +31,7 @@ class CategoryCard extends StatelessWidget {
             Container(
               margin: EdgeInsets.only(bottom: 6),
               child: SvgPicture.network(
-                'https://10.0.2.2:7058${data.image}',
+                '${ApiPaths().ImagePath}${data.image}',
                 color: Colors.white,
               ),
             ),

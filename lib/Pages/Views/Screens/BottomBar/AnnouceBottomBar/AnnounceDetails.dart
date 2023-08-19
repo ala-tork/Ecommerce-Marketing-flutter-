@@ -1,7 +1,7 @@
+import 'package:ecommerceversiontwo/ApiPaths.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/BottomBar/AnnouceBottomBar/AnnounceCard.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/ImageViewer.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/SellerDetail.dart';
-import 'package:ecommerceversiontwo/Pages/Views/widgets/ads_slide_show.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/curstom_app_bar.dart';
 import 'package:ecommerceversiontwo/Pages/app_color.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/AdsFeaturesModel.dart';
@@ -15,15 +15,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:http/http.dart' as http;
-import 'package:lecle_flutter_carousel_pro/lecle_flutter_carousel_pro.dart';
 import 'dart:convert';
 
 import 'package:url_launcher/url_launcher.dart';
 
 class AnounceDetails extends StatefulWidget {
-  final AnnounceModel Announce;
+  //final AnnounceModel Announce;
+  final int idAd;
 
-  AnounceDetails({required this.Announce});
+  AnounceDetails({required this.idAd});
 
   @override
   _AnounceDetailsState createState() => _AnounceDetailsState();
@@ -49,20 +49,27 @@ class _AnounceDetailsState extends State<AnounceDetails> {
   @override
   void initState() {
     super.initState();
-    GetSimilar(widget.Announce, 1);
-    fetchAdsFeaturesByIDAds(widget.Announce.idAds!);
-    fetchImages(widget.Announce.idAds!);
-    fetchUserData().then((user) {
+    GetAd(widget.idAd).then((value){
       setState(() {
-        email = user['email'];
-        firstname = user['firstname'];
-        lastname = user['lastname'];
-        phone = user['phone'];
-        address = user['address'];
-        country = user['country'];
+        ad=value;
       });
+      GetSimilar(value, 1);
+      fetchAdsFeaturesByIDAds(value.idAds!);
+      fetchImages(value.idAds!);
+      fetchUserData(value.iduser!).then((user) {
+        setState(() {
+          email = user['email'];
+          firstname = user['firstname'];
+          lastname = user['lastname'];
+          phone = user['phone'];
+          address = user['address'];
+          country = user['country'];
+        });
+      });
+      //print("Like IDDDDDDDDD :${ad!.likeId}");
     });
-    print("Like IDDDDDDDDD :${widget.Announce.likeId}");
+
+
   }
 
   /** fetch Images */
@@ -76,8 +83,6 @@ class _AnounceDetailsState extends State<AnounceDetails> {
       _images.forEach((i) {
         _urlImages.add(i.title!);
       });
-      //print(_images);
-      //print(featuresValues);
     } catch (e) {
       print('Error fetching Images: $e');
     }
@@ -101,9 +106,9 @@ class _AnounceDetailsState extends State<AnounceDetails> {
 
   /** Get User */
 
-  Future<Map<String, dynamic>> fetchUserData() async {
+  Future<Map<String, dynamic>> fetchUserData(int iduser) async {
     final apiUrl =
-        'https://10.0.2.2:7058/User/GetUserById?id=${widget.Announce.iduser}';
+        'https://10.0.2.2:7058/User/GetUserById?id=${iduser}';
 
     try {
       final response = await http.get(Uri.parse(apiUrl));
@@ -156,9 +161,22 @@ class _AnounceDetailsState extends State<AnounceDetails> {
     }
   }
 
-  @override
+  AnnounceModel? ad ;
+  /**  Get Ads By id  */
+  Future<AnnounceModel> GetAd(int idAd) async {
+    try {
+      AnnounceModel a = await AnnounceService().getAdById(idAd);
+      return a;
+    } catch (e) {
+      print('Error fetching Ad By Id: $e');
+      throw throw Exception('Error fetching Ad By Id');
+    }
+  }
+
+
+    @override
   Widget build(BuildContext context) {
-    AnnounceModel announce = widget.Announce;
+    //AnnounceModel announce = widget.Announce;
 
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -235,7 +253,15 @@ class _AnounceDetailsState extends State<AnounceDetails> {
           ],
         ),
       ),
-      body: Column(
+      body:FutureBuilder<AnnounceModel>(
+        future: GetAd(widget.idAd),
+      builder: (BuildContext context, AsyncSnapshot<AnnounceModel> snapshot) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
+      return CircularProgressIndicator();
+      } else if (snapshot.hasError) {
+      return Text('Failed to fetch data');
+      } else {
+      return Column(
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
@@ -246,7 +272,7 @@ class _AnounceDetailsState extends State<AnounceDetails> {
                 // appbar
                 Expanded(
                   child: CustomAppBar(
-                    title: '${announce.title}',
+                    title: '${ad!.title!}',
                     leftIcon: SvgPicture.asset('assets/icons/Arrow-left.svg'),
                     rightIcon: SvgPicture.asset(
                       'assets/icons/Bookmark.svg',
@@ -274,7 +300,7 @@ class _AnounceDetailsState extends State<AnounceDetails> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: FutureBuilder<void>(
-                    future: fetchImages(announce!.idAds!),
+                    future: fetchImages(ad!.idAds!),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return CircularProgressIndicator();
@@ -307,7 +333,7 @@ class _AnounceDetailsState extends State<AnounceDetails> {
                                     children: List.generate(
                                       _images.length,
                                       (index) => Image.network(
-                                        "https://10.0.2.2:7058" +
+                                        ApiPaths().ImagePath +
                                             _images![index].title!.toString(),
                                         fit: BoxFit.cover,
                                       ),
@@ -341,7 +367,7 @@ class _AnounceDetailsState extends State<AnounceDetails> {
                           children: [
                             Expanded(
                               child: Text(
-                                announce.title.toString(),
+                                ad!.title!.toString(),
                                 style: TextStyle(
                                   fontSize: 20,
                                   fontWeight: FontWeight.w700,
@@ -349,46 +375,45 @@ class _AnounceDetailsState extends State<AnounceDetails> {
                                 ),
                               ),
                             ),
+                            Container(
+                                margin: EdgeInsets.only(top: 2, bottom: 8),
+                                child: Text(
+                                  '${ad!.DatePublication}',
+                                  style: TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 14,
+                                  ),
+                                )
+                            ),
                           ],
                         ),
                       ),
-                      // Section 3 - product info
+                      Text(
+                        ad!.details!,
+                        style: TextStyle(
+                          color: AppColor.secondary.withOpacity(0.7),
+                          height: 150 / 100,
+                        ),
+                      ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Container(
                             margin: EdgeInsets.only(top: 2, bottom: 8),
                             child: Text(
-                              '${announce.price} DT',
+                              '${ad!.price} DT',
                               style: TextStyle(
-                                fontSize: 18,
+                                fontSize: 22,
                                 fontWeight: FontWeight.w700,
                                 fontFamily: 'Poppins',
                                 color: Colors.indigo,
                               ),
                             ),
                           ),
-                          Container(
-                              margin: EdgeInsets.only(top: 2, bottom: 8),
-                              child: Text(
-                                '${announce.DatePublication}',
-                                style: TextStyle(
-                                  color: Colors.grey,
-                                  fontSize: 14,
-                                ),
-                              )
-                          ),
                         ],
                       ),
                       Text(
-                        announce.locations!,
-                        style: TextStyle(
-                          color: AppColor.secondary.withOpacity(0.7),
-                          height: 150 / 100,
-                        ),
-                      ),
-                      Text(
-                        announce.details!,
+                        ad!.locations!,
                         style: TextStyle(
                           color: AppColor.secondary.withOpacity(0.7),
                           height: 150 / 100,
@@ -411,7 +436,7 @@ class _AnounceDetailsState extends State<AnounceDetails> {
                                 onPressed: () {
                                   SellerDetailsPopUp().showDialogFunc(
                                       context,
-                                      "https://cdn.pixabay.com/photo/2020/07/01/12/58/icon-5359553_1280.png",
+                                      "assets/Torkhani_Ala.jpg",
                                       firstname + lastname,
                                       email,
                                       phone);
@@ -438,8 +463,8 @@ class _AnounceDetailsState extends State<AnounceDetails> {
                           ),
                           CircleAvatar(
                             radius: 35,
-                            backgroundImage: NetworkImage(
-                                "https://cdn.pixabay.com/photo/2020/07/01/12/58/icon-5359553_1280.png"),
+                            backgroundImage: AssetImage(
+                                "assets/Torkhani_Ala.jpg"),
                           ),
                         ],
                       ),
@@ -476,7 +501,7 @@ class _AnounceDetailsState extends State<AnounceDetails> {
                 SizedBox(height: 50,),
                 /** Similar */
                 FutureBuilder<List<AnnounceModel>>(
-                  future: GetSimilar(widget.Announce, 1),
+                  future: GetSimilar(ad!, 1),
                   builder: (BuildContext context, AsyncSnapshot<List<AnnounceModel>> snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       // Display a loading indicator while waiting for data
@@ -484,7 +509,7 @@ class _AnounceDetailsState extends State<AnounceDetails> {
                     } else if (snapshot.hasError) {
                       return Text('Failed to fetch Similar');
                     } else {
-                      similar.removeWhere((e) => e.idAds == widget.Announce.idAds);
+                      similar.removeWhere((e) => e.idAds == ad!.idAds);
                       return Row(
                         children: [
                           /** similar list  **/
@@ -547,7 +572,10 @@ class _AnounceDetailsState extends State<AnounceDetails> {
             ),
           ),
         ],
-      ),
+      );
+      }
+      },
+      )
     );
   }
 }

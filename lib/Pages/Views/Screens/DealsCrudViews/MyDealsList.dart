@@ -1,18 +1,17 @@
-import 'package:ecommerceversiontwo/Pages/Views/Screens/AnnouncesCRUD/EditeAnnounce.dart';
+import 'package:ecommerceversiontwo/ApiPaths.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/DealsCrudViews/UpdateDeals.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/MyAppBAr.dart';
-import 'package:ecommerceversiontwo/Pages/core/model/AdsFeaturesModel.dart';
-import 'package:ecommerceversiontwo/Pages/core/model/AdsModels/AnnounceModel.dart';
+import 'package:ecommerceversiontwo/Pages/Views/widgets/BoostFormPopUp.dart';
+import 'package:ecommerceversiontwo/Pages/core/model/Deals/CreateDealsModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/Deals/DealsModel.dart';
-import 'package:ecommerceversiontwo/Pages/core/model/ImageModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/AdsFeaturesServices/AdsFeaturesService.dart';
+import 'package:ecommerceversiontwo/Pages/core/services/DealsServices/DealsService.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/ImageServices/ImageService.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:jwt_decoder/jwt_decoder.dart';
-import 'dart:convert';
-
 import 'package:shared_preferences/shared_preferences.dart';
+
+
 
 class MyDeals extends StatefulWidget {
   const MyDeals({super.key});
@@ -33,43 +32,51 @@ class _MyDealsState extends State<MyDeals> {
     String? token = prefs.getString('token');
     var decodedToken = JwtDecoder.decode(token!);
     idUser = int.parse(decodedToken['id']);
-    print("id user is $idUser");
+    //print("id user is $idUser");
     return idUser!;
   }
 
 //get all Deals by user
   Future<List<DealsModel>> apicall(int iduser) async {
-    print(page);
-    http.Response response, nbads;
-    response = await http.get(Uri.parse(
-        "https://10.0.2.2:7058/api/Deals/showmore/${iduser}?page=${page}"));
-    nbads = await http.get(
-        Uri.parse("https://10.0.2.2:7058/api/Deals/nbDealsByUser/${iduser}"));
-    if (response.statusCode == 200) {
-      var responseBody = response.body;
-      deals.addAll((jsonDecode(responseBody) as List)
-          .map((json) => DealsModel.fromJson(json))
-          .toList());
-      //nbr Page
-      int x = int.parse(nbads.body);
-      MaxPage = x ~/ 4;
-      if (x % 4 > 0) {
-        MaxPage += 1;
-      }
+    try {
+      Map<String, dynamic> response =
+      await DealsService().GetDealsByUser(iduser, page);
 
-      return deals;
-    } else {
-      print(response.body);
-      throw Exception('Failed to fetch data');
+      if (response["items"] != null) {
+        List<dynamic> adsJsonList = response["items"];
+        if (page == 0) {
+          deals.clear();
+          deals.addAll(
+              adsJsonList.map((json) => DealsModel.fromJson(json)).toList());
+        } else {
+          deals.addAll(
+              adsJsonList.map((json) => DealsModel.fromJson(json)).toList());
+        }
+        //nbr Page
+        int x = response["nbItems"];
+        MaxPage = x ~/ 4;
+        if (x % 4 > 0) {
+          MaxPage += 1;
+        }
+        print(deals);
+        return deals;
+      } else {
+        print(response["items"]);
+        throw Exception('Failed to fetch Ads');
+      }
+    } catch (e) {
+      print('Error: $e');
+      throw Exception('An error occurred: $e');
     }
   }
+
 
   //delete Deal
   void deleteItem(int id) async {
     bool imgdel = await ImageService().deleteDealImage(id);
     bool Af = await AdsFeaturesService().deleteDeals(id);
     if (imgdel && Af) {
-      bool isDeleted = await DealsModel().deleteData(id);
+      bool isDeleted = await DealsService().deleteData(id);
       if (isDeleted) {
         print("Item with ID $id deleted successfully.");
         deals.removeWhere((element) => element.idDeal == id);
@@ -79,6 +86,38 @@ class _MyDealsState extends State<MyDeals> {
       } else {
         print("Failed to delete item with ID $id.");
       }
+    }
+  }
+
+  Future<DealsModel> AddBost(
+      DealsModel deal, int idBoost, int DealsIndex) async {
+    try {
+      CreateDealsModel updatedDeal = CreateDealsModel(
+          title: deal.title,
+          description: deal.description,
+          details: deal.details,
+          price: deal.price,
+          quantity: deal.quantity,
+          discount: deal.discount,
+          imagePrinciple: deal.imagePrinciple,
+          idCateg: deal.idCateg,
+          idCountrys: deal.idCountrys,
+          idCity: deal.idCity,
+          idBrand: deal.idBrand,
+          idUser: deal.idUser,
+          locations: deal.locations,
+          dateEND: deal.dateEND,
+          active: 1,
+          idBoost: idBoost);
+      DealsModel? response =
+          await DealsService().updateDeals(deal.idDeal!, updatedDeal);
+      setState(() {
+        deals[DealsIndex] = response!;
+      });
+      // print(announces[AnnounceIndex].IdBoost);
+      return response!;
+    } catch (e) {
+      throw Exception("faild to Boost Deals : $e");
     }
   }
 
@@ -103,15 +142,15 @@ class _MyDealsState extends State<MyDeals> {
           Navigator.of(context)
               .pushNamed("AddDeals")
               .then((value) => setState(() {
-                deals=[];
-                page=0;
-            getuserId().then((value) {
-              apicall(idUser!).then((data) {
-                setState(() {
-                  deals = data;
-                });
-              });
-            });
+                    deals = [];
+                    page = 0;
+                    getuserId().then((value) {
+                      apicall(idUser!).then((data) {
+                        setState(() {
+                          deals = data;
+                        });
+                      });
+                    });
                   }));
         },
         child: Icon(
@@ -124,7 +163,7 @@ class _MyDealsState extends State<MyDeals> {
         title: "My Deals",
       ),
       body: Padding(
-        padding: const EdgeInsets.fromLTRB(8.0, 20.0, 8.0, 8.0),
+        padding: const EdgeInsets.fromLTRB(0, 20.0, 0, 8.0),
         child: Column(
           children: [
             Expanded(
@@ -132,21 +171,25 @@ class _MyDealsState extends State<MyDeals> {
                 padding: const EdgeInsets.fromLTRB(0, 0, 0, 70.0),
                 child: ListView.builder(
                   shrinkWrap: true,
-                  itemCount: deals.length ,
+                  itemCount: deals.length,
                   itemBuilder: (context, index) {
                     var pricewithdiscount = deals[index].price! -
                         ((deals[index].discount! * deals[index].price!) / 100);
                     if (index < deals.length) {
                       return Padding(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 12),
+                            horizontal: 0, vertical: 12),
                         child: Card(
                           color: Colors.white,
                           borderOnForeground: true,
                           elevation: 1,
                           shape: RoundedRectangleBorder(
                             side: BorderSide(
-                              color: Colors.black.withOpacity(0.20),
+                              width: deals[index].idBoost != null ? 5 : 0,
+                              color: deals[index].idBoost != null
+                                  ? Colors.blue
+                                  : Colors.black.withOpacity(0.20),
+                              //color: Colors.black.withOpacity(0.20),
                             ),
                             borderRadius: BorderRadius.circular(10.0),
                           ),
@@ -154,6 +197,28 @@ class _MyDealsState extends State<MyDeals> {
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: <Widget>[
+                                if (deals[index].idBoost != null)
+                                  Container(
+                                    height: 40,
+                                    width: MediaQuery.of(context).size.width,
+                                    // margin: EdgeInsets.all(8),
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: 8, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: Colors.blue,
+                                      borderRadius: BorderRadius.circular(5),
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        'This Deal is Boosted',
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
                                 Container(
                                   width: MediaQuery.of(context).size.width / 0 -
                                       0 -
@@ -165,42 +230,52 @@ class _MyDealsState extends State<MyDeals> {
                                   padding: EdgeInsets.all(10),
                                   alignment: Alignment.topLeft,
                                   decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(16),
+                                    borderRadius: BorderRadius.circular(10),
                                     image: DecorationImage(
-                                      image: NetworkImage(
-                                        "https://10.0.2.2:7058" +
-                                            deals[index]!.imagePrinciple!,
-                                      ),
-                                      fit: BoxFit.cover,
-                                    ),
+                                        image: NetworkImage(
+                                            ApiPaths().ImagePath +
+                                                deals[index].imagePrinciple!),
+                                        fit: BoxFit.cover),
                                   ),
-                                  child: deals[index].discount! > 0
-                                      ? Positioned(
-                                          top: 0,
-                                          right: 0,
-                                          child: Container(
-                                            padding: EdgeInsets.symmetric(
-                                                horizontal: 10, vertical: 5),
-                                            decoration: BoxDecoration(
-                                              color: Colors.green,
-                                              borderRadius: BorderRadius.only(
-                                                bottomLeft: Radius.circular(10),
-                                                topRight: Radius.circular(17),
-                                              ),
+                                  child: /** Discount band */
+                                      deals[index].discount! > 0
+                                          ? Stack(
+                                              children: [
+                                                Positioned(
+                                                  top: 0,
+                                                  right: 0,
+                                                  child: Container(
+                                                    padding:
+                                                        EdgeInsets.symmetric(
+                                                            horizontal: 10,
+                                                            vertical: 5),
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.green,
+                                                      borderRadius:
+                                                          BorderRadius.only(
+                                                              bottomLeft: Radius
+                                                                  .circular(10),
+                                                              topRight: Radius
+                                                                  .circular(
+                                                                      17)
+                                                          ),
+                                                    ),
+                                                    child: Text(
+                                                      '${deals[index].discount}% OFF',
+                                                      style: TextStyle(
+                                                        color: Colors.white,
+                                                        fontSize: 14,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            )
+                                          : SizedBox(
+                                              height: 0,
                                             ),
-                                            child: Text(
-                                              '${deals[index].discount}% OFF',
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ),
-                                        )
-                                      : SizedBox(
-                                          height: 0,
-                                        ),
                                 ),
                                 Container(
                                   padding: EdgeInsets.symmetric(
@@ -223,16 +298,16 @@ class _MyDealsState extends State<MyDeals> {
                                             EdgeInsets.only(top: 2, bottom: 8),
                                         child: Row(
                                           children: [
-                                            if(deals[index].discount! >0)
-                                            Text("$pricewithdiscount DT"
-                                              ,
-                                              style: TextStyle(
-                                                fontSize: 20,
-                                                fontWeight: FontWeight.w700,
-                                                fontFamily: 'Poppins',
-                                                color: Colors.indigo,
+                                            if (deals[index].discount! > 0)
+                                              Text(
+                                                "$pricewithdiscount DT",
+                                                style: TextStyle(
+                                                  fontSize: 20,
+                                                  fontWeight: FontWeight.w700,
+                                                  fontFamily: 'Poppins',
+                                                  color: Colors.indigo,
+                                                ),
                                               ),
-                                            ),
                                             SizedBox(width: 8),
                                             if (deals[index].discount! > 0)
                                               Text(
@@ -252,27 +327,28 @@ class _MyDealsState extends State<MyDeals> {
                                                   color: Colors.green,
                                                 ),
                                               ),
-                                            if (deals[index].discount! ==null)
-                                            Text("${deals[index].price} DT"
-                                              ,
-                                              style: TextStyle(
-                                                fontSize: 20,
-                                                fontWeight: FontWeight.w700,
-                                                fontFamily: 'Poppins',
-                                                color: Colors.indigo,
+                                            if (deals[index].discount! == null)
+                                              Text(
+                                                "${deals[index].price} DT",
+                                                style: TextStyle(
+                                                  fontSize: 20,
+                                                  fontWeight: FontWeight.w700,
+                                                  fontFamily: 'Poppins',
+                                                  color: Colors.indigo,
+                                                ),
                                               ),
-                                            ),
                                           ],
                                         ),
                                       ),
-
                                       Row(
-                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
                                         children: [
                                           Text(
                                             'available until: ${deals[index].dateEND}',
                                             style: TextStyle(
-                                              decoration: TextDecoration.underline,
+                                              decoration:
+                                                  TextDecoration.underline,
                                               decorationColor: Colors.green,
                                               color: Colors.green,
                                               fontWeight: FontWeight.w500,
@@ -281,16 +357,18 @@ class _MyDealsState extends State<MyDeals> {
                                           ),
                                         ],
                                       ),
-                                      SizedBox(height: 10,),
+                                      SizedBox(
+                                        height: 10,
+                                      ),
                                       Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceBetween,
                                         children: [
                                           Text(
-                                            'quantity${deals[index].quantity}',
+                                            'quantity : ${deals[index].quantity}',
                                             style: TextStyle(
                                               color: Colors.grey,
-                                              fontSize: 13,
+                                              fontSize: 15,
                                             ),
                                           ),
                                           Text(
@@ -302,7 +380,6 @@ class _MyDealsState extends State<MyDeals> {
                                           ),
                                         ],
                                       ),
-
                                       SizedBox(
                                         height: 20,
                                       ),
@@ -318,17 +395,16 @@ class _MyDealsState extends State<MyDeals> {
                                               Navigator.of(context)
                                                   .push(
                                                 MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      UpdateDeals(
-                                                          deal: deals![index]),
+                                                  builder: (context) => UpdateDeals(deal: deals![index]),
                                                 ),
                                               )
                                                   .then((value) {
                                                 if (value != null &&
                                                     value is Map) {
                                                   DealsModel res =
-                                                      value['updatedAnnounce'];
+                                                      value['UpatedDeals'];
                                                   if (res != null) {
+                                                    //print("//////////////////////////////////////   $res");
                                                     setState(() {
                                                       deals.removeWhere((a) =>
                                                           res.idDeal ==
@@ -352,19 +428,35 @@ class _MyDealsState extends State<MyDeals> {
                                           SizedBox(
                                             width: 20,
                                           ),
-                                          TextButton.icon(
-                                            style: ButtonStyle(),
-                                            onPressed: () {},
-                                            icon: Icon(
-                                              Icons.flash_on,
-                                              color: Colors.yellowAccent,
-                                            ),
-                                            label: Text(
-                                              'Boost',
-                                              style: TextStyle(
-                                                  color: Colors.black),
-                                            ),
-                                          ),
+                                          deals[index].idBoost == null
+                                              ? TextButton.icon(
+                                                  style: ButtonStyle(),
+                                                  onPressed: () {
+                                                    showDialog(
+                                                      context: context,
+                                                      builder: (context) {
+                                                        return BoostFormPopUp();
+                                                      },
+                                                    ).then((value) {
+                                                      AddBost(
+                                                          deals[index],
+                                                          value['idBoost'],
+                                                          index);
+                                                    });
+                                                  },
+                                                  icon: Icon(
+                                                    Icons.flash_on,
+                                                    color: Colors.yellowAccent,
+                                                  ),
+                                                  label: Text(
+                                                    'Boost',
+                                                    style: TextStyle(
+                                                        color: Colors.black),
+                                                  ),
+                                                )
+                                              : SizedBox(
+                                                  height: 0,
+                                                ),
                                           SizedBox(
                                             width: 20,
                                           ),

@@ -1,12 +1,12 @@
-import 'dart:convert';
-
 import 'package:ecommerceversiontwo/Pages/core/model/BrandsModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/CategoriesModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/CitiesModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/CountriesModel.dart';
-import 'package:http/http.dart' as http;
+import 'package:ecommerceversiontwo/Pages/core/model/Deals/DealsFilterModel.dart';
+import  'package:http/http.dart' as http;
+import 'dart:convert';
 
-class DealsModel {
+class DealsView {
   int? idDeal;
   String? title;
   String? description;
@@ -14,11 +14,11 @@ class DealsModel {
   int? price;
   int? discount;
   int? quantity;
-  int? idPricesDelevery;
+  Null? idPricesDelevery;
   String? datePublication;
   String? dateEND;
   String? imagePrinciple;
-  String? videoName;
+  Null? videoName;
   int? idCateg;
   CategoriesModel? categories;
   int? idUser;
@@ -30,13 +30,15 @@ class DealsModel {
   int? idBrand;
   BrandsModel? brands;
   int? idPrize;
+  Null? prizes;
   String? locations;
   int? idBoost;
   int? active;
-  int? likeId;
+  int? idWishList;
   int? nbLike;
+  int? idLike;
 
-  DealsModel(
+  DealsView(
       {this.idDeal,
         this.title,
         this.description,
@@ -60,14 +62,15 @@ class DealsModel {
         this.idBrand,
         this.brands,
         this.idPrize,
+        this.prizes,
         this.locations,
         this.idBoost,
         this.active,
-        this.likeId,
-        this.nbLike
-      });
+        this.idWishList,
+        this.nbLike,
+        this.idLike});
 
-  DealsModel.fromJson(Map<String, dynamic> json) {
+  DealsView.fromJson(Map<String, dynamic> json) {
     idDeal = json['idDeal'];
     title = json['title'];
     description = json['description'];
@@ -75,20 +78,17 @@ class DealsModel {
     price = json['price'];
     discount = json['discount'];
     quantity = json['quantity'];
-    if(json['idPricesDelevery']!=null)
     idPricesDelevery = json['idPricesDelevery'];
-
     datePublication = json['datePublication'];
     dateEND = json['dateEND'];
     imagePrinciple = json['imagePrinciple'];
-    if(json['videoName']!=null)
     videoName = json['videoName'];
     idCateg = json['idCateg'];
     categories = json['categories'] != null
         ? new CategoriesModel.fromJson(json['categories'])
         : null;
     idUser = json['idUser'];
-    //user = json['user'];
+    //user = json['user'] != null ? new User.fromJson(json['user']) : null;
     idCountrys = json['idCountrys'];
     countries = json['countries'] != null
         ? new CountriesModel.fromJson(json['countries'])
@@ -100,9 +100,13 @@ class DealsModel {
     brands =
     json['brands'] != null ? new BrandsModel.fromJson(json['brands']) : null;
     idPrize = json['idPrize'];
+    prizes = json['prizes'];
     locations = json['locations'];
     idBoost = json['idBoost'];
     active = json['active'];
+    idWishList = json['idWishList'];
+    nbLike = json['nbLike'];
+    idLike = json['idLike'];
   }
 
   Map<String, dynamic> toJson() {
@@ -124,7 +128,9 @@ class DealsModel {
       data['categories'] = this.categories!.toJson();
     }
     data['idUser'] = this.idUser;
-    data['user'] = this.user;
+   /* if (this.user != null) {
+      data['user'] = this.user!.toJson();
+    }*/
     data['idCountrys'] = this.idCountrys;
     if (this.countries != null) {
       data['countries'] = this.countries!.toJson();
@@ -138,12 +144,15 @@ class DealsModel {
       data['brands'] = this.brands!.toJson();
     }
     data['idPrize'] = this.idPrize;
+    data['prizes'] = this.prizes;
     data['locations'] = this.locations;
     data['idBoost'] = this.idBoost;
     data['active'] = this.active;
+    data['idWishList'] = this.idWishList;
+    data['nbLike'] = this.nbLike;
+    data['idLike'] = this.idLike;
     return data;
   }
-
 
 
 

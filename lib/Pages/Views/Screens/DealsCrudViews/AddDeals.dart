@@ -15,9 +15,9 @@ import 'package:ecommerceversiontwo/Pages/core/model/FeaturesValuesModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/ImageModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/AdsFeaturesServices/AdsFeaturesService.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/BrandsServices/BrandsService.dart';
-import 'package:ecommerceversiontwo/Pages/core/services/CategoryService.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/CityServices/CityService.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/CountriesServices/CountryService.dart';
+import 'package:ecommerceversiontwo/Pages/core/services/DealsServices/DealsService.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/FeaturesServices/FeaturesService.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/FeaturesValuesServices/FeaturesValuesService.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/ImageServices/ImageService.dart';
@@ -153,7 +153,7 @@ class _AddDealsState extends State<AddDeals> {
     if (image==null) return ;
     final imageTemporary = File(image.path);
     ImageModel response = await ImageService().addImage(imageTemporary);
-    print(response);
+    //print(response);
     setState(() {
       this._imagesid.add(response);
       this._image.add(imageTemporary);
@@ -165,26 +165,26 @@ class _AddDealsState extends State<AddDeals> {
     await getuserId();
     createDealsObject(idUser!);
 
-    Map<String, dynamic> response = await deals!.createDeal(deals!);
-    print(response);
+    Map<String, dynamic> response = await DealsService().createDeal(deals!);
+   // print(response);
     var x = await DealsModel.fromJson(response);
-    print(x.idDeal);
+   // print(x.idDeal);
     List<ListDealsFeaturesFeatureValues> lfv = getFeatures();
-    print(lfv);
+   // print(lfv);
     if(lfv!=null && lfv.length!=0){
       lfv.forEach((element) async {
         CreateAdsFeature fd =
         new CreateAdsFeature(idDeals: int.parse(x.idDeal.toString()),idFeature: int.parse(element.featureId.toString()),idFeaturesValues: int.parse(element.featureValueId.toString()),active: 1);
-        print(fd.toJson());
+       // print(fd.toJson());
         await AdsFeaturesService().Createfeature(fd);
         //print(fvres);
       });
     }
-    print("//////////////////////// : ${_imagesid!.length}");
-    print("//////////////////////// : ${_imagesid[0].IdImage}");
+   // print("//////////////////////// : ${_imagesid!.length}");
+   // print("//////////////////////// : ${_imagesid[0].IdImage}");
     //update the images
     for(var i=0;i<_imagesid!.length;i++){
-      print(int.parse(_imagesid[i].IdImage.toString()));
+     // print(int.parse(_imagesid[i].IdImage.toString()));
       await ImageService().UpdateDelaImages(int.parse(_imagesid[i].IdImage.toString()), int.parse(x.idDeal.toString()));
     }
   }
@@ -423,19 +423,18 @@ class _AddDealsState extends State<AddDeals> {
                           DateTime? pickedDate = await showDatePicker(
                               context: context,
                               initialDate: DateTime.now(),
-                              firstDate: DateTime(2000),
+                              firstDate: DateTime.now(),
                               //DateTime.now() - not to allow to choose before today.
                               lastDate: DateTime(2050));
 
                           if (pickedDate != null) {
-                            print(pickedDate); //pickedDate output format => 2021-03-10 00:00:00.000
+                            //print(pickedDate);
                             String formattedDate =
                             DateFormat('yyyy-MM-dd').format(pickedDate);
-                            print(
-                                formattedDate); //formatted date output using intl package =>  2021-03-16
+                           // print(formattedDate);
                             setState(() {
                               EndDate.text =
-                                  formattedDate; //set output date to TextField value.
+                                  formattedDate;
                             });
                           } else {}
                         },
@@ -728,7 +727,7 @@ class _AddDealsState extends State<AddDeals> {
                                                 onChanged: (value){
                                                   setState(() {
                                                     f.value=value;
-                                                    print(f.value);
+                                                   // print(f.value);
                                                   });
                                                 },
                                               ),

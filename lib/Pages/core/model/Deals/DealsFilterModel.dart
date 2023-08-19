@@ -61,25 +61,4 @@ class DealsFilterModel {
   }
 
 
-  //fileter data with pagination
-  Future<Map<String, dynamic>> getFilteredDeals(DealsFilterModel filter) async {
-    print(filter.toJson());
-    try {
-
-      final response = await http.post(
-        Uri.parse("https://10.0.2.2:7058/api/Test/Dealsfilter"),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(filter.toJson()),
-      );
-      print(response.body);
-      if (response.statusCode == 200) {
-        final responseData = json.decode(response.body);
-        return responseData;
-      } else {
-        throw Exception('Failed to fetch Deals ');
-      }
-    } catch (e) {
-      throw Exception('An error occurred: $e');
-    }
-  }
 }

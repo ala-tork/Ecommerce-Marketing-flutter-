@@ -1,117 +1,130 @@
-import 'package:ecommerceversiontwo/Pages/Views/Screens/MyAppBAr.dart';
-import 'package:ecommerceversiontwo/Pages/Views/Screens/searchPage.dart';
-import 'package:ecommerceversiontwo/Pages/Views/widgets/GridAnnounces.dart';
-import 'package:ecommerceversiontwo/Pages/Views/widgets/GridWishList.dart';
-import 'package:ecommerceversiontwo/Pages/core/model/AdsModels/AnnounceModel.dart';
 import 'package:flutter/material.dart';
-
-import '../widgets/dummy_search_widget1.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:ecommerceversiontwo/Pages/Views/Screens/MyAppBAr.dart';
+import 'package:ecommerceversiontwo/Pages/Views/widgets/GridWishList.dart';
+import 'package:ecommerceversiontwo/Pages/core/model/WishListModel.dart';
+import 'package:ecommerceversiontwo/Pages/core/services/WishListServices/WishListService.dart';
 
 class WishList extends StatefulWidget {
-  const WishList({super.key});
+  WishList({Key? key}) : super(key: key);
 
   @override
   State<WishList> createState() => _WishListState();
 }
 
 class _WishListState extends State<WishList> {
+  int? idUser;
+  List<WishListModel> gridMap = [];
+  int MaxPage = 0;
+  int page = 0;
+  int pageSize = 4;
 
-  List gridMap = [
-    AnnounceModel(
-      idAds:1,
-      title: "white sneaker with adidas logo",
-      price: 255,
-      imagePrinciple: "https://images.unsplash.com/photo-1600185365926-3a2ce3cdb9eb?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=725&q=80",
-      //like:false,
-      //boosted: false,
-    ),
-    AnnounceModel(
-      idAds:2,
-      title: "Black Jeans with blue stripes",
-      price: 245,
-      imagePrinciple:
-      "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=387&q=80",
-     // like:false,
-      //boosted: false,
-    ),
-    AnnounceModel(
-      idAds:3,
-      title: "Red shoes with black stripes",
-      price: 155,
-      imagePrinciple:
-      "https://images.unsplash.com/photo-1542291026-7eec264c27ff?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8c2hvZXN8ZW58MHx8MHx8&auto=format&fit=crop&w=500&q=60",
-    //  like:false,
-     // boosted: false,
-    ),
-    AnnounceModel(
-      idAds:4,
-      title: "Gamma shoes with beta brand.",
-      price: 275,
-      imagePrinciple:
-      "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=387&q=80",
-    //  like:false,
-      //boosted: false,
-    ),
-    AnnounceModel(
-      idAds:5,
-      title: "Alpha t-shirt for alpha testers.",
-      price: 25,
-      imagePrinciple:
-      "https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=387&q=80",
-      //like:false,
-      //boosted: false,
-    ),
-    AnnounceModel(
-      idAds:6,
-      title: "Beta jeans for beta testers",
-      price: 27,
-      imagePrinciple:
-      "https://images.unsplash.com/photo-1602293589930-45aad59ba3ab?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=387&q=80",
-     // like:false,
-      //boosted: false,
-    ),
-    AnnounceModel(
-      idAds:7,
-      title: "V&V  model white t shirts.",
-      price: 55,
-      imagePrinciple:
-      "https://images.unsplash.com/photo-1554568218-0f1715e72254?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=387&q=80",
-      //like:false,
-      //boosted: false,
-    ),
+  Future<int> getuserId() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+    var decodedToken = JwtDecoder.decode(token!);
+    idUser = int.parse(decodedToken['id']);
+    print("id user is $idUser");
+    return idUser!;
+  }
 
-  ];
+  Future<List<WishListModel>> getWishList() async {
+    await getuserId();
+    try {
+      Map<String, dynamic> response =
+          await WishListService().GetWishListByUser(idUser!, page, pageSize);
+
+      if (response["res"] != null) {
+        List<dynamic> adsJsonList = response["res"];
+        if (page == 0) {
+          gridMap.clear();
+        }
+        gridMap.addAll(
+            adsJsonList.map((json) => WishListModel.fromJson(json)).toList());
+
+        // Calculate number of pages
+        int totalItems = response["nbitems"];
+        MaxPage = (totalItems + pageSize - 1) ~/ pageSize;
+
+        print(gridMap);
+        return gridMap;
+      } else {
+        print(response["res"]);
+        throw Exception('Failed to fetch Wish List');
+      }
+    } catch (e) {
+      print('Error: $e');
+      throw Exception('An error occurred: $e');
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    /* getWishList().then((value) {
+      setState(() {
+        print(value);
+        gridMap = value;
+      });
+    });*/
+  }
+
+  Future<void> loadMoreData() async {
+    if (page < MaxPage - 1) {
+      setState(() {
+        page = page + 1;
+      });
+      //List<WishListModel> newData = await getWishList();
+
+      //gridMap.addAll(newData);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
       appBar: MyAppBar(title: "Wish List"),
-      body: Padding(
-        padding: const EdgeInsets.all(10.0),
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              Container(
-                child:Padding(
-                  padding: const EdgeInsets.fromLTRB(8, 0, 8, 28),
-                  child: DummySearchWidget1(
-                    onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => SearchPage(),
+      body: FutureBuilder<List<WishListModel>>(
+        future: getWishList(),
+        builder: (BuildContext context,
+            AsyncSnapshot<List<WishListModel>> snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Failed to fetch data'));
+          } else {
+            return Padding(
+              padding: const EdgeInsets.fromLTRB(4, 20, 4, 20),
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    if (gridMap.isNotEmpty)
+                      GridWishList(data: gridMap)
+                    else
+                      SizedBox.shrink(),
+                    if (page < MaxPage - 1)
+                      ElevatedButton(
+                        onPressed: () {
+                          if (page < MaxPage - 1) {
+                            setState(() {
+                              page = page + 1;
+                            });
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.indigo,
                         ),
-                      );
-                    },
-                  ),
+                        child: Text("Show More"),
+                      )
+                    else
+                      SizedBox.shrink(),
+                  ],
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(8.0, 20.0, 8.0, 8.0),
-                child: GridWishList(data: gridMap),
-              ),
-            ],
-          ),
-        ),
+            );
+          }
+        },
       ),
     );
   }

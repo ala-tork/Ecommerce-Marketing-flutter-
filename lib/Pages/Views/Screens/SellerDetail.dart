@@ -26,118 +26,115 @@ class SellerDetailsPopUp {
               padding: EdgeInsets.all(20),
               height: 600,
               width: MediaQuery.of(context).size.width * 0.9,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(10),
-                    child: Image.network(
-                      img,
-                      width: 200,
-                      height: 200,
-                    ),
-                  ),
-                  SizedBox(height: 20),
-                  Text(
-                    title,
-                    style: TextStyle(
-                      fontSize: 30,
-                      color: AppColor.primary,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(height: 15),
-                  Container(
-                    width: 220,
-                    child: Align(
-                      alignment: Alignment.center,
-                      child: Text(
-                        email,
-                        maxLines: 3,
-                        style: TextStyle(fontSize: 20, color: AppColor.primary),
-                        textAlign: TextAlign.center,
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(100),
+                      child: Image.asset(
+                        img,
+                        width: 200,
+                        height: 200,
                       ),
                     ),
-                  ),
-                  SizedBox(height: 20),
-                  Text(
-                    phone,
-                    style: TextStyle(
-                      fontSize: 25,
-                      color: AppColor.primary,
-                      fontWeight: FontWeight.bold,
+                    SizedBox(height: 20),
+                    Text(
+                      title,
+                      style: TextStyle(
+                        fontSize: 30,
+                        color: AppColor.primary,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                  SizedBox(height: 20),
-                  SizedBox(height: 15),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        "response time : ",
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
+                    SizedBox(height: 15),
+                    Container(
+                      child: Align(
+                        alignment: Alignment.center,
+                        child: Text(
+                          email,
+                          style: TextStyle(fontSize: 20, color: AppColor.primary),
+                          textAlign: TextAlign.center,
                         ),
                       ),
-                      Text(
-                        "between 1 and 2 hours ",
-                        style: TextStyle(
-                          fontSize: 15,
-                          color: AppColor.primary,
-                          fontWeight: FontWeight.bold,
-                        ),
+                    ),
+                    SizedBox(height: 8,),
+                    Text(
+                      phone,
+                      style: TextStyle(
+                        fontSize: 25,
+                        color: AppColor.primary,
+                        fontWeight: FontWeight.bold,
                       ),
-                    ],
-                  ),
-                  SizedBox(height: 15),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        "quality of service: ",
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
+                    ),
+                    SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          "response time : ",
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                      Text(
-                        "medium",
-                        style: TextStyle(
-                          fontSize: 15,
-                          color: AppColor.primary,
-                          fontWeight: FontWeight.bold,
+                        Text(
+                          "between 1 and 2 hours ",
+                          style: TextStyle(
+                            fontSize: 15,
+                            color: AppColor.primary,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 15),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        "delivery time : ",
-                        style: TextStyle(
-                          fontSize: 20,
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
+                      ],
+                    ),
+                    SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          "quality of service: ",
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                      Text(
-                        "between 1 and 2 days ",
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: AppColor.primary,
-                          fontWeight: FontWeight.bold,
+                        Text(
+                          "medium",
+                          style: TextStyle(
+                            fontSize: 15,
+                            color: AppColor.primary,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 15),
-                  Expanded(
-                    child: Align(
+                      ],
+                    ),
+                    SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          "delivery time : ",
+                          style: TextStyle(
+                            fontSize: 20,
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          "between 1 and 2 days ",
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: AppColor.primary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 20),
+                    Align(
                       alignment: Alignment.bottomCenter,
                       child: RatingBar.builder(
                         initialRating: 3.5,
@@ -154,8 +151,16 @@ class SellerDetailsPopUp {
                         ignoreGestures: true,
                       ),
                     ),
-                  ),
-                ],
+                    SizedBox(height: 20),
+                    Align(
+                      alignment: Alignment.bottomCenter,
+                      child: ElevatedButton(
+                        onPressed: (){},
+                        child: Text("More Detail"),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

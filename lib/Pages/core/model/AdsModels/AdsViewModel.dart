@@ -1,69 +1,74 @@
-
+import 'package:ecommerceversiontwo/Pages/core/model/AdsModels/AdsFilterModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/CategoriesModel.dart';
-import 'package:ecommerceversiontwo/Pages/core/model/CitiesModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/CountriesModel.dart';
-import 'package:ecommerceversiontwo/Pages/core/model/AdsModels/CreateAnnounceModel.dart';
+import '../CitiesModel.dart';
+import  'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:http/http.dart' as http;
 
 
-class AnnounceModel {
+class AdsView {
   int? idAds;
   String? title;
   String? description;
   String? details;
   int? price;
+  String? datePublication;
   String? imagePrinciple;
   String? videoName;
   int? idCateg;
   CategoriesModel? categories;
+  int? idUser;
+  Null? user;
   int? idCountrys;
   CountriesModel? countries;
   int? idCity;
   CitiesModel? cities;
-  int? iduser;
-  int? IdBoost;
   String? locations;
-  String? DatePublication;
+  int? idBoost;
   int? active;
-  int? likeId;
+  int? idWishList;
   int? nbLike;
+  int? idLike;
 
-  AnnounceModel(
+  AdsView(
       {this.idAds,
         this.title,
         this.description,
         this.details,
         this.price,
+        this.datePublication,
         this.imagePrinciple,
         this.videoName,
         this.idCateg,
         this.categories,
+        this.idUser,
+        this.user,
         this.idCountrys,
         this.countries,
         this.idCity,
         this.cities,
-        this.iduser,
         this.locations,
-        this.DatePublication,
-        this.IdBoost,
+        this.idBoost,
         this.active,
-        this.likeId,
-        this.nbLike
-      });
+        this.idWishList,
+        this.nbLike,
+        this.idLike});
 
-  AnnounceModel.fromJson(Map<String, dynamic> json) {
+  AdsView.fromJson(Map<String, dynamic> json) {
     idAds = json['idAds'];
     title = json['title'];
     description = json['description'];
     details = json['details'];
     price = json['price'];
+    datePublication = json['datePublication'];
     imagePrinciple = json['imagePrinciple'];
     videoName = json['videoName'];
     idCateg = json['idCateg'];
     categories = json['categories'] != null
         ? new CategoriesModel.fromJson(json['categories'])
         : null;
+    idUser = json['idUser'];
+    //user = json['user'] != null ? new User.fromJson(json['user']) : null;
     idCountrys = json['idCountrys'];
     countries = json['countries'] != null
         ? new CountriesModel.fromJson(json['countries'])
@@ -71,12 +76,12 @@ class AnnounceModel {
     idCity = json['idCity'];
     cities =
     json['cities'] != null ? new CitiesModel.fromJson(json['cities']) : null;
-    iduser= json['idUser'];
     locations = json['locations'];
-    IdBoost=json['idBoost'];
-    DatePublication =json['datePublication'] ;
+    idBoost = json['idBoost'];
     active = json['active'];
-    //like=false;
+    idWishList = json['idWishList'];
+    nbLike = json['nbLike'];
+    idLike = json['idLike'];
   }
 
   Map<String, dynamic> toJson() {
@@ -86,48 +91,54 @@ class AnnounceModel {
     data['description'] = this.description;
     data['details'] = this.details;
     data['price'] = this.price;
+    data['datePublication'] = this.datePublication;
     data['imagePrinciple'] = this.imagePrinciple;
     data['videoName'] = this.videoName;
     data['idCateg'] = this.idCateg;
     if (this.categories != null) {
-      data['categories'] = this.categories?.toJson();
+      data['categories'] = this.categories!.toJson();
     }
+    data['idUser'] = this.idUser;
+ /*   if (this.user != null) {
+      data['user'] = this.user!.toJson();
+    }*/
     data['idCountrys'] = this.idCountrys;
     if (this.countries != null) {
-      data['countries'] = this.countries?.toJson();
+      data['countries'] = this.countries!.toJson();
     }
     data['idCity'] = this.idCity;
     if (this.cities != null) {
-      data['cities'] = this.cities?.toJson();
+      data['cities'] = this.cities!.toJson();
     }
     data['locations'] = this.locations;
-    data['IdBoost'] = this.IdBoost;
+    data['idBoost'] = this.idBoost;
     data['active'] = this.active;
+    data['idWishList'] = this.idWishList;
+    data['nbLike'] = this.nbLike;
+    data['idLike'] = this.idLike;
     return data;
   }
-/*
-  Future<bool> deleteData(int id) async {
-    final String apiUrl = "https://10.0.2.2:7058/api/Ads?id=$id";
 
+  ////// filtred Ads with like and wishlist
+  //fileter data with pagination
+  Future<Map<String, dynamic>> getFilteredViewAds(AdsFilterModel filter,int idUser) async {
+    print(filter.toJson());
     try {
-      final response = await http.delete(Uri.parse(apiUrl),);
 
+      final response = await http.post(
+        Uri.parse("https://10.0.2.2:7058/api/Test/AdsWithLikeAndWishList?iduser=$idUser"),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(filter.toJson()),
+      );
+      print(response.body);
       if (response.statusCode == 200) {
-
-        return true;
+        final responseData = json.decode(response.body);
+        return responseData;
       } else {
-        print("Failed to delete Ads. Status code: ${response.statusCode}");
-        return false;
+        throw Exception('Failed to fetch Ads ');
       }
     } catch (e) {
-      print("Error deleting item: $e");
-      return false;
+      throw Exception('An error occurred: $e');
     }
-  }*/
-
-
-
+  }
 }
-
-
-

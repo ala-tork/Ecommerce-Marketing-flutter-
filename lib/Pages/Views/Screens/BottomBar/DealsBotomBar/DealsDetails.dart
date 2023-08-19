@@ -1,7 +1,11 @@
+import 'dart:ffi';
+
+import 'package:ecommerceversiontwo/ApiPaths.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/BottomBar/DealsBotomBar/DealsCard.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/SellerDetail.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/curstom_app_bar.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/Deals/DealsFilterModel.dart';
+import 'package:ecommerceversiontwo/Pages/core/services/DealsServices/DealsService.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -15,10 +19,12 @@ import 'package:ecommerceversiontwo/Pages/Views/Screens/ImageViewer.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/modals/add_to_cart.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-class DealsDetails extends StatefulWidget {
-  final DealsModel deals;
 
-  DealsDetails({required this.deals});
+
+class DealsDetails extends StatefulWidget {
+  final int id;
+
+  DealsDetails({required this.id});
 
   @override
   _DealsDetailsState createState() => _DealsDetailsState();
@@ -29,6 +35,7 @@ class _DealsDetailsState extends State<DealsDetails> {
   List<ImageModel> _images = [];
   List<String> _urlImages = [];
   List<AdsFeature> _adsFeatures = [];
+  double? pricewithdiscount ;
 
   /** User  */
   String email = "";
@@ -41,25 +48,32 @@ class _DealsDetailsState extends State<DealsDetails> {
   @override
   void initState() {
     super.initState();
-    fetchUserData().then((user) {
+    GetDeal(widget.id!).then((value){
       setState(() {
-        email = user['email'];
-        firstname = user['firstname'];
-        lastname = user['lastname'];
-        phone = user['phone'];
-        address = user['address'];
-        country = user['country'];
+        deals=value;
+        pricewithdiscount= (deals!.price! - ((deals!.discount! * deals!.price!) / 100));
       });
+      fetchUserData(deals!.idUser!).then((user) {
+        setState(() {
+          email = user['email'];
+          firstname = user['firstname'];
+          lastname = user['lastname'];
+          phone = user['phone'];
+          address = user['address'];
+          country = user['country'];
+        });
+      });
+      fetchAdsFeaturesByIDDeals(deals!.idDeal!);
+      fetchImages(deals!.idDeal!);
     });
-    fetchAdsFeaturesByIDDeals(widget.deals.idDeal!);
-    fetchImages(widget.deals.idDeal!);
+
   }
 
   /** Get User */
 
-  Future<Map<String, dynamic>> fetchUserData() async {
+  Future<Map<String, dynamic>> fetchUserData(int idUser) async {
     final apiUrl =
-        'https://10.0.2.2:7058/User/GetUserById?id=${widget.deals.idUser}';
+        'https://10.0.2.2:7058/User/GetUserById?id=${idUser}';
 
     try {
       final response = await http.get(Uri.parse(apiUrl));
@@ -83,9 +97,9 @@ class _DealsDetailsState extends State<DealsDetails> {
     try {
       List<ImageModel> images = await ImageService().getImage(idDeals);
       //setState(() {
-        _images = images;
-        _urlImages.addAll(_images.map((image) => image.title!));
-     // });
+      _images = images;
+      _urlImages.addAll(_images.map((image) => image.title!));
+      // });
       print(_images);
     } catch (e) {
       print('Error fetching Images: $e');
@@ -120,7 +134,7 @@ class _DealsDetailsState extends State<DealsDetails> {
       deaslFilter.idCategory = an.idCateg;
     }
     try {
-      Map<String, dynamic> response = await deaslFilter.getFilteredDeals(deaslFilter);
+      Map<String, dynamic> response = await DealsService().getFilteredDeals(deaslFilter);
 
       if (response["deals"] != null) {
         List<dynamic> adsJsonList = response["deals"];
@@ -139,13 +153,24 @@ class _DealsDetailsState extends State<DealsDetails> {
       throw Exception('An error occurred: $e');
     }
   }
+  DealsModel? deals ;
+  /**  Get Deal By id  */
+  Future<DealsModel> GetDeal(int idDeals) async {
+    try {
+      DealsModel d = await DealsService().getDealById(idDeals);
+      return d;
+    } catch (e) {
+      print('Error fetching Deal By Id: $e');
+      throw throw Exception('Error fetching Deal By Id');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    DealsModel deal = widget.deals;
-    var pricewithdiscount =
-        deal.price! - ((deal.discount! * deal.price!) / 100);
-    return Scaffold(
+    //DealsModel deal = deals!;
+
+    return
+      Scaffold(
       extendBodyBehindAppBar: true,
       extendBody: true,
       bottomNavigationBar: Container(
@@ -208,7 +233,15 @@ class _DealsDetailsState extends State<DealsDetails> {
           ],
         ),
       ),
-      body: Column(
+      body:FutureBuilder<DealsModel>(
+          future: GetDeal(widget!.id!),
+    builder: (BuildContext context, AsyncSnapshot<DealsModel> snapshot) {
+    if (snapshot.connectionState == ConnectionState.waiting) {
+    return CircularProgressIndicator();
+    } else if (snapshot.hasError) {
+    return Text('Failed to fetch data');
+    } else {
+    return Column(
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
@@ -219,7 +252,7 @@ class _DealsDetailsState extends State<DealsDetails> {
                 // appbar
                 Expanded(
                   child: CustomAppBar(
-                    title: '${deal.title}',
+                    title: '${deals!.title}',
                     leftIcon: SvgPicture.asset('assets/icons/Arrow-left.svg'),
                     rightIcon: SvgPicture.asset(
                       'assets/icons/Bookmark.svg',
@@ -247,7 +280,7 @@ class _DealsDetailsState extends State<DealsDetails> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: FutureBuilder<void>(
-                    future: fetchImages(deal.idDeal!),
+                    future: fetchImages(deals!.idDeal!),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return CircularProgressIndicator();
@@ -280,7 +313,7 @@ class _DealsDetailsState extends State<DealsDetails> {
                                     children: _images
                                         .map(
                                           (image) => Image.network(
-                                        "https://10.0.2.2:7058" +
+                                            ApiPaths().ImagePath +
                                             image.title!,
                                         fit: BoxFit.cover,
                                       ),
@@ -315,7 +348,7 @@ class _DealsDetailsState extends State<DealsDetails> {
                           children: [
                             Expanded(
                               child: Text(
-                                deal.title.toString(),
+                                deals!.title.toString(),
                                 style: TextStyle(
                                     fontSize: 24,
                                     fontWeight: FontWeight.w700,
@@ -337,20 +370,20 @@ class _DealsDetailsState extends State<DealsDetails> {
                           children: [
                             Row(
                               children: [
-                                if(deal.discount! >0)
-                                Text("$pricewithdiscount DT"
-                                  ,
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w700,
-                                    fontFamily: 'Poppins',
-                                    color: Colors.indigo,
+                                if(deals!.discount! >0)
+                                  Text("$pricewithdiscount DT"
+                                    ,
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w700,
+                                      fontFamily: 'Poppins',
+                                      color: Colors.indigo,
+                                    ),
                                   ),
-                                ),
                                 SizedBox(width: 8),
-                                if (deal.discount! > 0)
+                                if (deals!.discount! > 0)
                                   Text(
-                                    '${deal.price} DT',
+                                    '${deals!.price} DT',
                                     style: TextStyle(
                                       fontSize: 16,
                                       decoration: TextDecoration
@@ -358,16 +391,16 @@ class _DealsDetailsState extends State<DealsDetails> {
                                       color: Colors.grey,
                                     ),
                                   ),
-                                if (deal.discount! > 0)
+                                if (deals!.discount! > 0)
                                   Text(
-                                    '(${deal.discount}% off)',
+                                    '(${deals!.discount}% off)',
                                     style: TextStyle(
                                       fontSize: 14,
                                       color: Colors.green,
                                     ),
                                   ),
-                                if (deal.discount! ==null)
-                                  Text("${deal.price} DT"
+                                if (deals!.discount! ==null)
+                                  Text("${deals!.price} DT"
                                     ,
                                     style: TextStyle(
                                       fontSize: 20,
@@ -383,7 +416,7 @@ class _DealsDetailsState extends State<DealsDetails> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Text(
-                                  'available until: ${deal.dateEND}',
+                                  'available until: ${deals!.dateEND}',
                                   style: TextStyle(
                                     decoration: TextDecoration.underline,
                                     decorationColor: Colors.green,
@@ -400,7 +433,7 @@ class _DealsDetailsState extends State<DealsDetails> {
                               MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
-                                  'quantity : ${deal.quantity}',
+                                  'quantity : ${deals!.quantity}',
                                   style: TextStyle(
                                     color: Colors.black,
                                     fontWeight: FontWeight.w400,
@@ -408,7 +441,7 @@ class _DealsDetailsState extends State<DealsDetails> {
                                   ),
                                 ),
                                 Text(
-                                  '${deal.locations}',
+                                  '${deals!.locations}',
                                   style: TextStyle(
                                     color: Colors.grey,
                                     fontSize: 13,
@@ -434,7 +467,7 @@ class _DealsDetailsState extends State<DealsDetails> {
                                       onPressed: () {
                                         SellerDetailsPopUp().showDialogFunc(
                                             context,
-                                            "https://cdn.pixabay.com/photo/2020/07/01/12/58/icon-5359553_1280.png",
+                                            "assets/Torkhani_Ala.jpg",
                                             firstname + lastname,
                                             email,
                                             phone);
@@ -461,8 +494,8 @@ class _DealsDetailsState extends State<DealsDetails> {
                                 ),
                                 CircleAvatar(
                                   radius: 35,
-                                  backgroundImage: NetworkImage(
-                                      "https://cdn.pixabay.com/photo/2020/07/01/12/58/icon-5359553_1280.png"),
+                                  backgroundImage: AssetImage(
+                                      "assets/Torkhani_Ala.jpg"),
                                 ),
                               ],
                             ),
@@ -500,7 +533,7 @@ class _DealsDetailsState extends State<DealsDetails> {
                 SizedBox(height: 30,),
                 /** Similar */
                 FutureBuilder<List<DealsModel>>(
-                  future: GetSimilar(widget.deals, 1),
+                  future: GetSimilar(deals!, 1),
                   builder: (BuildContext context, AsyncSnapshot<List<DealsModel>> snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       // Display a loading indicator while waiting for data
@@ -508,7 +541,7 @@ class _DealsDetailsState extends State<DealsDetails> {
                     } else if (snapshot.hasError) {
                       return Text('Failed to fetch Similar');
                     } else {
-                      similar.removeWhere((e) => e.idDeal == widget.deals.idDeal);
+                      similar.removeWhere((e) => e.idDeal == deals!.idDeal);
                       return Row(
                         children: [
                           /** similar list  **/
@@ -569,8 +602,12 @@ class _DealsDetailsState extends State<DealsDetails> {
               ],
             ),
           ),
-       ],
-      ),
+        ],
+      );
+    }
+    },
+      )
     );
+/*    */
   }
 }

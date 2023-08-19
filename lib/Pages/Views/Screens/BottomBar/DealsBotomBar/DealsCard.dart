@@ -1,7 +1,5 @@
-//import 'package:cached_network_image/cached_network_image.dart';
-import 'package:ecommerceversiontwo/Pages/Views/Screens/BottomBar/AnnouceBottomBar/AnnounceDetails.dart';
+import 'package:ecommerceversiontwo/ApiPaths.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/BottomBar/DealsBotomBar/DealsDetails.dart';
-import 'package:ecommerceversiontwo/Pages/core/model/AdsModels/AnnounceModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/Deals/DealsModel.dart';
 import 'package:flutter/material.dart';
 
@@ -22,7 +20,10 @@ class _DealsCardState extends State<DealsCard> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => DealsDetails(deals: widget.data,),
+            builder: (context) => DealsDetails(
+              //idDeals: widget.data.idDeal!,
+              id: widget.data.idDeal!,
+            ),
           ),
         );
       },
@@ -52,7 +53,7 @@ class _DealsCardState extends State<DealsCard> {
                       ],
                       image: DecorationImage(
                         image: NetworkImage(
-                            "https://10.0.2.2:7058${widget.data.imagePrinciple}"),
+                            "${ApiPaths().ImagePath}${widget.data.imagePrinciple}"),
                         fit: BoxFit.cover,
                       ),
                     ),

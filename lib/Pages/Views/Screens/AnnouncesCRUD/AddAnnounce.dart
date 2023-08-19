@@ -14,7 +14,6 @@ import 'package:ecommerceversiontwo/Pages/core/model/FeaturesValuesModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/ImageModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/AdsFeaturesServices/AdsFeaturesService.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/AnnouncesServices/AnnounceService.dart';
-import 'package:ecommerceversiontwo/Pages/core/services/CategoryService.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/CityServices/CityService.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/CountriesServices/CountryService.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/FeaturesServices/FeaturesService.dart';
@@ -140,8 +139,6 @@ class _AddAnnouncesState extends State<AddAnnounces> {
     if (image==null) return ;
     final imageTemporary = File(image.path);
     ImageModel response = await ImageService().addImage(imageTemporary);
-    // Handle the response as needed
-    print(response);
     setState(() {
       this._imagesid.add(response);
       this._image.add(imageTemporary);
@@ -154,26 +151,21 @@ class _AddAnnouncesState extends State<AddAnnounces> {
     await getuserId();
     createAnnounceObject(idUser!);
     Map<String, dynamic> response = await AnnounceService().createAd(announce!);
-    // Handle the response as needed
-    print(response);
+
     //save features values
     var x =AnnounceModel.fromJson(response);
     List<ListFeaturesFeatureValues> lfv = getFeatures();
-    print(lfv);
     if(lfv!=null && lfv.length!=0){
       lfv.forEach((element) async {
         CreateAdsFeature fd =
         new CreateAdsFeature(idAds: int.parse(x.idAds.toString()),idFeature: int.parse(element.featureId.toString()),idFeaturesValues: int.parse(element.featureValueId.toString()),active: 1);
-        print(fd.toJson());
         await AdsFeaturesService().Createfeature(fd);
         //print(fvres);
       });
     }
-    print("//////////////////////// : ${_imagesid!.length}");
-    print("//////////////////////// : ${_imagesid[0].IdImage}");
+
     //update the images
     for(var i=0;i<_imagesid!.length;i++){
-      print(int.parse(_imagesid[i].IdImage.toString()));
       await ImageService().UpdateImages(int.parse(_imagesid[i].IdImage.toString()), int.parse(x.idAds.toString()));
     }
   }

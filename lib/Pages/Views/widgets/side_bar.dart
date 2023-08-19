@@ -1,4 +1,7 @@
 import 'package:ecommerceversiontwo/Pages/Views/Screens/DealsCrudViews/MyDealsList.dart';
+import 'package:ecommerceversiontwo/Pages/Views/Screens/wishlist.dart';
+import 'package:ecommerceversiontwo/Pages/core/model/WishListModel.dart';
+import 'package:ecommerceversiontwo/Pages/core/services/WishListServices/WishListService.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/products/productList.dart';
@@ -14,8 +17,10 @@ class SideBar extends StatefulWidget {
 }
 
 class _SideBarState extends State<SideBar> {
-  String? token; // Declare the token variable
+  String? token;
   String firstname='';
+  int? idUser;
+
   @override
   void initState() {
     super.initState();
@@ -30,15 +35,18 @@ class _SideBarState extends State<SideBar> {
       token = prefs.getString('token');
     });
     var decodedToken = JwtDecoder.decode(token!);
-    firstname = decodedToken['firstname'] ?? '';
-
+    setState(() {
+      firstname = decodedToken['firstname'] ?? '';
+    });
   }
+
 
   @override
   Widget build(BuildContext context) {
     if (token != null) {
       var decodedToken = JwtDecoder.decode(token!);
-      String id = decodedToken['id'] ?? '';
+
+      idUser = decodedToken['Id'] ?? null;
     }
 
     Future<String?> _getAuthToken() async {
@@ -47,6 +55,8 @@ class _SideBarState extends State<SideBar> {
       return prefs.getString('token');
 
     }
+
+
 
 
     return Drawer(
@@ -164,7 +174,7 @@ class _SideBarState extends State<SideBar> {
           ),
           ListTile(
             leading: Icon(CupertinoIcons.star),
-            title: Row(
+            title:Row(
               mainAxisAlignment: MainAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -177,7 +187,7 @@ class _SideBarState extends State<SideBar> {
                 SizedBox(width: 30.0),
                 Container(
                   child: Text(
-                    "12",
+                    "",
                     style: TextStyle(
                       color: Colors.red,
                       fontSize: 16.0,
@@ -187,7 +197,12 @@ class _SideBarState extends State<SideBar> {
               ],
             ),
             onTap: () {
-              Navigator.of(context).pushNamed("WishList");
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => WishList(),
+                ),
+              );
             },
           ),
           SizedBox(height: 100.0),

@@ -1,15 +1,22 @@
+import 'package:ecommerceversiontwo/ApiPaths.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/BottomBar/DealsBotomBar/DealsDetails.dart';
-import 'package:ecommerceversiontwo/Pages/core/model/Deals/DealsModel.dart';
+import 'package:ecommerceversiontwo/Pages/Views/widgets/DealsGiftPopUp.dart';
+import 'package:ecommerceversiontwo/Pages/core/model/Deals/DealsView.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/LikesModel.dart';
+import 'package:ecommerceversiontwo/Pages/core/model/WishListModel.dart';
+import 'package:ecommerceversiontwo/Pages/core/services/WishListServices/WishListService.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:percent_indicator/linear_percent_indicator.dart';
 
 class GridDeals extends StatefulWidget {
   final data;
   final int IdUser;
+
   const GridDeals({
     super.key,
-    required this.data, required this.IdUser,
+    required this.data,
+    required this.IdUser,
   });
 
   @override
@@ -25,18 +32,18 @@ class _GridDealsState extends State<GridDeals> {
     super.initState();
   }
 
-
+  /** Add And Delete Like*/
   Future<void> deleteLike(int idLike, int idDeal) async {
     bool isDeleted = await LikeModel().deleteLike(idLike);
 
     if (isDeleted) {
       print("Item with ID $idLike deleted successfully.");
 
-      for (DealsModel ad in gridMap) {
+      for (DealsView ad in gridMap) {
         if (ad.idDeal == idDeal) {
           setState(() {
-            ad.likeId=null;
-            ad.nbLike= ad.nbLike!-1;
+            ad.idLike = null;
+            ad.nbLike = ad.nbLike! - 1;
           });
 
           break;
@@ -56,16 +63,15 @@ class _GridDealsState extends State<GridDeals> {
       if (newLike != null) {
         print("Like added successfully.");
 
-        for (DealsModel ad in gridMap) {
+        for (DealsView ad in gridMap) {
           if (ad.idDeal == idDeal) {
             setState(() {
-              ad.likeId = newLike.idLP;
+              ad.idLike = newLike.idLP;
               ad.nbLike = (ad.nbLike ?? 0) + 1;
             });
             break;
           }
         }
-
       } else {
         print("Failed to add Like.");
       }
@@ -74,6 +80,53 @@ class _GridDealsState extends State<GridDeals> {
     }
   }
 
+  /** Add And Delete From WishList */
+
+  Future<void> DeleteFromWishList(int idWish, int idDeal) async {
+    bool isDeleted = await WishListService().deleteFromWishList(idWish);
+
+    if (isDeleted) {
+      print("Item with ID $idWish deleted successfully.");
+
+      for (DealsView ad in gridMap) {
+        if (ad.idDeal == idDeal) {
+          setState(() {
+            ad.idWishList = null;
+          });
+
+          break;
+        }
+      }
+    } else {
+      print("Failed to delete item with ID $idWish.");
+    }
+  }
+
+  Future<void> AddToWishList(int idUser, int idDeal) async {
+    WishListModel NewWish = WishListModel(idUser: idUser,idDeal: idDeal);
+
+    try {
+
+      WishListModel wish = await WishListService().AddAnnouceToWishList(NewWish);
+
+      if (wish != null) {
+        print("Deals added successfully.");
+
+        for (DealsView ad in gridMap) {
+          if (ad.idDeal == idDeal) {
+            setState(() {
+              ad.idWishList = wish.idwish;
+            });
+            break;
+          }
+        }
+      } else {
+        print("Failed to add to WishList.");
+      }
+    } catch (e) {
+      print("Error adding WishList: $e");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -84,7 +137,7 @@ class _GridDealsState extends State<GridDeals> {
         crossAxisCount: 1,
         crossAxisSpacing: 10.0,
         mainAxisSpacing: 10.0,
-        mainAxisExtent: 380,
+        mainAxisExtent: 440,
       ),
       itemCount: gridMap.length,
       itemBuilder: (_, index) {
@@ -95,7 +148,10 @@ class _GridDealsState extends State<GridDeals> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => DealsDetails( deals: gridMap[index],),
+                builder: (context) => DealsDetails(
+                  //idDeals: gridMap[index].idDeal,
+                  id: gridMap[index].idDeal,
+                ),
               ),
             );
           },
@@ -122,33 +178,37 @@ class _GridDealsState extends State<GridDeals> {
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(16),
                     image: DecorationImage(
-                        image: NetworkImage("https://10.0.2.2:7058" +
+                        image: NetworkImage(ApiPaths().ImagePath +
                             gridMap[index].imagePrinciple),
                         fit: BoxFit.cover),
                   ),
                   child: /** Discount band */
                       gridMap[index].discount > 0
-                          ? Positioned(
-                              top: 0,
-                              right: 0,
-                              child: Container(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 10, vertical: 5),
-                                decoration: BoxDecoration(
-                                  color: Colors.green,
-                                  borderRadius: BorderRadius.only(
-                                      bottomLeft: Radius.circular(10),
-                                      topRight: Radius.circular(17)),
-                                ),
-                                child: Text(
-                                  '${gridMap[index].discount}% OFF',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
+                          ? Stack(
+                              children: [
+                                Positioned(
+                                  top: 0,
+                                  right: 0,
+                                  child: Container(
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: 10, vertical: 5),
+                                    decoration: BoxDecoration(
+                                      color: Colors.green,
+                                      borderRadius: BorderRadius.only(
+                                          bottomLeft: Radius.circular(10),
+                                          topRight: Radius.circular(17)),
+                                    ),
+                                    child: Text(
+                                      '${gridMap[index].discount}% OFF',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
                                   ),
                                 ),
-                              ),
+                              ],
                             )
                           : SizedBox(
                               height: 0,
@@ -157,26 +217,46 @@ class _GridDealsState extends State<GridDeals> {
 
                 // item details
                 Container(
-                  padding: EdgeInsets.symmetric(vertical: 14, horizontal: 10),
+                  padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        '${gridMap[index].title}',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.black,
-                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              '${gridMap[index].title}',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.black,
+                              ),
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              DealsGiftPopUp().showDialogFunc(
+                                  context, gridMap[index].dateEND);
+                            },
+                            child: Image.network(
+                              "https://5.imimg.com/data5/HC/EV/MY-15940038/diwali-gift-box-500x500.jpg",
+                              height: 40,
+                              width: 40,
+                            ),
+                          )
+                        ],
                       ),
                       Container(
                         margin: EdgeInsets.only(top: 2, bottom: 8),
                         child: Row(
                           children: [
-                            if(gridMap[index].discount! >0)
-                              Text("$pricewithdiscount DT"
-                                ,
+                            if (gridMap[index].discount! > 0)
+                              Text(
+                                "$pricewithdiscount DT",
                                 style: TextStyle(
                                   fontSize: 20,
                                   fontWeight: FontWeight.w700,
@@ -190,8 +270,7 @@ class _GridDealsState extends State<GridDeals> {
                                 '${gridMap[index].price} DT',
                                 style: TextStyle(
                                   fontSize: 16,
-                                  decoration: TextDecoration
-                                      .lineThrough,
+                                  decoration: TextDecoration.lineThrough,
                                   color: Colors.grey,
                                 ),
                               ),
@@ -203,9 +282,9 @@ class _GridDealsState extends State<GridDeals> {
                                   color: Colors.green,
                                 ),
                               ),
-                            if (gridMap[index].discount! ==null)
-                              Text("${gridMap[index].price} DT"
-                                ,
+                            if (gridMap[index].discount! == null)
+                              Text(
+                                "${gridMap[index].price} DT",
                                 style: TextStyle(
                                   fontSize: 20,
                                   fontWeight: FontWeight.w700,
@@ -231,10 +310,11 @@ class _GridDealsState extends State<GridDeals> {
                           ),
                         ],
                       ),
-                      SizedBox(height: 10,),
+                      SizedBox(
+                        height: 8,
+                      ),
                       Row(
-                        mainAxisAlignment:
-                        MainAxisAlignment.spaceBetween,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
                             'quantity : ${gridMap[index].quantity}',
@@ -260,19 +340,20 @@ class _GridDealsState extends State<GridDeals> {
                             children: [
                               IconButton(
                                 onPressed: () {
-                                  if (gridMap[index].likeId == null) {
-                                    addLike(widget.IdUser,gridMap[index].idDeal );
+                                  if (gridMap[index].idLike == null) {
+                                    addLike(
+                                        widget.IdUser, gridMap[index].idDeal);
                                   } else {
-                                    deleteLike(gridMap[index].likeId, gridMap[index].idDeal);
-
+                                    deleteLike(gridMap[index].idLike,
+                                        gridMap[index].idDeal);
                                   }
                                 },
-                                icon: gridMap[index].likeId == null
+                                icon: gridMap[index].idLike == null
                                     ? Icon(CupertinoIcons.heart)
                                     : Icon(
-                                  CupertinoIcons.heart_fill,
-                                  color: Colors.red,
-                                ),
+                                        CupertinoIcons.heart_fill,
+                                        color: Colors.red,
+                                      ),
                               ),
                               Text("${gridMap[index].nbLike}")
                             ],
@@ -281,13 +362,48 @@ class _GridDealsState extends State<GridDeals> {
                             children: [
                               IconButton(
                                 onPressed: () {
-                                 // AddToCartModal();
+                                  if (gridMap[index].idWishList == null) {
+                                    AddToWishList(
+                                        widget.IdUser, gridMap[index].idDeal);
+                                  } else {
+                                    DeleteFromWishList(gridMap[index].idWishList,
+                                        gridMap[index].idDeal);
+                                  }
                                 },
-                                icon: Icon(
-                                  CupertinoIcons.star,
-                                ),
+                                icon: gridMap[index].idWishList == null
+                                    ? Icon(CupertinoIcons.star)
+                                    : Icon(
+                                        CupertinoIcons.star_fill,
+                                        color: Colors.amber,
+                                      ),
                               ),
                             ],
+                          ),
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text("sold out of ${gridMap[index].quantity} ",
+                          style: TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.w500
+                          ),)
+                        ],
+                      ),
+                      SizedBox(
+                        height: 8,
+                      ),
+                      Row(
+                        children: [
+                          LinearPercentIndicator(
+                            width: MediaQuery.of(context).size.width - 50,
+                            animation: true,
+                            lineHeight: 10.0,
+                            animationDuration: 700,
+                            percent: 0.8,
+                            barRadius: Radius.circular(10),
+                            progressColor: Colors.indigo,
                           ),
                         ],
                       ),

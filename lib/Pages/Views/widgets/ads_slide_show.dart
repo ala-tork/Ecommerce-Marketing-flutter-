@@ -1,151 +1,151 @@
-import 'package:ecommerceversiontwo/Pages/Views/widgets/rating_tag.dart';
-import 'package:ecommerceversiontwo/Pages/core/model/AdsModels/AnnounceModel.dart';
+import 'package:ecommerceversiontwo/ApiPaths.dart';
+import 'package:ecommerceversiontwo/Pages/Views/Screens/BottomBar/AnnouceBottomBar/AnnounceDetails.dart';
 import 'package:flutter/material.dart';
-import '../../core/model/adsModel.dart';
+import 'package:ecommerceversiontwo/Pages/Views/Screens/BottomBar/DealsBotomBar/DealsDetails.dart';
+import 'package:ecommerceversiontwo/Pages/core/model/BostSlideShowModels/BoostSlideShowModel.dart';
 
 class AdsSlideShow extends StatelessWidget {
-  final AnnounceModel adsShow;
+  final BoostSlideShowModel ads_deals;
 
-  AdsSlideShow({required this.adsShow});
+  AdsSlideShow({required this.ads_deals});
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: <Widget>[
-        Card(
-          elevation: 0,
-          color: Colors.white,
-          borderOnForeground: true,
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                Container(
-                  height: 160,
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                      image: NetworkImage("https://10.0.2.2:7058${adsShow!.imagePrinciple!}"),
-                      fit: BoxFit.cover,
+    return GestureDetector(
+      onTap: () {
+        if (ads_deals.itemType == "Deal") {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => DealsDetails(id: ads_deals.deals!.idDeal!),
+            ),
+          );
+        } else if (ads_deals.itemType == "Ad") {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => AnounceDetails(idAd: ads_deals.ads!.idAds!),
+            ),
+          );
+        }
+      },
+      child: Card(
+        elevation: 0,
+        color: Colors.white,
+        borderOnForeground: true,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Container(
+                height: 160,
+                padding: EdgeInsets.all(10),
+                alignment: Alignment.topLeft,
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: NetworkImage(
+                        ApiPaths().ImagePath + ads_deals.imageUrl!),
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                child: ads_deals.discount != null && ads_deals.discount! > 0
+                    ? Positioned(
+                  top: 0,
+                  right: 0,
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: 10, vertical: 5),
+                    decoration: BoxDecoration(
+                      color: Colors.green,
+                      borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(10),
+                        topRight: Radius.circular(17),
+                      ),
+                    ),
+                    child: Text(
+                      '${ads_deals.discount}% OFF',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
+                )
+                    : SizedBox(
+                  height: 0,
                 ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(15, 10, 0, 0),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            '${adsShow.title}',
-                            style: TextStyle(
-                              fontSize: 26,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(15, 10, 0, 0),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            '${adsShow.description}',
-                            style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.grey[500]),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(15, 10, 0, 0),
-                  child: Row(
-                    children: [
-                      Text(
-                        "${adsShow.price} DT",
-                        style: TextStyle(
-                            fontSize: 18,
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(15, 10, 0, 0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          '${ads_deals.title}',
+                          style: TextStyle(
+                            fontSize: 26,
                             fontWeight: FontWeight.bold,
-                            color: Colors.indigo),
-                      )
-                    ],
-                  ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Container(
+                      margin: EdgeInsets.only(top: 2, bottom: 8, right: 10),
+                      child: Text(
+                        '${ads_deals.datePublication}',
+                        style: TextStyle(
+                          color: Colors.grey,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                SizedBox(
-                  height: 20,
+              ),
+              Container(
+                margin: EdgeInsets.only(top: 2, bottom: 8, left: 18),
+                child: Row(
+                  children: [
+                    Text(
+                      '${ads_deals.price} DT',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w700,
+                        fontFamily: 'Poppins',
+                        color: Colors.indigo,
+                      ),
+                    ),
+                    SizedBox(width: 8),
+                    if (ads_deals.discount != null && ads_deals.discount! > 0)
+                      Text(
+                        '${ads_deals.price! + ((ads_deals.discount! * ads_deals.price!) / 100)} DT',
+                        style: TextStyle(
+                          fontSize: 16,
+                          decoration: TextDecoration.lineThrough,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    if (ads_deals.discount != null && ads_deals.discount! > 0)
+                      Text(
+                        '(${ads_deals.discount}% off)',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.green,
+                        ),
+                      ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+              SizedBox(
+                height: 20,
+              ),
+            ],
           ),
         ),
-        /* Image.asset(
-          adsShow.ImagePrinciple,
-          fit: BoxFit.cover,
-          width: double.infinity,
-          height: 300,
-        ),
-*/
-      ],
+      ),
     );
   }
 }
-/*
-        Positioned(
-          bottom: 39,
-          right: 16,
-          child: Text(
-            adsShow.title,
-            style: TextStyle(
-              color: Colors.black,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              backgroundColor: Colors.grey[300],
-            ),
-          ),
-        ),
-        Positioned(
-            top: 5,
-            right: 3,
-            child: RatingTag(value: 4,width: 70.0, height: 30.0,textsize: 20,)
-        ),
-        Positioned(
-          bottom: 14,
-          right: 16,
-          child: Text(
-            adsShow.price.toString()+" "+"DT",
-            style: TextStyle(
-              color: Colors.blue,
-              fontSize: 25,
-              fontWeight: FontWeight.bold,
-              backgroundColor: Colors.grey[300],
-            ),
-          ),
-        ),
-        Positioned(
-          bottom: 16,
-          left: 16,
-          child: ElevatedButton(
-            onPressed: (){},
-            child: Text("Details"),
-            style: ButtonStyle(
-              shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-              ),
-              elevation: MaterialStateProperty.all(0),
-              backgroundColor: MaterialStateProperty.all(Colors.blue[900]),
-            ),
-          ),
-        ),
-* */

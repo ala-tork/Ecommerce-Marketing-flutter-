@@ -1,6 +1,7 @@
 
 import 'dart:io';
 import 'package:awesome_dialog/awesome_dialog.dart';
+import 'package:ecommerceversiontwo/ApiPaths.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/MyAppBAr.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/CustomButton.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/AdsFeaturesModel.dart';
@@ -14,7 +15,6 @@ import 'package:ecommerceversiontwo/Pages/core/model/FeaturesValuesModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/ImageModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/AdsFeaturesServices/AdsFeaturesService.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/AnnouncesServices/AnnounceService.dart';
-import 'package:ecommerceversiontwo/Pages/core/services/CategoryService.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/CityServices/CityService.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/CountriesServices/CountryService.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/FeaturesServices/FeaturesService.dart';
@@ -141,8 +141,6 @@ class _EditeAnnounceState extends State<EditeAnnounce> {
     if (image==null) return ;
     final imageTemporary = File(image.path);
     ImageModel response = await ImageService().addImage(imageTemporary);
-    // Handle the response as needed
-    //print(response);
     setState(() {
       this._imagesid.add(response);
       this._image.add(imageTemporary);
@@ -152,9 +150,7 @@ class _EditeAnnounceState extends State<EditeAnnounce> {
   //update the announce
   Future<AnnounceModel> UpdateAnnounce() async {
     //create the Announce
-     CreateAnnounce();
-    CreateAnnounce an = CreateAnnounce();
-
+     await CreateAnnounce();
     // print(widget.announce!.idAds!);
     AnnounceModel? response = await AnnounceService().updateAnnouncement(widget.announce!.idAds!,announce!);
     // Handle the response as needed
@@ -162,17 +158,25 @@ class _EditeAnnounceState extends State<EditeAnnounce> {
 
     //save features values
     var x =response;
-    bool resDele=  await AdsFeaturesService().deleteData(widget.announce!.idAds!);
-    List<ListFeaturesFeatureValues> lfv = getFeatures();
-    //print(lfv);
-    if(resDele  && lfv!=null && lfv.length!=0){
-      lfv.forEach((element) async {
-        CreateAdsFeature fd =
-        new CreateAdsFeature(idAds: int.parse(x!.idAds.toString()),idFeature: int.parse(element.featureId.toString()),idFeaturesValues: int.parse(element.featureValueId.toString()),active: 1);
-        //print(fd.toJson());
-        await AdsFeaturesService().Createfeature(fd);
-      });
-    }
+     List<ListFeaturesFeatureValues> lfv = getFeatures();
+     if(lfv.length!=0) {
+       bool resDele = await AdsFeaturesService().deleteData(
+           widget.announce!.idAds!);
+
+
+       //print(lfv);
+       if (resDele && lfv != null && lfv.length != 0) {
+         lfv.forEach((element) async {
+           CreateAdsFeature fd =
+           new CreateAdsFeature(idAds: int.parse(x!.idAds.toString()),
+               idFeature: int.parse(element.featureId.toString()),
+               idFeaturesValues: int.parse(element.featureValueId.toString()),
+               active: 1);
+           //print(fd.toJson());
+           await AdsFeaturesService().Createfeature(fd);
+         });
+       }
+     }
    // print("//////////////////////// : ${_imagesid!.length}");
     //print("//////////////////////// : ${_imagesid[0].IdImage}");
     //update the images
@@ -442,7 +446,7 @@ class _EditeAnnounceState extends State<EditeAnnounce> {
                                       border: Border.all(color: Colors.black.withOpacity(0)),
                                     ),
                                     child: Image.network(
-                                      "https://10.0.2.2:7058"+img!,
+                                      ApiPaths().ImagePath+img!,
                                       height: 400,
                                       fit: BoxFit.fill,
                                     ),

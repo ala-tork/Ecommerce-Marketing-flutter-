@@ -5,6 +5,7 @@ import 'package:ecommerceversiontwo/Pages/Views/widgets/categoryCard.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/dummy_search_widget1.dart';
 import 'package:ecommerceversiontwo/Pages/app_color.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/AdsModels/AdsFilterModel.dart';
+import 'package:ecommerceversiontwo/Pages/core/model/AdsModels/AdsViewModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/AdsModels/AnnounceModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/Category.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/CategoriesModel.dart';
@@ -16,7 +17,6 @@ import 'package:ecommerceversiontwo/Pages/core/services/AnnouncesServices/Announ
 import 'package:ecommerceversiontwo/Pages/core/services/CategoryService.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -43,13 +43,13 @@ class _AnnouncesState extends State<Announces> {
   CitiesModel? city;
   double minprice=0;
   double maxprice=0;
-  List<AnnounceModel> gridMap = [];
+  List<AdsView> gridMap = [];
   int MaxPage =0;
   int page=1;
   List<FeaturesValuesModel> featuresvalues = [];
   List<int> featuresvaluesid = [];
 
-
+/*
   Future<List<AnnounceModel>> apicall() async {
     AdsFilterModel adsFilter = AdsFilterModel(pageNumber: page, idFeaturesValues: []);
     if(adsName!=null){
@@ -97,6 +97,58 @@ class _AnnouncesState extends State<Announces> {
       print('Error: $e');
       throw Exception('An error occurred: $e');
     }
+  }*/
+
+  Future<List<AdsView>> apicall() async {
+    await getuserId();
+    AdsFilterModel adsFilter = AdsFilterModel(pageNumber: page, idFeaturesValues: []);
+    if(adsName!=null){
+      adsFilter.adsName=adsName;
+    }
+    if (country != null) {
+      adsFilter.idCountrys = country!.idCountrys;
+    }
+    if (category != null) {
+      adsFilter.idCategory = category!.idCateg;
+    }
+    if (city != null) {
+      adsFilter.idCity = city!.idCity;
+    }
+    if(minprice!=0)
+    {
+      adsFilter.minPrice=minprice;
+    }
+    if(maxprice!=0){ adsFilter.maxPrice=maxprice;}
+    if(featuresvaluesid.isNotEmpty){adsFilter.idFeaturesValues=featuresvaluesid;}
+    try {
+      print(id);
+      print(adsFilter);
+      Map<String, dynamic> response = await AdsView().getFilteredViewAds(adsFilter,id!);
+
+      if (response["ads"] != null) {
+        List<dynamic> adsJsonList = response["ads"];
+        if (page == 1) {
+          gridMap.clear();
+          gridMap.addAll(adsJsonList.map((json) => AdsView.fromJson(json)).toList());
+        } else {
+          gridMap.addAll(adsJsonList.map((json) => AdsView.fromJson(json)).toList());
+        }
+        //nbr Page
+        int x = response["totalItems"];
+        MaxPage = x ~/ 4;
+        if (x % 4 > 0) {
+          MaxPage += 1;
+        }
+        print(gridMap);
+        return gridMap;
+      } else {
+        print(response["ads"]);
+        throw Exception('Failed to fetch Ads');
+      }
+    } catch (e) {
+      print('Error: $e');
+      throw Exception('An error occurred: $e');
+    }
   }
 
   List<CategoriesModel> _categorys=[];
@@ -109,6 +161,8 @@ class _AnnouncesState extends State<Announces> {
       print('Error fetching categories: $e');
     }
   }
+
+  //get current user
   int? id ;
   Future<void> getuserId() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -117,77 +171,6 @@ class _AnnouncesState extends State<Announces> {
     id = int.parse(decodedToken['id']);
     print("id user is $id");
   }
-
-  Future<void> getLikeByIdUserIdAd() async {
-    try {
-      await getuserId();
-      List<AnnounceModel>listannounce=await apicall();
-      if (listannounce.length != 0) {
-        for (var a in listannounce) {
-          Map<String, dynamic> response = await LikeModel().getLikeAds(id!, a.idAds!);
-          a.nbLike=response["nbLike"];
-          if(response["like"]!=null)
-            a.likeId= await LikeModel.fromJson(response["like"]).idLP;
-        }
-        print(listannounce[0]);
-      }
-
-    } catch (e) {
-      print('error fetching Likes: $e');
-    }
-  }
-
-/*
-  Future<void> deleteLike(int idLike, int idAds) async {
-    bool isDeleted = await LikeModel().deleteLike(idLike);
-
-    if (isDeleted) {
-      print("Item with ID $idLike deleted successfully.");
-
-      AnnounceModel? foundAd;
-
-      for (AnnounceModel ad in gridMap) {
-        if (ad.idAds == idAds) {
-          setState(() {
-            ad.likeId=null;
-            ad.nbLike= ad.nbLike!-1;
-         });
-
-          break;
-        }
-      }
-    } else {
-      print("Failed to delete item with ID $idLike.");
-    }
-  }
-
-  Future<void> addLike(int idUser, int idAds) async {
-    LikeModel like = LikeModel(idUser: idUser, idAd: idAds);
-
-    try {
-      LikeModel newLike = await like.addLike(like);
-      AnnounceModel? foundAd;
-
-      if (newLike != null) {
-        print("Like added successfully.");
-
-        for (AnnounceModel ad in gridMap) {
-          if (ad.idAds == idAds) {
-            setState(() {
-              ad.likeId = newLike.idLP;
-              ad.nbLike = (ad.nbLike ?? 0) + 1;
-            });
-            break;
-          }
-        }
-
-      } else {
-        print("Failed to add Like.");
-      }
-    } catch (e) {
-      print("Error adding Like: $e");
-    }
-  }*/
 
 
 
@@ -638,13 +621,13 @@ class _AnnouncesState extends State<Announces> {
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(8.0, 20.0, 8.0, 8.0),
-              child: FutureBuilder<void>(
-                future: getLikeByIdUserIdAd(),
-                builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
+              child: FutureBuilder<List<AdsView>>(
+                future: apicall(),
+                builder: (BuildContext context, AsyncSnapshot<List<AdsView>> snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return CircularProgressIndicator();
                   } else if (snapshot.hasError) {
-                    return Text('Failed to fetch data');
+                    return Text('Failed to fetch Ads with like ');
                   } else {
                     return Column(
                       children: [

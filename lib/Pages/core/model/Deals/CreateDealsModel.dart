@@ -1,10 +1,3 @@
-import 'package:ecommerceversiontwo/Pages/core/model/BrandsModel.dart';
-import 'package:ecommerceversiontwo/Pages/core/model/CategoriesModel.dart';
-import 'package:ecommerceversiontwo/Pages/core/model/CitiesModel.dart';
-import 'package:ecommerceversiontwo/Pages/core/model/CountriesModel.dart';
-import 'package:ecommerceversiontwo/Pages/core/model/Deals/DealsModel.dart';
-import  'package:http/http.dart' as http;
-import 'dart:convert';
 
 class CreateDealsModel {
   String? title;
@@ -137,49 +130,7 @@ class CreateDealsModel {
   }
 
 
-  Future<Map<String, dynamic>> createDeal(CreateDealsModel adModel) async {
-    var headers = {'Content-Type': 'application/json'};
-    var url = Uri.parse("https://10.0.2.2:7058/api/Deals");
-    var adData = json.encode(adModel.toJson());
 
-    var response = await http.post(url, headers: headers, body: adData);
-
-    if (response.statusCode == 200 || response.statusCode==201) {
-      Map<String, dynamic> responseData = json.decode(response.body);
-      return responseData;
-    } else {
-      Map<String, dynamic> responseData = json.decode(response.body);
-      print("Request failed with status: ${response.statusCode}");
-      return responseData;
-    }
-  }
-
-
-
-
-// Update announce
-  Future<DealsModel?> updateDeals(int dealsId, CreateDealsModel updatedData) async {
-    try {
-      var url = Uri.parse("https://10.0.2.2:7058/api/Deals/$dealsId");
-      var headers = {'Content-Type': 'application/json'};
-
-      var jsonBody = json.encode(updatedData.toJson());
-      print(jsonBody);
-      var response = await http.put(url, headers: headers, body: jsonBody);
-
-      if (response.statusCode == 200) {
-        var responseData = json.decode(response.body);
-        return DealsModel.fromJson(responseData);
-      } else {
-        print('Failed to update announcement. Status code: ${response.statusCode}');
-        print('Response body: ${response.body}');
-        return null;
-      }
-    } catch (e) {
-      print('Error updating Deals: $e');
-      return null;
-    }
-  }
 }
 
 

@@ -1,20 +1,18 @@
+import 'package:ecommerceversiontwo/ApiPaths.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/BottomBar/AnnouceBottomBar/AnnounceDetails.dart';
-import 'package:ecommerceversiontwo/Pages/Views/widgets/modals/add_to_cart.dart';
+import 'package:ecommerceversiontwo/Pages/core/model/AdsModels/AdsViewModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/AdsModels/AnnounceModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/LikesModel.dart';
+import 'package:ecommerceversiontwo/Pages/core/model/WishListModel.dart';
+import 'package:ecommerceversiontwo/Pages/core/services/WishListServices/WishListService.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:jwt_decoder/jwt_decoder.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 
 class GridB extends StatefulWidget {
   final  data;
   final int IdUser;
-  //final Function(int index) onRemoveLike;
- // final Function(int index) onCreateLike;
- // const GridB({Key? key, required this.data, required this.onRemoveLike, required this.onCreateLike})
-  //    : super(key: key);
+
   const GridB({Key? key,required this.data, required this.IdUser});
 
   @override
@@ -25,11 +23,11 @@ class _GridBState extends State<GridB> {
   List gridMap=[];
   @override
   void initState() {
-    // TODO: implement initState
     gridMap = widget.data;
-    print(gridMap[0].likeId);
+    //print(gridMap[0].idLike);
     super.initState();
   }
+  /** Add And Delete like */
   Future<void> deleteLike(int idLike, int idAds) async {
     bool isDeleted = await LikeModel().deleteLike(idLike);
 
@@ -38,10 +36,10 @@ class _GridBState extends State<GridB> {
 
       AnnounceModel? foundAd;
 
-      for (AnnounceModel ad in gridMap) {
+      for (AdsView ad in gridMap) {
         if (ad.idAds == idAds) {
           setState(() {
-            ad.likeId=null;
+            ad.idLike=null;
             ad.nbLike= ad.nbLike!-1;
           });
 
@@ -55,18 +53,15 @@ class _GridBState extends State<GridB> {
 
   Future<void> addLike(int idUser, int idAds) async {
     LikeModel like = LikeModel(idUser: idUser, idAd: idAds);
-
     try {
       LikeModel newLike = await like.addLike(like);
-      AnnounceModel? foundAd;
-
       if (newLike != null) {
         print("Like added successfully.");
 
-        for (AnnounceModel ad in gridMap) {
+        for (AdsView ad in gridMap) {
           if (ad.idAds == idAds) {
             setState(() {
-              ad.likeId = newLike.idLP;
+              ad.idLike = newLike.idLP;
               ad.nbLike = (ad.nbLike ?? 0) + 1;
             });
             break;
@@ -78,6 +73,55 @@ class _GridBState extends State<GridB> {
       }
     } catch (e) {
       print("Error adding Like: $e");
+    }
+  }
+
+
+  /** add and delete from wishlist */
+
+  Future<void> DeleteFromWishList(int idWish, int idAd) async {
+    bool isDeleted = await WishListService().deleteFromWishList(idWish);
+
+    if (isDeleted) {
+      print("Item with ID $idWish deleted successfully.");
+
+      for (AdsView ad in gridMap) {
+        if (ad.idAds == idAd) {
+          setState(() {
+            ad.idWishList = null;
+          });
+
+          break;
+        }
+      }
+    } else {
+      print("Failed to delete item with ID $idWish.");
+    }
+  }
+
+  Future<void> AddToWishList(int idUser, int idAd) async {
+    WishListModel NewWish = WishListModel(idUser: idUser,idAd: idAd);
+
+    try {
+
+      WishListModel wish = await WishListService().AddAnnouceToWishList(NewWish);
+
+      if (wish != null) {
+        print("Deals added successfully.");
+
+        for (AdsView ad in gridMap) {
+          if (ad.idAds == idAd) {
+            setState(() {
+              ad.idWishList = wish.idwish;
+            });
+            break;
+          }
+        }
+      } else {
+        print("Failed to add to WishList.");
+      }
+    } catch (e) {
+      print("Error adding WishList: $e");
     }
   }
 
@@ -102,7 +146,7 @@ class _GridBState extends State<GridB> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => AnounceDetails(Announce: gridMap[index],),
+                builder: (context) => AnounceDetails(idAd: gridMap[index].idAds,),
               ),
             );
           },
@@ -130,7 +174,7 @@ class _GridBState extends State<GridB> {
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(16),
                     image: DecorationImage(
-                        image: NetworkImage("https://10.0.2.2:7058"+gridMap[index].imagePrinciple), fit: BoxFit.cover),
+                        image: NetworkImage(ApiPaths().ImagePath+gridMap[index].imagePrinciple), fit: BoxFit.cover),
                   ),
                 ),
                 // item details
@@ -140,13 +184,32 @@ class _GridBState extends State<GridB> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        '${gridMap[index].title}',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.black,
-                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              '${gridMap[index].title}',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.black,
+                              ),
+                            ),
+                          ),
+                          Container(
+                              margin: EdgeInsets.only(top: 2, bottom: 8),
+                              child: Text(
+                                '${gridMap[index].datePublication}',
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 13,
+                                ),
+                              )
+                          ),
+                        ],
                       ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -162,16 +225,6 @@ class _GridBState extends State<GridB> {
                                 color: Colors.indigo,
                               ),
                             ),
-                          ),
-                          Container(
-                            margin: EdgeInsets.only(top: 2, bottom: 8),
-                            child: Text(
-                              '${gridMap[index].DatePublication}',
-                              style: TextStyle(
-                                color: Colors.grey,
-                                fontSize: 13,
-                              ),
-                            )
                           ),
                         ],
                       ),
@@ -189,14 +242,14 @@ class _GridBState extends State<GridB> {
                             children: [
                               IconButton(
                                 onPressed: () {
-                                  if (gridMap[index].likeId == null) {
+                                  if (gridMap[index].idLike == null) {
                                     addLike(widget.IdUser,gridMap[index].idAds );
                                   } else {
-                                    deleteLike(gridMap[index].likeId, gridMap[index].idAds);
+                                    deleteLike(gridMap[index].idLike, gridMap[index].idAds);
 
                                   }
                                 },
-                                icon: gridMap[index].likeId == null
+                                icon: gridMap[index].idLike == null
                                     ? Icon(CupertinoIcons.heart)
                                     : Icon(
                                   CupertinoIcons.heart_fill,
@@ -210,13 +263,23 @@ class _GridBState extends State<GridB> {
                             children: [
                               IconButton(
                                 onPressed: () {
-                                 // AddToCartModal();
+                                  if (gridMap[index].idWishList == null) {
+                                    AddToWishList(
+                                        widget.IdUser, gridMap[index].idAds);
+                                  } else {
+                                    DeleteFromWishList(gridMap[index].idWishList,
+                                        gridMap[index].idAds);
+                                  }
                                 },
-                                icon: Icon(
-                                  CupertinoIcons.star,
+                                icon: gridMap[index].idWishList == null
+                                    ? Icon(CupertinoIcons.star)
+                                    : Icon(
+                                  CupertinoIcons.star_fill,
+                                  color: Colors.amber,
                                 ),
                               ),
                             ],
+
                           ),
                         ],
                       ),

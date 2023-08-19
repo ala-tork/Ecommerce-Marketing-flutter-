@@ -57,6 +57,7 @@ class AnnounceService{
 // Update announce
   Future<AnnounceModel?> updateAnnouncement(int announcementId, CreateAnnounce updatedData) async {
     try {
+      print("//////////////////////////// ${updatedData.active}");
       var url = Uri.parse("https://10.0.2.2:7058/api/Ads/$announcementId");
       var headers = {'Content-Type': 'application/json'};
       var jsonBody = json.encode(updatedData.toJson());
@@ -93,6 +94,39 @@ class AnnounceService{
         return responseData;
       } else {
         throw Exception('Failed to fetch data');
+      }
+    } catch (e) {
+      throw Exception('An error occurred: $e');
+    }
+  }
+
+  Future<AnnounceModel> getAdById(int id) async {
+    final String apiurl = "https://10.0.2.2:7058/Ad/$id";
+    final response = await http.get(Uri.parse(apiurl));
+    if (response.statusCode == 200) {
+      Map<String, dynamic> jsonResponse = json.decode(response.body);
+      AnnounceModel deal = AnnounceModel.fromJson(jsonResponse);
+      return deal;
+    } else {
+      print(response.body);
+      throw Exception('Failed to fetch Ad');
+    }
+  }
+
+  Future<Map<String, dynamic>> GetAdsByUser(int idUser,int page) async {
+    try {
+
+      final response = await http.get(
+        Uri.parse("https://10.0.2.2:7058/api/Ads/ShowMoreByUser?iduser=${idUser}&page=${page}"),
+        headers: {'Content-Type': 'application/json'},
+      );
+      print(response.body);
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        //print(responseData);
+        return responseData;
+      } else {
+        throw Exception('Failed to fetch Ads ');
       }
     } catch (e) {
       throw Exception('An error occurred: $e');

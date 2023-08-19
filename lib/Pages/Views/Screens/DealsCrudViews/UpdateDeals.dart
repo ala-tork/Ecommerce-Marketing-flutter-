@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:awesome_dialog/awesome_dialog.dart';
+import 'package:ecommerceversiontwo/ApiPaths.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/MyAppBAr.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/CustomButton.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/AdsFeaturesModel.dart';
@@ -17,6 +18,7 @@ import 'package:ecommerceversiontwo/Pages/core/services/AdsFeaturesServices/AdsF
 import 'package:ecommerceversiontwo/Pages/core/services/BrandsServices/BrandsService.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/CityServices/CityService.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/CountriesServices/CountryService.dart';
+import 'package:ecommerceversiontwo/Pages/core/services/DealsServices/DealsService.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/FeaturesServices/FeaturesService.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/FeaturesValuesServices/FeaturesValuesService.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/ImageServices/ImageService.dart';
@@ -158,7 +160,7 @@ class _UpdateDealsState extends State<UpdateDeals> {
     if (image==null) return ;
     final imageTemporary = File(image.path);
     ImageModel response = await ImageService().addImage(imageTemporary);
-    print(response);
+    //print(response);
     setState(() {
       this._imagesid.add(response);
       this._image.add(imageTemporary);
@@ -169,34 +171,28 @@ class _UpdateDealsState extends State<UpdateDeals> {
   Future<DealsModel> updateDeal() async {
     int iduser = await getuserId();
     createDealsObject(iduser);
-    print(deals!.toJson());
-    DealsModel? response  = await deals!.updateDeals(widget.deal!.idDeal!, deals!);
-
-    //print(response);
-
+    //print(deals!.toJson());
+    DealsModel? response  = await DealsService().updateDeals(widget.deal!.idDeal!, deals!);
     var x =response;
-    print("//////////////////////// : ${x!.idDeal}");
-
-    bool resDele=  await AdsFeaturesService().deleteDeals(widget.deal!.idDeal!);
-//  print(resDele);
-
     List<ListDealsFeaturesFeatureValues> lfv = getFeatures();
-   // print(lfv);
+    if(lfv.length!=0) {
+      bool resDele = await AdsFeaturesService().deleteDeals(
+          widget.deal!.idDeal!);
 
-    if(resDele  && lfv!=null && lfv.length!=0){
-      lfv.forEach((element) async {
-        CreateAdsFeature fd =
-        new CreateAdsFeature(idDeals: int.parse(x!.idDeal.toString()),idFeature: int.parse(element.featureId.toString()),idFeaturesValues: int.parse(element.featureValueId.toString()),active: 1);
-        //print(fd.toJson());
-        await AdsFeaturesService().Createfeature(fd);
-      });
+      if (resDele && lfv != null && lfv.length != 0) {
+        lfv.forEach((element) async {
+          CreateAdsFeature fd =
+          new CreateAdsFeature(idDeals: int.parse(x!.idDeal.toString()),
+              idFeature: int.parse(element.featureId.toString()),
+              idFeaturesValues: int.parse(element.featureValueId.toString()),
+              active: 1);
+          await AdsFeaturesService().Createfeature(fd);
+        });
+      }
     }
 
-    //print("//////////////////////// : ${_imagesid!.length}");
-    //print("//////////////////////// : ${_imagesid[0].IdImage}");
     //update the images
     for(var i=0;i<_imagesid!.length;i++){
-      // print(int.parse(_imagesid[i].IdImage.toString()));
       await ImageService().UpdateDelaImages(int.parse(_imagesid[i].IdImage.toString()), int.parse(x!.idDeal.toString()));
     }
     return response!;
@@ -506,19 +502,18 @@ class _UpdateDealsState extends State<UpdateDeals> {
                           DateTime? pickedDate = await showDatePicker(
                               context: context,
                               initialDate: DateTime.now(),
-                              firstDate: DateTime(2000),
+                              firstDate: DateTime.now(),
                               //DateTime.now() - not to allow to choose before today.
                               lastDate: DateTime(2050));
 
                           if (pickedDate != null) {
-                            print(pickedDate); //pickedDate output format => 2021-03-10 00:00:00.000
+                            //print(pickedDate);
                             String formattedDate =
                             DateFormat('yyyy-MM-dd').format(pickedDate);
-                            print(
-                                formattedDate); //formatted date output using intl package =>  2021-03-16
+                            //print(formattedDate);
                             setState(() {
                               EndDate.text =
-                                  formattedDate; //set output date to TextField value.
+                                  formattedDate;
                             });
                           } else {}
                         },
@@ -852,7 +847,7 @@ class _UpdateDealsState extends State<UpdateDeals> {
                                       border: Border.all(color: Colors.black.withOpacity(0)),
                                     ),
                                     child: Image.network(
-                                      "https://10.0.2.2:7058"+img!,
+                                      ApiPaths().ImagePath+img!,
                                       height: 400,
                                       fit: BoxFit.fill,
                                     ),
@@ -950,8 +945,8 @@ class _UpdateDealsState extends State<UpdateDeals> {
                             }else{
                               //Map<String, dynamic> adData = deals!.toJson();
                               //print(adData);
-                              updateDeal();
-                              Navigator.pop(context);
+                              DealsModel? res = await updateDeal();
+                              Navigator.pop(context,{"UpatedDeals":res});
                             }
                           },
                           child: Text("Update Deals",style: TextStyle(fontSize: 20),),

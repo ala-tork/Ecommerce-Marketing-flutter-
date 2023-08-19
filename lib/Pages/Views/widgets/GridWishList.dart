@@ -1,8 +1,19 @@
-import 'package:ecommerceversiontwo/Pages/Views/widgets/modals/add_to_cart.dart';
+import 'package:ecommerceversiontwo/ApiPaths.dart';
+import 'package:ecommerceversiontwo/Pages/Views/Screens/BottomBar/AnnouceBottomBar/AnnounceDetails.dart';
+import 'package:ecommerceversiontwo/Pages/Views/Screens/BottomBar/DealsBotomBar/DealsDetails.dart';
+import 'package:ecommerceversiontwo/Pages/Views/widgets/DealsGiftPopUp.dart';
+import 'package:ecommerceversiontwo/Pages/core/model/AdsModels/AnnounceModel.dart';
+import 'package:ecommerceversiontwo/Pages/core/model/Deals/DealsModel.dart';
+import 'package:ecommerceversiontwo/Pages/core/model/WishListModel.dart';
+import 'package:ecommerceversiontwo/Pages/core/services/WishListServices/WishListService.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:percent_indicator/linear_percent_indicator.dart';
+
+
+
 class GridWishList extends StatefulWidget {
-  final  data;
+  final List<WishListModel>  data;
   const GridWishList({super.key, required this.data,});
 
   @override
@@ -10,120 +21,474 @@ class GridWishList extends StatefulWidget {
 }
 
 class _GridWishListState extends State<GridWishList> {
-  List gridMap=[];
-  @override
-  void initState() {
-    // TODO: implement initState
-    gridMap = widget.data;
-    super.initState();
+
+
+
+
+  Future<void> DeleteFromWishList(int idWish) async {
+    bool isDeleted = await WishListService().deleteFromWishList(idWish);
+
+    if (isDeleted) {
+      print("Item with ID $idWish deleted successfully.");
+
+      setState(() {
+        widget.data.removeWhere((e) => e.idwish==idWish);
+      });
+
+    } else {
+      print("Failed to delete item with ID $idWish.");
+    }
   }
+
+
   @override
   Widget build(BuildContext context) {
 
-    return GridView.builder(
+    return  GridView.builder(
       shrinkWrap: true,
       physics: NeverScrollableScrollPhysics(),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 1 ,
+        crossAxisCount: 1,
         crossAxisSpacing: 10.0,
         mainAxisSpacing: 10.0,
-        mainAxisExtent: 310,
+        //mainAxisExtent: 410,
       ),
-      itemCount: gridMap.length,
+      itemCount: widget.data!.length,
       itemBuilder: (_, index) {
-        return Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(
-              16.0,
-            ),
-            color: Colors.teal[100],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ClipRRect(
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(16.0),
-                  topRight: Radius.circular(16.0),
+        if(widget.data![index].ads!=null){
+
+
+           AnnounceModel? adsWishList=widget.data![index].ads;
+
+        return
+
+          GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => AnounceDetails(idAd: adsWishList!.idAds!,),
                 ),
-                child: Image.network(
-                  "${gridMap.elementAt(index).images}",
-                  height: 170,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
+              );
+            },
+            child: Container(
+              //onTap:(){},
+              //width: MediaQuery.of(context).size.width / 2 - 16 - 8,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(17.0),
+                border: Border.all(
+                  color: Colors.indigo,
+                  width: 1.0,
+
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "${gridMap.elementAt(index).title}",
-                      style: Theme.of(context).textTheme.subtitle1!.merge(
-                        const TextStyle(
-                          fontWeight: FontWeight.w700,
+              child: Stack(
+                children: [
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // item image
+                      Container(
+                        //width: MediaQuery.of(context).size.width / 0 - 0 - 0,
+                        height:210,
+                        padding: EdgeInsets.all(10),
+                        alignment: Alignment.topLeft,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16),
+                          image: DecorationImage(
+                              image: NetworkImage(ApiPaths().ImagePath+adsWishList!.imagePrinciple!), fit: BoxFit.cover),
                         ),
                       ),
-                    ),
-                    const SizedBox(
-                      height: 8.0,
-                    ),
-                    Text(
-                      "${gridMap.elementAt(index).price} DT",
-                      style: Theme.of(context).textTheme.subtitle2!.merge(
-                        TextStyle(
-                          fontWeight: FontWeight.w700,
-                          fontSize: 25,
-                          color: Colors.grey.shade500,
+                      // item details
+                      Container(
+                        padding: EdgeInsets.symmetric(vertical: 14, horizontal: 15),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    '${adsWishList.title}',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                ),
+                                Container(
+                                    margin: EdgeInsets.only(top: 4, bottom: 8),
+                                    child: Text(
+                                      '${adsWishList!.DatePublication}',
+                                      style: TextStyle(
+                                        color: Colors.grey,
+                                        fontSize: 15,
+                                      ),
+                                    )
+                                ),
+                              ],
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Center(
+                                  child: Expanded(
+                                    child: Text(
+                                      '${adsWishList.description}',
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Container(
+                                  margin: EdgeInsets.only(top: 5, bottom: 8),
+                                  child: Text(
+                                    '${adsWishList.price} DT',
+                                    style: TextStyle(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.w700,
+                                      fontFamily: 'Poppins',
+                                      color: Colors.indigo,
+                                    ),
+                                  ),
+                                ),
+
+                              ],
+                            ),
+                            Text(
+                              '${adsWishList.locations}',
+                              style: TextStyle(
+                                color: Colors.grey,
+                                fontSize: 15,
+                              ),
+                            ),
+                          ],
                         ),
+
                       ),
-                    ),
-                    const SizedBox(
-                      height: 10.0,
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                    ],
+                  ),
+                  Align(
+                    alignment: Alignment.bottomCenter,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.max,
                       children: [
-                        IconButton(
-                          onPressed: () {
-                            setState(() {
-                              if(gridMap[index].like==true){
-                                gridMap[index].like=false;
-                              }else{
-                                gridMap[index].like=true;
-                              }
-                            });
-                          },
-                          icon: gridMap[index].like == false ? Icon(
-                            size:32,
-                            CupertinoIcons.heart,
-                          ):Icon(
-                            size:32,
-                            CupertinoIcons.heart_fill,
-                            color: Colors.red,
-                          ),
-                        ),
-                        IconButton(
-                          onPressed: () {
-                           setState(() {
-                             gridMap.remove(gridMap[index]);
-                           });
-                          },
-                          icon: Icon(
-                            size:32,
-                            CupertinoIcons.star_fill, color: Colors.yellow[800],
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () {
+                              DeleteFromWishList(widget.data[index].idwish!);
+                            },
+                            style: ElevatedButton.styleFrom(
+                              primary: Colors.blue,
+                              onPrimary: Colors.white,
+                            ),
+                            child:
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.delete_forever),
+                                SizedBox(width: 4,),
+                                Text("Remove From Wishlist",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ],
                     ),
+                  )
+                ],
+              ),
+            ),
+          );
+        }else if (widget.data![index].deals!=null){
+          DealsModel? adealsWishList=widget.data![index].deals;
+          var pricewithdiscount = adealsWishList!.price! -
+              ((adealsWishList!.discount! * adealsWishList!.price!) / 100);
+          return
+
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => DealsDetails(
+                      //idDeals: gridMap[index].idDeal,
+                      id: adealsWishList!.idDeal!,
+                    ),
+                  ),
+                );
+              },
+              child: Container(
+                //onTap:(){},
+                width: MediaQuery.of(context).size.width / 2 - 16 - 8,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(17.0),
+                  border: Border.all(
+                    color: Colors.indigo,
+                    width: 1.0,
+                  ),
+                ),
+                child: Stack(
+                  children: [
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        // item image
+                        Container(
+                          width: MediaQuery.of(context).size.width / 0 - 0 - 0,
+                          height: MediaQuery.of(context).size.width / 2 - 0 - 6,
+                          padding: EdgeInsets.all(5),
+                          alignment: Alignment.topLeft,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(16),
+                            image: DecorationImage(
+                                image: NetworkImage(ApiPaths().ImagePath +
+                                    adealsWishList!.imagePrinciple!),
+                                fit: BoxFit.cover),
+                          ),
+                          child: /** Discount band */
+                          adealsWishList!.discount! > 0
+                              ? Stack(
+                            children: [
+                              Positioned(
+                                top: 0,
+                                right: 0,
+                                child: Container(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 10, vertical: 5),
+                                  decoration: BoxDecoration(
+                                    color: Colors.green,
+                                    borderRadius: BorderRadius.only(
+                                        bottomLeft: Radius.circular(10),
+                                        topRight: Radius.circular(17)),
+                                  ),
+                                  child: Text(
+                                    '${adealsWishList!.discount}% OFF',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          )
+                              : SizedBox(
+                            height: 0,
+                          ),
+                        ),
+
+                        // item details
+                        Container(
+                          padding: EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      '${adealsWishList.title}',
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w700,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                  ),
+                                  GestureDetector(
+                                    onTap: () {
+                                      DealsGiftPopUp().showDialogFunc(
+                                          context, adealsWishList!.dateEND!);
+                                    },
+                                    child: Image.asset(
+                                      "assets/prize.webp",
+                                      height: 40,
+                                      width: 25,
+                                    ),
+                                  )
+                                ],
+                              ),
+                              Container(
+                                margin: EdgeInsets.only( bottom: 2),
+                                child: Row(
+                                  children: [
+                                    if (adealsWishList!.discount! > 0)
+                                      Text(
+                                        "$pricewithdiscount DT",
+                                        style: TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.w700,
+                                          fontFamily: 'Poppins',
+                                          color: Colors.indigo,
+                                        ),
+                                      ),
+                                    SizedBox(width: 8),
+                                    if (adealsWishList.discount! > 0)
+                                      Text(
+                                        '${adealsWishList.price} DT',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          decoration: TextDecoration.lineThrough,
+                                          color: Colors.grey,
+                                        ),
+                                      ),
+                                    if (adealsWishList.discount! > 0)
+                                      Text(
+                                        '(${adealsWishList.discount}% off)',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.green,
+                                        ),
+                                      ),
+                                    if (adealsWishList.discount! == null)
+                                      Text(
+                                        "${adealsWishList.price} DT",
+                                        style: TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.w700,
+                                          fontFamily: 'Poppins',
+                                          color: Colors.indigo,
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    'available until: ${adealsWishList.dateEND}',
+                                    style: TextStyle(
+                                      decoration: TextDecoration.underline,
+                                      decorationColor: Colors.green,
+                                      color: Colors.green,
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(
+                                height: 5,
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'quantity : ${adealsWishList.quantity}',
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.w400,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                  Text(
+                                    '${adealsWishList.locations}',
+                                    style: TextStyle(
+                                      color: Colors.grey,
+                                      fontSize: 13,
+                                    ),
+                                  ),
+                                ],
+                              ),
+
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [Text("Quantite vendue ")],
+                              ),
+                              SizedBox(
+                                height: 5,
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  LinearPercentIndicator(
+                                    width: MediaQuery.of(context).size.width - 100,
+                                    animation: true,
+                                    lineHeight: 10.0,
+                                    animationDuration: 1500,
+                                    percent: 0.8,
+                                    barRadius: Radius.circular(10),
+                                    progressColor: Colors.indigo,
+                                  ),
+                                ],
+                              ),
+
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    Align(
+                      alignment: Alignment.bottomCenter,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.max,
+                        children: [
+                          Expanded(
+                            child: ElevatedButton(
+                              onPressed: () {
+                                DeleteFromWishList(widget.data[index].idwish!);
+                              },
+                              style: ElevatedButton.styleFrom(
+                                primary: Colors.red,
+                                onPrimary: Colors.white,
+                              ),
+                              child:
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.delete_forever),
+                                  SizedBox(width: 4,),
+                                  Text("Remove From Wishlist",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
                   ],
                 ),
               ),
-            ],
-          ),
-        );
+            );
+        }else{
+          return Center(
+            child: Text("Wish List Is Empty"),
+          );
+        }
       },
     );
+
   }
 }
