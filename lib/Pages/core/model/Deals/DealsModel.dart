@@ -22,7 +22,7 @@ class DealsModel {
   int? idCateg;
   CategoriesModel? categories;
   int? idUser;
-  Null? user;
+  //Null? user;
   int? idCountrys;
   CountriesModel? countries;
   int? idCity;
@@ -52,7 +52,7 @@ class DealsModel {
         this.idCateg,
         this.categories,
         this.idUser,
-        this.user,
+        //this.user,
         this.idCountrys,
         this.countries,
         this.idCity,
@@ -124,7 +124,7 @@ class DealsModel {
       data['categories'] = this.categories!.toJson();
     }
     data['idUser'] = this.idUser;
-    data['user'] = this.user;
+    //data['user'] = this.user;
     data['idCountrys'] = this.idCountrys;
     if (this.countries != null) {
       data['countries'] = this.countries!.toJson();

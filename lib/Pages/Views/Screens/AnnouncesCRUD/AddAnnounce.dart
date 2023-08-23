@@ -14,6 +14,7 @@ import 'package:ecommerceversiontwo/Pages/core/model/FeaturesValuesModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/ImageModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/AdsFeaturesServices/AdsFeaturesService.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/AnnouncesServices/AnnounceService.dart';
+import 'package:ecommerceversiontwo/Pages/core/services/CategoriesServices/CategoryService.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/CityServices/CityService.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/CountriesServices/CountryService.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/FeaturesServices/FeaturesService.dart';
@@ -186,7 +187,7 @@ class _AddAnnouncesState extends State<AddAnnounces> {
   /** fetch categorys */
   Future<void> fetchData() async {
     try {
-      List<CategoriesModel> categories = await CategoriesModel().GetData();
+      List<CategoriesModel> categories = await CategoryService().GetData();
       setState(() {
         _categorys = categories;
       });
@@ -563,7 +564,7 @@ class _AddAnnouncesState extends State<AddAnnounces> {
                             Padding(
                               padding: const EdgeInsets.all(0),
                               child: FutureBuilder<List<CategoriesModel>>(
-                                future: CategoriesModel().GetData(),
+                                future: CategoryService().GetData(),
                                 builder: (BuildContext context, AsyncSnapshot<List<CategoriesModel>> snapshot) {
                                   if (snapshot.connectionState == ConnectionState.waiting) {
                                     // Display a loading indicator while waiting for data

@@ -4,6 +4,7 @@ import 'package:ecommerceversiontwo/Pages/core/model/AdsModels/AdsViewModel.dart
 import 'package:ecommerceversiontwo/Pages/core/model/AdsModels/AnnounceModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/LikesModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/WishListModel.dart';
+import 'package:ecommerceversiontwo/Pages/core/services/LikeServices/LikeService.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/WishListServices/WishListService.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -29,7 +30,7 @@ class _GridBState extends State<GridB> {
   }
   /** Add And Delete like */
   Future<void> deleteLike(int idLike, int idAds) async {
-    bool isDeleted = await LikeModel().deleteLike(idLike);
+    bool isDeleted = await LikeService().deleteLike(idLike);
 
     if (isDeleted) {
       print("Item with ID $idLike deleted successfully.");
@@ -54,7 +55,7 @@ class _GridBState extends State<GridB> {
   Future<void> addLike(int idUser, int idAds) async {
     LikeModel like = LikeModel(idUser: idUser, idAd: idAds);
     try {
-      LikeModel newLike = await like.addLike(like);
+      LikeModel newLike = await LikeService().addLike(like);
       if (newLike != null) {
         print("Like added successfully.");
 

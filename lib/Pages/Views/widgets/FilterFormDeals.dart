@@ -8,6 +8,7 @@ import 'package:ecommerceversiontwo/Pages/core/model/AdsModels/CreateAnnounceMod
 import 'package:ecommerceversiontwo/Pages/core/model/FeaturesModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/FeaturesValuesModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/BrandsServices/BrandsService.dart';
+import 'package:ecommerceversiontwo/Pages/core/services/CategoriesServices/CategoryService.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/CityServices/CityService.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/CountriesServices/CountryService.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/FeaturesServices/FeaturesService.dart';
@@ -111,7 +112,7 @@ class _FilterFormDealsState extends State<FilterFormDeals> {
   /** fetch categorys */
   Future<void> fetchData() async {
     try {
-      List<CategoriesModel> categories = await CategoriesModel().GetData();
+      List<CategoriesModel> categories = await CategoryService().GetData();
       setState(() {
         _categorys = categories;
       });
@@ -498,7 +499,7 @@ class _FilterFormDealsState extends State<FilterFormDeals> {
                       Padding(
                         padding: const EdgeInsets.all(0),
                         child: FutureBuilder<List<CategoriesModel>>(
-                          future: CategoriesModel().GetData(),
+                          future: CategoryService().GetData(),
                           builder: (BuildContext context, AsyncSnapshot<List<CategoriesModel>> snapshot) {
                             if (snapshot.connectionState == ConnectionState.waiting) {
                               return CircularProgressIndicator();

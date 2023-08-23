@@ -3,6 +3,7 @@ import 'package:ecommerceversiontwo/Pages/core/model/AdsModels/AdsFilterModel.da
 import 'package:ecommerceversiontwo/Pages/core/model/AdsModels/AnnounceModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/LikesModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/AnnouncesServices/AnnounceService.dart';
+import 'package:ecommerceversiontwo/Pages/core/services/LikeServices/LikeService.dart';
 import 'package:flutter/material.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -55,7 +56,7 @@ class _StoreState extends State<Store> {
       List<AnnounceModel>listannounce=await apicall();
       if (listannounce.length != 0) {
         for (var a in listannounce) {
-          Map<String, dynamic> response = await LikeModel().getLikeAds(id!, a.idAds!);
+          Map<String, dynamic> response = await LikeService().getLikeAds(id!, a.idAds!);
           a.nbLike=response["nbLike"];
           if(response["like"]!=null)
             a.likeId= await LikeModel.fromJson(response["like"]).idLP;

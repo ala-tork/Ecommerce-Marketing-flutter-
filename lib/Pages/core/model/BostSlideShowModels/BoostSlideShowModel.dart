@@ -1,6 +1,7 @@
 import 'package:ecommerceversiontwo/Pages/core/model/AdsModels/AnnounceModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/Deals/DealsModel.dart';
 
+
 class BoostSlideShowModel {
   int? boostedId;
   String? itemType;

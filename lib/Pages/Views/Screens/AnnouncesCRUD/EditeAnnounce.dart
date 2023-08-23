@@ -15,6 +15,7 @@ import 'package:ecommerceversiontwo/Pages/core/model/FeaturesValuesModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/ImageModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/AdsFeaturesServices/AdsFeaturesService.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/AnnouncesServices/AnnounceService.dart';
+import 'package:ecommerceversiontwo/Pages/core/services/CategoriesServices/CategoryService.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/CityServices/CityService.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/CountriesServices/CountryService.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/FeaturesServices/FeaturesService.dart';
@@ -132,7 +133,7 @@ class _EditeAnnounceState extends State<EditeAnnounce> {
 
 //pick the image
   //image picker
-  List<String> _AnnounceImages = [];
+  List<ImageModel> _AnnounceImages = [];
   List<File> _image = [];
   List<ImageModel> _imagesid=[];
 
@@ -159,7 +160,7 @@ class _EditeAnnounceState extends State<EditeAnnounce> {
     //save features values
     var x =response;
      List<ListFeaturesFeatureValues> lfv = getFeatures();
-     if(lfv.length!=0) {
+     //if(lfv.length!=0) {
        bool resDele = await AdsFeaturesService().deleteData(
            widget.announce!.idAds!);
 
@@ -176,7 +177,7 @@ class _EditeAnnounceState extends State<EditeAnnounce> {
            await AdsFeaturesService().Createfeature(fd);
          });
        }
-     }
+    // }
    // print("//////////////////////// : ${_imagesid!.length}");
     //print("//////////////////////// : ${_imagesid[0].IdImage}");
     //update the images
@@ -217,7 +218,7 @@ class _EditeAnnounceState extends State<EditeAnnounce> {
   /** fetch categorys */
   Future<void> fetchData() async {
     try {
-      List<CategoriesModel> categories = await CategoriesModel().GetData();
+      List<CategoriesModel> categories = await CategoryService().GetData();
 
       setState(() {
         _categorys = categories;
@@ -312,7 +313,7 @@ class _EditeAnnounceState extends State<EditeAnnounce> {
       setState(() {
         _imagesid = images;
         images.forEach((element) {
-          _AnnounceImages.add(element.title!);
+          _AnnounceImages.add(element);
         });
       });
     } catch (e) {
@@ -437,22 +438,69 @@ class _EditeAnnounceState extends State<EditeAnnounce> {
                               _AnnounceImages.length !=0?
                               Column(
                                 mainAxisSize: MainAxisSize.min,
-                                children: _AnnounceImages.map((img) {
-                                  return Container(
-                                    width: MediaQuery.of(context).size.width,
-                                    height: 300,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(10),
-                                      border: Border.all(color: Colors.black.withOpacity(0)),
-                                    ),
-                                    child: Image.network(
-                                      ApiPaths().ImagePath+img!,
-                                      height: 400,
-                                      fit: BoxFit.fill,
-                                    ),
+                                children: _AnnounceImages.asMap()
+                                    .entries
+                                    .map((entry) {
+                                  int index = entry.key;
+                                  String img = entry.value.title!;
+                                  return Column(
+                                    children: [
+                                      Container(
+                                        width: MediaQuery.of(context)
+                                            .size
+                                            .width,
+                                        height: 300,
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                          BorderRadius.circular(10),
+                                          border: Border.all(
+                                              color: Colors.black
+                                                  .withOpacity(0)),
+                                        ),
+                                        child: Stack(
+                                          children: [
+                                            Image.network(
+                                              ApiPaths().ImagePath + img,
+                                              height: 400,
+                                              width: 420,
+                                              fit: BoxFit.fill,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      ElevatedButton(
+                                        onPressed: () async {
+                                          bool res = await ImageService().deleteImage(entry.value.IdImage!);
+
+                                          setState(() {
+                                            _AnnounceImages.remove(entry.value);
+                                            _imagesid.remove(entry.value);
+                                          });
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          primary: Colors.red,
+                                        ),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                          children: [
+                                            Icon(Icons.delete,
+                                                color: Colors.white),
+                                            SizedBox(width: 8),
+                                            Text(
+                                              "Delete",
+                                              style: TextStyle(
+                                                fontSize: 20,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
                                   );
                                 }).toList(),
-                              ):SizedBox(height: 0,),
+                              ) :SizedBox(height: 0,),
                               _image.length != 0
                                   ? Column(
                                 mainAxisSize: MainAxisSize.min,
@@ -476,6 +524,7 @@ class _EditeAnnounceState extends State<EditeAnnounce> {
                               Column(
                                   mainAxisSize: MainAxisSize.min,
                                   children: <Widget>[
+                                    if(_AnnounceImages.length==0)
                                     Container(
                                       height: 300,
                                       decoration: BoxDecoration(
@@ -651,7 +700,7 @@ class _EditeAnnounceState extends State<EditeAnnounce> {
                             Padding(
                               padding: const EdgeInsets.all(0),
                               child: FutureBuilder<List<CategoriesModel>>(
-                                future: CategoriesModel().GetData(),
+                                future: CategoryService().GetData(),
                                 builder: (BuildContext context, AsyncSnapshot<List<CategoriesModel>> snapshot) {
                                   if (snapshot.connectionState == ConnectionState.waiting) {
                                     // Display a loading indicator while waiting for data
@@ -667,6 +716,9 @@ class _EditeAnnounceState extends State<EditeAnnounce> {
                                         value: _category,
                                         items: _categorys.map((e) => DropdownMenuItem<CategoriesModel>(child: Text(e.title.toString()),value: e,)).toList(),
                                         onChanged:(CategoriesModel? x){
+                                         /* if(x!.idCateg!=widget.announce!.idCateg){
+                                            AdsFeaturesService().deleteData(widget.announce!.idAds!);
+                                          }*/
                                           setState(() {
                                             _category=x;
                                             CategoryId=int.parse(x!.idCateg.toString());
@@ -821,7 +873,9 @@ class _EditeAnnounceState extends State<EditeAnnounce> {
                                   btnCancelColor: Colors.grey,
                                   btnCancelOnPress:(){},
 
-                                  btnOkOnPress: (){}
+                                  btnOkOnPress: (){
+                                    error="";
+                                  }
                               ).show();
                             }else{
                                var res = await UpdateAnnounce();

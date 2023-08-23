@@ -17,7 +17,7 @@ import 'package:ecommerceversiontwo/Pages/core/model/Category.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/Product.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/AnnouncesServices/AnnounceService.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/BoostedSlideShowServices/BoostedSlideShowService.dart';
-import 'package:ecommerceversiontwo/Pages/core/services/CategoryService.dart';
+import 'package:ecommerceversiontwo/Pages/core/services/CategoriesServices/CategoryService.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/ProductService.dart';
 import 'package:flutter/material.dart';
 import 'package:lecle_flutter_carousel_pro/lecle_flutter_carousel_pro.dart';
@@ -29,7 +29,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  List<Category> categoryData = CategoryService.categoryData.cast<Category>();
+ // List<Category> categoryData = CategoryService.categoryData.cast<Category>();
   List<Product> productData = ProductService.productData;
 
   //filter variable
@@ -128,7 +128,7 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> fetchCategory() async {
     try {
-      List<CategoriesModel> categories = await CategoriesModel().GetData();
+      List<CategoriesModel> categories = await CategoryService().GetData();
       _categorys = categories;
       _categorys.removeWhere((element) => element.idCateg == 1);
     } catch (e) {

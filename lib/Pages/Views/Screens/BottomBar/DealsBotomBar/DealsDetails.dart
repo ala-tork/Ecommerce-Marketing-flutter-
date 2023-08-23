@@ -3,6 +3,7 @@ import 'dart:ffi';
 import 'package:ecommerceversiontwo/ApiPaths.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/BottomBar/DealsBotomBar/DealsCard.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/SellerDetail.dart';
+import 'package:ecommerceversiontwo/Pages/Views/widgets/DealsGiftPopUp.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/curstom_app_bar.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/Deals/DealsFilterModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/DealsServices/DealsService.dart';
@@ -348,6 +349,7 @@ class _DealsDetailsState extends State<DealsDetails> {
                           children: [
                             Expanded(
                               child: Text(
+                                maxLines: 1,
                                 deals!.title.toString(),
                                 style: TextStyle(
                                     fontSize: 24,
@@ -356,6 +358,27 @@ class _DealsDetailsState extends State<DealsDetails> {
                                     color: AppColor.secondary),
                               ),
                             ),
+                            if(deals!.idPrize!=null)
+                            GestureDetector(
+                              onTap: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return DealsGiftPopUp(IdPrize:deals!.idPrize,);
+                                  },
+                                );
+                              }
+                              /* onTap: () {
+
+                                              DealsGiftPopUp().showDialogFunc(
+                                                  context, deals[index]!.dateEND!);
+                                            }*/,
+                              child: Image.asset(
+                                "assets/prize.webp",
+                                height: 40,
+                                width: 40,
+                              ),
+                            )
                             /*RatingTag(
                               value: product.rating,
                             ),*/

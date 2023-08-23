@@ -1,4 +1,4 @@
-import 'dart:convert';
+
 
 import 'package:ecommerceversiontwo/Pages/core/model/CategoriesModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/CitiesModel.dart';
@@ -6,12 +6,12 @@ import 'package:ecommerceversiontwo/Pages/core/model/CountriesModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/AdsModels/CreateAnnounceModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/FeaturesModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/FeaturesValuesModel.dart';
+import 'package:ecommerceversiontwo/Pages/core/services/CategoriesServices/CategoryService.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/CityServices/CityService.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/CountriesServices/CountryService.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/FeaturesServices/FeaturesService.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/FeaturesValuesServices/FeaturesValuesService.dart';
 import 'package:flutter/material.dart';
-import  'package:http/http.dart' as http;
 
 
 class FilterForm extends StatefulWidget {
@@ -88,7 +88,7 @@ class _FilterFormState extends State<FilterForm> {
   /** fetch categorys */
   Future<void> fetchData() async {
     try {
-      List<CategoriesModel> categories = await CategoriesModel().GetData();
+      List<CategoriesModel> categories = await CategoryService().GetData();
       setState(() {
         _categorys = categories;
       });
@@ -420,7 +420,7 @@ class _FilterFormState extends State<FilterForm> {
                       Padding(
                         padding: const EdgeInsets.all(0),
                         child: FutureBuilder<List<CategoriesModel>>(
-                          future: CategoriesModel().GetData(),
+                          future: CategoryService().GetData(),
                           builder: (BuildContext context, AsyncSnapshot<List<CategoriesModel>> snapshot) {
                             if (snapshot.connectionState == ConnectionState.waiting) {
                               // Display a loading indicator while waiting for data

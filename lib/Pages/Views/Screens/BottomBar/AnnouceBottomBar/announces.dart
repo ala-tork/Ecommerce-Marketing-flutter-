@@ -6,15 +6,11 @@ import 'package:ecommerceversiontwo/Pages/Views/widgets/dummy_search_widget1.dar
 import 'package:ecommerceversiontwo/Pages/app_color.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/AdsModels/AdsFilterModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/AdsModels/AdsViewModel.dart';
-import 'package:ecommerceversiontwo/Pages/core/model/AdsModels/AnnounceModel.dart';
-import 'package:ecommerceversiontwo/Pages/core/model/Category.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/CategoriesModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/CitiesModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/CountriesModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/FeaturesValuesModel.dart';
-import 'package:ecommerceversiontwo/Pages/core/model/LikesModel.dart';
-import 'package:ecommerceversiontwo/Pages/core/services/AnnouncesServices/AnnounceService.dart';
-import 'package:ecommerceversiontwo/Pages/core/services/CategoryService.dart';
+import 'package:ecommerceversiontwo/Pages/core/services/CategoriesServices/CategoryService.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
@@ -34,7 +30,7 @@ class Announces extends StatefulWidget {
 
 class _AnnouncesState extends State<Announces> {
 // test category
-  List<Category> categoryData = CategoryService.categoryData.cast<Category>();
+  //List<Category> categoryData = CategoryService.categoryData.cast<Category>();
 
   String? adsName;
 
@@ -154,8 +150,8 @@ class _AnnouncesState extends State<Announces> {
   List<CategoriesModel> _categorys=[];
   Future<void> fetchCategory() async {
     try {
-      List<CategoriesModel> categories = await CategoriesModel().GetData();
-        _categorys = categories;
+      List<CategoriesModel> categories = await CategoryService().GetData();
+      _categorys = categories;
       _categorys.removeWhere((element) => element.idCateg==1);
     } catch (e) {
       print('Error fetching categories: $e');

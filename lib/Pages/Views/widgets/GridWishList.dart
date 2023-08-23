@@ -321,17 +321,22 @@ class _GridWishListState extends State<GridWishList> {
                                       ),
                                     ),
                                   ),
-                                  GestureDetector(
-                                    onTap: () {
-                                      DealsGiftPopUp().showDialogFunc(
-                                          context, adealsWishList!.dateEND!);
-                                    },
-                                    child: Image.asset(
-                                      "assets/prize.webp",
-                                      height: 40,
-                                      width: 25,
-                                    ),
-                                  )
+                                  if(adealsWishList.idPrize!=null)
+                                    GestureDetector(
+                                      onTap: () {
+                                        showDialog(
+                                          context: context,
+                                          builder: (context) {
+                                            return DealsGiftPopUp(IdPrize: adealsWishList.idPrize,);
+                                          },
+                                        );
+                                      },
+                                      child: Image.asset(
+                                        "assets/prize.webp",
+                                        height: 40,
+                                        width: 40,
+                                      ),
+                                    )
                                 ],
                               ),
                               Container(

@@ -84,6 +84,7 @@ class CreateDealsModel {
     data['description'] = this.description!;
     data['details'] = this.details!;
     data['price'] = this.price.toString();
+    if(this.discount!=null)
     data['discount'] = this.discount.toString();
     data['quantity'] = this.quantity.toString();
     if (idPricesDelevery != null) data['idPricesDelevery'] = this.idPricesDelevery.toString();
@@ -96,9 +97,9 @@ class CreateDealsModel {
     data['idCountrys'] = this.idCountrys.toString();
     data['idCity'] = this.idCity.toString();
     data['idBrand'] = this.idBrand.toString();
-    if (idPrize != null) data['idPrize'] = this.idPrize.toString();
     data['locations'] = this.locations!;
     if (idBoost != null) data['idBoost'] = this.idBoost.toString();
+    if (idPrize != null) data['idPrize'] = this.idPrize.toString();
     data['active'] = this.active.toString();
     return data;
   }

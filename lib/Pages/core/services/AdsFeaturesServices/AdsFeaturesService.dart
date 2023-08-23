@@ -1,3 +1,4 @@
+import 'package:ecommerceversiontwo/ApiPaths.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/AdsFeaturesModel.dart';
 import  'package:http/http.dart' as http;
 import 'dart:convert';
@@ -5,8 +6,8 @@ import 'dart:convert';
 class AdsFeaturesService{
 
   Future<void> Createfeature (CreateAdsFeature adModel) async {
-
-    final apiUrl = 'https://10.0.2.2:7058/api/AdsFeatureControler';
+    print(adModel.toJson());
+    final apiUrl = '${ApiPaths().CreateAdsFeatureUrl}';
 
     try {
       final response = await http.post(
@@ -34,7 +35,7 @@ class AdsFeaturesService{
   Future<List<AdsFeature>> GetAdsFeaturesByIdAds(int iduser) async {
     http.Response response;
     response = await http
-        .get(Uri.parse("https://10.0.2.2:7058/api/AdsFeatureControler?idAds=$iduser"));
+        .get(Uri.parse("${ApiPaths().GetAdsFeaturesByIdAdsUrl}$iduser"));
 
     if (response.statusCode == 200) {
       var responseBody = response.body;

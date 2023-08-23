@@ -4,6 +4,7 @@ import 'package:ecommerceversiontwo/Pages/Views/widgets/DealsGiftPopUp.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/Deals/DealsView.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/LikesModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/WishListModel.dart';
+import 'package:ecommerceversiontwo/Pages/core/services/LikeServices/LikeService.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/WishListServices/WishListService.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -34,7 +35,7 @@ class _GridDealsState extends State<GridDeals> {
 
   /** Add And Delete Like*/
   Future<void> deleteLike(int idLike, int idDeal) async {
-    bool isDeleted = await LikeModel().deleteLike(idLike);
+    bool isDeleted = await LikeService().deleteLike(idLike);
 
     if (isDeleted) {
       print("Item with ID $idLike deleted successfully.");
@@ -58,7 +59,7 @@ class _GridDealsState extends State<GridDeals> {
     LikeModel like = LikeModel(idUser: idUser, idDeal: idDeal);
 
     try {
-      LikeModel newLike = await like.addLike(like);
+      LikeModel newLike = await LikeService().addLike(like);
 
       if (newLike != null) {
         print("Like added successfully.");
@@ -237,13 +238,18 @@ class _GridDealsState extends State<GridDeals> {
                               ),
                             ),
                           ),
+                          if(gridMap[index]!.idPrize!=null)
                           GestureDetector(
                             onTap: () {
-                              DealsGiftPopUp().showDialogFunc(
-                                  context, gridMap[index].dateEND);
+                              showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return DealsGiftPopUp(IdPrize: gridMap[index]!.idPrize,);
+                                },
+                              );
                             },
-                            child: Image.network(
-                              "https://5.imimg.com/data5/HC/EV/MY-15940038/diwali-gift-box-500x500.jpg",
+                            child: Image.asset(
+                              "assets/prize.webp",
                               height: 40,
                               width: 40,
                             ),

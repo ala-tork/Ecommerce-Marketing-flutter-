@@ -59,25 +59,12 @@ class _WishListState extends State<WishList> {
     }
   }
 
-  @override
-  void initState() {
-    super.initState();
-    /* getWishList().then((value) {
-      setState(() {
-        print(value);
-        gridMap = value;
-      });
-    });*/
-  }
 
   Future<void> loadMoreData() async {
     if (page < MaxPage - 1) {
       setState(() {
         page = page + 1;
       });
-      //List<WishListModel> newData = await getWishList();
-
-      //gridMap.addAll(newData);
     }
   }
 

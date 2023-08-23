@@ -70,7 +70,7 @@ class _MyAnnouncesState extends State<MyAnnounces> {
 
   //delete announce
   void deleteItem(int id) async {
-    bool imgdel = await ImageService().deleteData(id);
+    bool imgdel = await ImageService().deleteAdsImage(id);
     bool Af = await AdsFeaturesService().deleteData(id);
     if (imgdel && Af) {
       bool isDeleted = await AnnounceService().deleteData(id);

@@ -1,3 +1,4 @@
+import 'package:ecommerceversiontwo/Pages/core/services/BoostServices/BoostService.dart';
 import 'package:flutter/material.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/BoostModules/Boost.dart';
 
@@ -18,7 +19,7 @@ class _BoostFormPopUpState extends State<BoostFormPopUp> {
 
   Future<void> fetchAllBoosts() async {
     try {
-      List<Boost> boosts = await Boost().GetAllBoosts();
+      List<Boost> boosts = await BoostService().GetAllBoosts();
       setState(() {
         listBoost = boosts;
       });

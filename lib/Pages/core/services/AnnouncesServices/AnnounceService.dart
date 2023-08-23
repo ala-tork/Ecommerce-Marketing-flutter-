@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:ecommerceversiontwo/ApiPaths.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/AdsModels/AdsFilterModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/AdsModels/AnnounceModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/AdsModels/CreateAnnounceModel.dart';
@@ -10,7 +11,7 @@ class AnnounceService{
 
 
   Future<bool> deleteData(int id) async {
-    final String apiUrl = "https://10.0.2.2:7058/api/Ads?id=$id";
+    final String apiUrl = "${ApiPaths().DeleteAdsUrl}$id";
 
     try {
       final response = await http.delete(Uri.parse(apiUrl),);
@@ -30,7 +31,7 @@ class AnnounceService{
 
   Future<Map<String, dynamic>> createAd(CreateAnnounce adModel) async {
 
-    var request = http.MultipartRequest('POST', Uri.parse("https://10.0.2.2:7058/api/Ads/CreateAds"));
+    var request = http.MultipartRequest('POST', Uri.parse(ApiPaths().CreateAdsUrl));
 
     // Convert adModel to JSON
     Map<String, dynamic> adData = adModel.toJson();
@@ -58,7 +59,7 @@ class AnnounceService{
   Future<AnnounceModel?> updateAnnouncement(int announcementId, CreateAnnounce updatedData) async {
     try {
       print("//////////////////////////// ${updatedData.active}");
-      var url = Uri.parse("https://10.0.2.2:7058/api/Ads/$announcementId");
+      var url = Uri.parse("${ApiPaths().UpdateAdsUrl}$announcementId");
       var headers = {'Content-Type': 'application/json'};
       var jsonBody = json.encode(updatedData.toJson());
 
@@ -84,7 +85,7 @@ class AnnounceService{
     try {
 
       final response = await http.post(
-        Uri.parse("https://10.0.2.2:7058/api/Test/filtered"),
+        Uri.parse(ApiPaths().GetFiltredAdsUrl),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(filter.toJson()),
       );
@@ -101,7 +102,7 @@ class AnnounceService{
   }
 
   Future<AnnounceModel> getAdById(int id) async {
-    final String apiurl = "https://10.0.2.2:7058/Ad/$id";
+    final String apiurl = "${ApiPaths().GetAdsByIdUrl}$id";
     final response = await http.get(Uri.parse(apiurl));
     if (response.statusCode == 200) {
       Map<String, dynamic> jsonResponse = json.decode(response.body);
@@ -117,7 +118,7 @@ class AnnounceService{
     try {
 
       final response = await http.get(
-        Uri.parse("https://10.0.2.2:7058/api/Ads/ShowMoreByUser?iduser=${idUser}&page=${page}"),
+        Uri.parse("${ApiPaths().GetAdsByUserUrl}${idUser}&page=${page}"),
         headers: {'Content-Type': 'application/json'},
       );
       print(response.body);
