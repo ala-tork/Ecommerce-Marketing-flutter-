@@ -25,7 +25,7 @@ class CreateAnnounce {
      this.idCountrys,
      this.idCity,
      this.locations,
-    this.IdBoost=1,
+    this.IdBoost,
      this.active});
 
 
@@ -42,6 +42,7 @@ class CreateAnnounce {
     data['idCountrys'] = this.idCountrys;
     data['idCity'] = this.idCity;
     data['locations'] = this.locations;
+    if(this.IdBoost!=null)
     data['idBoost'] = this.IdBoost;
     data['active'] = this.active;
     return data;

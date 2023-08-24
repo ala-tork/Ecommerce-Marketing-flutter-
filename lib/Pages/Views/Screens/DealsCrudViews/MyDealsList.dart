@@ -3,6 +3,7 @@ import 'package:ecommerceversiontwo/Pages/Views/Screens/DealsCrudViews/UpdateDea
 import 'package:ecommerceversiontwo/Pages/Views/Screens/MyAppBAr.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/BoostFormPopUp.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/DealsGiftPopUp.dart';
+import 'package:ecommerceversiontwo/Pages/core/model/CategoriesModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/Deals/CreateDealsModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/Deals/DealsModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/PrizesModels/Prize.dart';
@@ -78,7 +79,7 @@ class _MyDealsState extends State<MyDeals> {
 
     if (imgdel && Af) {
       bool isDeleted = await DealsService().deleteData(id);
-      if(idPrize!=null){
+      if (idPrize != null) {
         bool imgPrize = await ImageService().deletePrizeImage(idPrize);
         bool prize = await PrizeService().deleteDealsPrize(idPrize);
       }
@@ -176,7 +177,6 @@ class _MyDealsState extends State<MyDeals> {
                   shrinkWrap: true,
                   itemCount: deals.length,
                   itemBuilder: (context, index) {
-
                     var pricewithdiscount = deals[index].price! -
                         ((deals[index].discount! * deals[index].price!) / 100);
                     if (index < deals.length) {
@@ -289,7 +289,8 @@ class _MyDealsState extends State<MyDeals> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
                                         children: [
                                           Expanded(
                                             child: Text(
@@ -303,27 +304,25 @@ class _MyDealsState extends State<MyDeals> {
                                               ),
                                             ),
                                           ),
-                                          if(deals[index]!.idPrize!=null)
-                                          GestureDetector(
-                                            onTap: () {
-                                              showDialog(
-                                                context: context,
-                                                builder: (context) {
-                                                  return DealsGiftPopUp(IdPrize:deals[index].idPrize,);
-                                                },
-                                              );
-                                            }
-                                           /* onTap: () {
-
-                                              DealsGiftPopUp().showDialogFunc(
-                                                  context, deals[index]!.dateEND!);
-                                            }*/,
-                                            child: Image.asset(
-                                              "assets/prize.webp",
-                                              height: 40,
-                                              width: 40,
-                                            ),
-                                          )
+                                          if (deals[index]!.idPrize != null)
+                                            GestureDetector(
+                                              onTap: () {
+                                                showDialog(
+                                                  context: context,
+                                                  builder: (context) {
+                                                    return DealsGiftPopUp(
+                                                      IdPrize:
+                                                          deals[index].idPrize,
+                                                    );
+                                                  },
+                                                );
+                                              },
+                                              child: Image.asset(
+                                                "assets/prize.webp",
+                                                height: 40,
+                                                width: 40,
+                                              ),
+                                            )
                                         ],
                                       ),
                                       Container(

@@ -147,12 +147,11 @@ class _AddAnnouncesState extends State<AddAnnounces> {
   }
 
   //save the announce
-  void sendAdToApi() async {
+  Future<AnnounceModel> sendAdToApi() async {
     //create the Announce
     await getuserId();
     createAnnounceObject(idUser!);
     Map<String, dynamic> response = await AnnounceService().createAd(announce!);
-
     //save features values
     var x =AnnounceModel.fromJson(response);
     List<ListFeaturesFeatureValues> lfv = getFeatures();
@@ -164,11 +163,11 @@ class _AddAnnouncesState extends State<AddAnnounces> {
         //print(fvres);
       });
     }
-
     //update the images
     for(var i=0;i<_imagesid!.length;i++){
       await ImageService().UpdateImages(int.parse(_imagesid[i].IdImage.toString()), int.parse(x.idAds.toString()));
     }
+    return x;
   }
 
 
@@ -253,6 +252,24 @@ class _AddAnnouncesState extends State<AddAnnounces> {
     }
   }
 
+  /** Category DropDown Items */
+  List<DropdownMenuItem<CategoriesModel>> buildDropdownItems(List<CategoriesModel> categories, {String? parentTitle}) {
+    List<DropdownMenuItem<CategoriesModel>> items = [];
+
+    for (var category in categories) {
+      String label = parentTitle != null ? "$parentTitle / ${category.title}" : category.title!;
+      items.add(DropdownMenuItem<CategoriesModel>(
+        child: Text(label),
+        value: category,
+      ));
+
+      if (category.children != null && category.children!.isNotEmpty) {
+        items.addAll(buildDropdownItems(category.children!, parentTitle: category.title));
+      }
+    }
+
+    return items;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -575,14 +592,17 @@ class _AddAnnouncesState extends State<AddAnnounces> {
                                   } else {
                                     return
                                       DropdownButton<CategoriesModel>(
-                                        padding: EdgeInsets.symmetric(horizontal: 7),
-                                        disabledHint: Text("Categorys"),
-                                        value: _category!=null?_category:_categorys[0],
-                                        items: _categorys.map((e) => DropdownMenuItem<CategoriesModel>(child: Text(e.title.toString()),value: e,)).toList(),
-                                        onChanged:(CategoriesModel? x){
+                                        value: _category ?? _categorys[0],
+                                        items: buildDropdownItems(_categorys),
+                                        onChanged: (CategoriesModel? x) {
                                           setState(() {
-                                            _category=x;
-                                            CategoryId=int.parse(x!.idCateg.toString());
+                                            _category = x;
+                                          /*  CategoriesModel? topLevelParent = x;
+                                            while (topLevelParent!.idparent != null) {
+                                              topLevelParent = _categorys.firstWhere((element) => element.idCateg == topLevelParent!.idparent);
+                                            }*/
+                                            //CategoryId = int.parse(topLevelParent!.idCateg.toString());
+                                            CategoryId = int.parse(x!.idCateg.toString());
                                             fetchFeatures(CategoryId);
                                           });
                                         },
@@ -609,67 +629,74 @@ class _AddAnnouncesState extends State<AddAnnounces> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           if (CategoryId != 0 && _features.isNotEmpty)
-                          /** features list */
-                        ..._features.asMap().entries.map((entry) {
-                          int index = entry.key;
-                          FeaturesModel f = entry.value;
-                          return Column(
-                            children: [
-                              SizedBox(width: 10),
-                              Text(
-                                f.title.toString(),
-                                style: TextStyle(fontSize: 17.0),
-                              ),
-                              SizedBox(width: 3),
-                              Checkbox(
-                                value: f.selected,
-                                onChanged: (x) {
-                                  setState(() {
-                                    //print(_features[0].valuesList);
-                                    f.selected = x as bool;
-                                    indexOfFeature=index;
-                                    FeatureId=int.parse(f.idF.toString());
-                                    fetchFeaturesValues(FeatureId);
-                                  });
-                                },
-                              ),
-                              if(f.valuesList!.isNotEmpty)
-                                ...f.valuesList!.map((fv) =>
-                                    Column(
-                                      children: [
-                                        Row(
+                            ..._features.asMap().entries.map((entry) {
+                              int index = entry.key;
+                              FeaturesModel f = entry.value;
+                              return Column(
+                                children: [
+                                  SizedBox(height: 10),
+                                  Text(
+                                    f.title.toString(),
+                                    style: TextStyle(fontSize: 17.0),
+                                  ),
+                                  SizedBox(height: 3),
+                                  Checkbox(
+                                    value: f.selected,
+                                    onChanged: (x) {
+                                      setState(() {
+                                        f.selected = x as bool;
+                                        indexOfFeature = index;
+                                        FeatureId = int.parse(f.idF.toString());
+                                        fetchFeaturesValues(FeatureId);
+                                      });
+                                    },
+                                  ),
+                                  if (f.valuesList!.isNotEmpty)
+                                    ...f.valuesList!
+                                        .map(
+                                          (fv) => Container(
+                                        padding: EdgeInsets.symmetric(vertical: 5),
+                                        child: Row(
                                           mainAxisAlignment: MainAxisAlignment.center,
                                           crossAxisAlignment: CrossAxisAlignment.center,
                                           children: [
-                                            Container(
-                                              height:30,
-                                              width:150,
-                                              child:
-                                              RadioListTile(
-                                                title: Text(fv.title.toString()),
-                                                value: fv.idFv,
-                                                groupValue: f.value,
-                                                onChanged: (value){
-                                                  setState(() {
-                                                    f.value=value;
-                                                    print(f.value);
-                                                  });
-                                                },
+                                            Expanded(
+                                              child: Row(
+                                                mainAxisAlignment: MainAxisAlignment.center,
+                                                crossAxisAlignment: CrossAxisAlignment.center,
+                                                children: [
+                                                  Radio(
+                                                    value: fv.idFv,
+                                                    groupValue: f.value,
+                                                    onChanged: (value) {
+                                                      setState(() {
+                                                        f.value = value;
+                                                        //print(featuresvalues);
+                                                      });
+                                                    },
+                                                  ),
+                                                  Text(
+                                                    fv.title.toString(),
+                                                    style: TextStyle(
+                                                      fontSize: 17.0,
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
                                             ),
-
                                           ],
                                         ),
-                                      ],
-                                    ),
-                                ).toList(),
-                              SizedBox(height: 30,)
-                            ],
-                          );
-                        }).toList(),
-                          SizedBox(width: 10),
+                                      ),
+                                    )
+                                        .toList(),
+                                  SizedBox(height: 30),
+                                ],
+                              );
+                            }).toList(),
+                          SizedBox(height: 10),
                         ],
                       ),
+
 
 
 
@@ -741,8 +768,8 @@ class _AddAnnouncesState extends State<AddAnnounces> {
                             }else{
                               //Map<String, dynamic> adData = announce!.toJson();
                               //print(adData);
-                              sendAdToApi();
-                              Navigator.pop(context);
+                              AnnounceModel adsRes = await sendAdToApi();
+                              Navigator.pop(context,{"NewAd":adsRes});
                             }
                           },
                           child: Text("Add Annonces",style: TextStyle(fontSize: 20),),

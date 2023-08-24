@@ -1,5 +1,6 @@
 import 'package:ecommerceversiontwo/ApiPaths.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/BottomBar/AnnouceBottomBar/AnnounceDetails.dart';
+import 'package:ecommerceversiontwo/Pages/Views/widgets/DealsGiftPopUp.dart';
 import 'package:flutter/material.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/BottomBar/DealsBotomBar/DealsDetails.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/BostSlideShowModels/BoostSlideShowModel.dart';
@@ -92,6 +93,23 @@ class AdsSlideShow extends StatelessWidget {
                         ),
                       ),
                     ),
+                    if(ads_deals.deals?.idPrize!=null)
+                      GestureDetector(
+                        onTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return DealsGiftPopUp(IdPrize:ads_deals.deals!.idPrize,);
+                            },
+                          );
+                        },
+                        child: Image.asset(
+                          "assets/prize.webp",
+                          height: 40,
+                          width: 40,
+                        ),
+                      ),
+                    if(ads_deals.itemType =="Ad")
                     Container(
                       margin: EdgeInsets.only(top: 2, bottom: 8, right: 10),
                       child: Text(

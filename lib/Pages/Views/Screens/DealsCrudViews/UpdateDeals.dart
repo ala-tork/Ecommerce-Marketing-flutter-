@@ -82,15 +82,13 @@ class _UpdateDealsState extends State<UpdateDeals> {
   Future<void> fetchPrizeImages(int? idPrize) async {
     try {
       ImageModel image = await ImageService().getPrizeImage(idPrize!);
-      setState(() {_Prizeimagesid =image;
+      setState(() {
+        _Prizeimagesid = image;
       });
-
     } catch (e) {
       print('Error fetching Prize Images: $e');
     }
   }
-
-
 
   Future<PrizeModel?> GetPrize(int? IdPrize) async {
     if (IdPrize != null) {
@@ -207,21 +205,18 @@ class _UpdateDealsState extends State<UpdateDeals> {
       if (EndDate != null) {
         deals!.dateEND = EndDate.text;
       }
-      if (DealsPrize!.idPrize != null) {
+      if (DealsPrize != null) {
         deals!.idPrize = DealsPrize!.idPrize;
-      }
-      if (widget.deal!.idPrize != null) {
+      } else if (widget.deal!.idPrize != null) {
         deals!.idPrize = widget.deal!.idPrize;
       }
       setState(() {
         error = "";
       });
-
     } else {
       setState(() {
         error = "pleace complete all the form ";
       });
-
     }
   }
 
@@ -261,25 +256,26 @@ class _UpdateDealsState extends State<UpdateDeals> {
   Future<DealsModel> updateDeal() async {
     int iduser = await getuserId();
     await createDealsObject(iduser);
-    if (deals!=null){
-      DealsModel? response = await DealsService().updateDeals(widget.deal!.idDeal!, deals!);
+    if (deals != null) {
+      DealsModel? response =
+          await DealsService().updateDeals(widget.deal!.idDeal!, deals!);
       var x = response;
       // Update the Features Values
       List<ListDealsFeaturesFeatureValues> lfv = getFeatures();
       print(lfv);
-        bool resDele = await AdsFeaturesService().deleteDeals(widget.deal!.idDeal!);
+      bool resDele =
+          await AdsFeaturesService().deleteDeals(widget.deal!.idDeal!);
 
-        if (resDele && lfv != null && lfv.length != 0) {
-          lfv.forEach((element) async {
-            CreateAdsFeature fd = new CreateAdsFeature(
-                idDeals: int.parse(x!.idDeal.toString()),
-                idFeature: int.parse(element.featureId.toString()),
-                idFeaturesValues: int.parse(element.featureValueId.toString()),
-                active: 1);
-            await AdsFeaturesService().Createfeature(fd);
-          });
-        }
-
+      if (resDele && lfv != null && lfv.length != 0) {
+        lfv.forEach((element) async {
+          CreateAdsFeature fd = new CreateAdsFeature(
+              idDeals: int.parse(x!.idDeal.toString()),
+              idFeature: int.parse(element.featureId.toString()),
+              idFeaturesValues: int.parse(element.featureValueId.toString()),
+              active: 1);
+          await AdsFeaturesService().Createfeature(fd);
+        });
+      }
 
       //update the images
       for (var i = 0; i < _imagesid!.length; i++) {
@@ -292,11 +288,12 @@ class _UpdateDealsState extends State<UpdateDeals> {
     setState(() {
       error = "pleace complete all the form ";
     });
-    throw Exception("Ther is an Error creating the Deals Check your fields Please");
+    throw Exception(
+        "Ther is an Error creating the Deals Check your fields Please");
   }
 
   /** fetch categorys */
-  Future<void> fetchData() async {
+/*  Future<void> fetchData() async {
     try {
       List<CategoriesModel> categories = await CategoryService().GetData();
       setState(() {
@@ -307,6 +304,58 @@ class _UpdateDealsState extends State<UpdateDeals> {
     } catch (e) {
       print('Error fetching categories: $e');
     }
+  }*/
+  //int? IdCategoryFeatures;
+  Future<void> fetchData() async {
+    try {
+      List<CategoriesModel> categories = await CategoryService().GetData();
+      CategoriesModel? targetCategory =
+          findCategoryById(categories, widget.deal!.idCateg!);
+
+      if (targetCategory != null) {
+        setState(() {
+          _categorys = categories;
+          _category = targetCategory;
+          CategoryId = _category!.idCateg!;
+          /* if(_category!.idparent != null){
+            IdCategoryFeatures=_category!.idparent;
+          }else{
+            IdCategoryFeatures=_category!.idCateg;
+          }*/
+          fetchFeatures(CategoryId!);
+        });
+      } else {
+        print('Category with ID ${widget.deal!.idCateg!} not found.');
+      }
+    } catch (e) {
+      print('Error fetching categories: $e');
+    }
+  }
+
+  CategoriesModel? findCategoryById(
+      List<CategoriesModel> categories, int targetId) {
+    for (var category in categories) {
+      if (category.idCateg == targetId) {
+        /*  setState(() {
+          FeaturesforCategory=category.idCateg!;
+        });*/
+        return category;
+      }
+
+      if (category.children != null && category.children!.isNotEmpty) {
+        CategoriesModel? childResult =
+            findCategoryById(category.children!, targetId);
+        if (childResult != null) {
+          /* setState(() {
+            FeaturesforCategory=childResult.idCateg!;
+          });*/
+
+          return childResult;
+        }
+      }
+    }
+
+    return null;
   }
 
   /** fetch countrys */
@@ -454,9 +503,33 @@ class _UpdateDealsState extends State<UpdateDeals> {
     fetchCities(CountryId);
     fetchCountries();
     fetchBrands();
+    fetchData();
     fetchFeatures(CategoryId);
     fetchFeaturesValues(FeatureId);
-    fetchData();
+  }
+
+  /** Category DropDown Items */
+  List<DropdownMenuItem<CategoriesModel>> buildDropdownItems(
+      List<CategoriesModel> categories,
+      {String? parentTitle}) {
+    List<DropdownMenuItem<CategoriesModel>> items = [];
+
+    for (var category in categories) {
+      String label = parentTitle != null
+          ? "$parentTitle / ${category.title}"
+          : category.title!;
+      items.add(DropdownMenuItem<CategoriesModel>(
+        child: Text(label),
+        value: category,
+      ));
+
+      if (category.children != null && category.children!.isNotEmpty) {
+        items.addAll(buildDropdownItems(category.children!,
+            parentTitle: category.title));
+      }
+    }
+
+    return items;
   }
 
   @override
@@ -465,7 +538,7 @@ class _UpdateDealsState extends State<UpdateDeals> {
       //backgroundColor: Colors.blueGrey[100],
       appBar: MyAppBar(
         Daimons: 122,
-        title: "Add Deals",
+        title: "Update Deals",
       ),
       body: Container(
         child: ListView(
@@ -881,31 +954,18 @@ class _UpdateDealsState extends State<UpdateDeals> {
                                     return Text('Failed to fetch data');
                                   } else {
                                     return DropdownButton<CategoriesModel>(
-                                      padding:
-                                          EdgeInsets.symmetric(horizontal: 7),
-                                      disabledHint: Text("Categorys"),
-                                      value: _category != null
-                                          ? _category
-                                          : _categorys[0],
-                                      items: _categorys
-                                          .map((e) =>
-                                              DropdownMenuItem<CategoriesModel>(
-                                                child: Text(e.title.toString()),
-                                                value: e,
-                                              ))
-                                          .toList(),
+                                      value: _category ?? _categorys[0],
+                                      items: buildDropdownItems(_categorys),
                                       onChanged: (CategoriesModel? x) {
-                                        /*if(x!.idCateg!=widget.deal!.idCateg!){
-                                          setState(()   {
-                                             AdsFeaturesService().deleteDeals(widget.deal!.idDeal!);
-                                             _DealsFeatures=[];
-                                          });
-
-                                        }*/
                                         setState(() {
                                           _category = x;
-                                          CategoryId =
-                                              int.parse(x!.idCateg.toString());
+                                          /* CategoriesModel? topLevelParent = x;
+
+                                          while (topLevelParent!.idparent != null) {
+                                            topLevelParent = _categorys.firstWhere((element) => element.idCateg == topLevelParent!.idparent);
+                                          }*/
+                                          CategoryId = x!.idCateg!;
+                                          // int FeaturesCategoryId = int.parse(topLevelParent!.idCateg.toString());
                                           fetchFeatures(CategoryId);
                                         });
                                       },
@@ -933,26 +993,21 @@ class _UpdateDealsState extends State<UpdateDeals> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           if (CategoryId != 0 && _features.isNotEmpty)
-                            /** features list */
                             ..._features.asMap().entries.map((entry) {
                               int index = entry.key;
                               FeaturesModel f = entry.value;
                               return Column(
                                 children: [
-                                  SizedBox(width: 10),
+                                  SizedBox(height: 10),
                                   Text(
                                     f.title.toString(),
                                     style: TextStyle(fontSize: 17.0),
                                   ),
-                                  SizedBox(width: 3),
+                                  SizedBox(height: 3),
                                   Checkbox(
                                     value: f.selected,
                                     onChanged: (x) {
-                                     /* if(x==false)  {
-                                         AdsFeaturesService().deleteDeals(widget.deal!.idDeal!);
-                                      }*/
                                       setState(() {
-                                        //print(_features[0].valuesList);
                                         f.selected = x as bool;
                                         indexOfFeature = index;
                                         FeatureId = int.parse(f.idF.toString());
@@ -963,43 +1018,53 @@ class _UpdateDealsState extends State<UpdateDeals> {
                                   if (f.valuesList!.isNotEmpty)
                                     ...f.valuesList!
                                         .map(
-                                          (fv) => Column(
-                                            children: [
-                                              Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.center,
-                                                children: [
-                                                  Container(
-                                                    height: 30,
-                                                    width: 150,
-                                                    child: RadioListTile(
-                                                      title: Text(
-                                                          fv.title.toString()),
-                                                      value: fv.idFv,
-                                                      groupValue: f.value,
-                                                      onChanged: (value) {
-                                                        setState(() {
-                                                          f.value = value;
-                                                          print(f.value);
-                                                        });
-                                                      },
-                                                    ),
+                                          (fv) => Container(
+                                            padding: EdgeInsets.symmetric(
+                                                vertical: 5),
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.center,
+                                              children: [
+                                                Expanded(
+                                                  child: Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .center,
+                                                    children: [
+                                                      Radio(
+                                                        value: fv.idFv,
+                                                        groupValue: f.value,
+                                                        onChanged: (value) {
+                                                          setState(() {
+                                                            f.value = value;
+                                                            //print(featuresvalues);
+                                                          });
+                                                        },
+                                                      ),
+                                                      Text(
+                                                        fv.title.toString(),
+                                                        style: TextStyle(
+                                                          fontSize: 17.0,
+                                                        ),
+                                                      ),
+                                                    ],
                                                   ),
-                                                ],
-                                              ),
-                                            ],
+                                                ),
+                                              ],
+                                            ),
                                           ),
                                         )
                                         .toList(),
-                                  SizedBox(
-                                    height: 30,
-                                  )
+                                  SizedBox(height: 30),
                                 ],
                               );
                             }).toList(),
-                          SizedBox(width: 10),
+                          SizedBox(height: 10),
                         ],
                       ),
                       SizedBox(
@@ -1053,10 +1118,13 @@ class _UpdateDealsState extends State<UpdateDeals> {
                                             ),
                                             ElevatedButton(
                                               onPressed: () async {
-                                                bool res = await ImageService().deleteImage(entry.value.IdImage!);
+                                                bool res = await ImageService()
+                                                    .deleteImage(
+                                                        entry.value.IdImage!);
 
                                                 setState(() {
-                                                  _DealImages.remove(entry.value);
+                                                  _DealImages.remove(
+                                                      entry.value);
                                                   _imagesid.remove(entry.value);
                                                 });
                                               },
@@ -1124,22 +1192,22 @@ class _UpdateDealsState extends State<UpdateDeals> {
                                   : Column(
                                       mainAxisSize: MainAxisSize.min,
                                       children: <Widget>[
-                                        if(_DealImages.length==0)
-                                        Container(
-                                          height: 300,
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                            border: Border.all(
-                                                color: Colors.black
-                                                    .withOpacity(0)),
-                                            image: DecorationImage(
-                                              image: AssetImage(
-                                                  "assets/images/vide.png"),
-                                              fit: BoxFit.fill,
+                                        if (_DealImages.length == 0)
+                                          Container(
+                                            height: 300,
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              border: Border.all(
+                                                  color: Colors.black
+                                                      .withOpacity(0)),
+                                              image: DecorationImage(
+                                                image: AssetImage(
+                                                    "assets/images/vide.png"),
+                                                fit: BoxFit.fill,
+                                              ),
                                             ),
                                           ),
-                                        ),
                                         SizedBox(height: 30),
                                       ],
                                     ),
@@ -1279,29 +1347,38 @@ class _UpdateDealsState extends State<UpdateDeals> {
                                         children: [
                                           _Prizeimagesid != null
                                               ? Column(
-                                            children: [
-                                              Container(
-                                                width: MediaQuery.of(context).size.width,
-                                                height: 300,
-                                                decoration: BoxDecoration(
-                                                  borderRadius: BorderRadius.circular(10),
-                                                  border: Border.all(
-                                                    color: Colors.black.withOpacity(0),
-                                                  ),
-                                                ),
-                                                child: Stack(
                                                   children: [
-                                                    Image.network(
-                                                      ApiPaths().ImagePath + _Prizeimagesid!.title!,
-                                                      height: 400,
-                                                      width: 420,
-                                                      fit: BoxFit.fill,
+                                                    Container(
+                                                      width:
+                                                          MediaQuery.of(context)
+                                                              .size
+                                                              .width,
+                                                      height: 300,
+                                                      decoration: BoxDecoration(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(10),
+                                                        border: Border.all(
+                                                          color: Colors.black
+                                                              .withOpacity(0),
+                                                        ),
+                                                      ),
+                                                      child: Stack(
+                                                        children: [
+                                                          Image.network(
+                                                            ApiPaths()
+                                                                    .ImagePath +
+                                                                _Prizeimagesid!
+                                                                    .title!,
+                                                            height: 400,
+                                                            width: 420,
+                                                            fit: BoxFit.fill,
+                                                          ),
+                                                        ],
+                                                      ),
                                                     ),
                                                   ],
-                                                ),
-                                              ),
-                                            ],
-                                          )
+                                                )
                                               : SizedBox(height: 0),
 
                                           _Prizeimage != null
@@ -1324,29 +1401,30 @@ class _UpdateDealsState extends State<UpdateDeals> {
                                                     fit: BoxFit.fill,
                                                   ),
                                                 )
-                                              :
-                                          Column(
+                                              : Column(
                                                   mainAxisSize:
                                                       MainAxisSize.min,
                                                   children: <Widget>[
-                                                    if(_Prizeimagesid==null)
-                                                    Container(
-                                                      height: 300,
-                                                      decoration: BoxDecoration(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(10),
-                                                        border: Border.all(
-                                                          color: Colors.black
-                                                              .withOpacity(0),
-                                                        ),
-                                                        image: DecorationImage(
-                                                          image: AssetImage(
-                                                              "assets/images/vide.png"),
-                                                          fit: BoxFit.fill,
+                                                    if (_Prizeimagesid == null)
+                                                      Container(
+                                                        height: 300,
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(10),
+                                                          border: Border.all(
+                                                            color: Colors.black
+                                                                .withOpacity(0),
+                                                          ),
+                                                          image:
+                                                              DecorationImage(
+                                                            image: AssetImage(
+                                                                "assets/images/vide.png"),
+                                                            fit: BoxFit.fill,
+                                                          ),
                                                         ),
                                                       ),
-                                                    ),
                                                   ],
                                                 ),
                                           //SizedBox(height: 10,),
@@ -1434,44 +1512,114 @@ class _UpdateDealsState extends State<UpdateDeals> {
                           color: Colors.indigo,
                           onPressed: () async {
                             if (_DealsFormKey.currentState!.validate()) {
-                              if (DealsPrize==null && (_Prizeimage != null || prizeTitle != null ||
-                                  prizeDescription != null)) {
+                              print("////////////////////////// $DealsPrize");
+                              print("////////////////////////// $_Prizeimage");
+                              print("////////////////////////// $prizeTitle");
+                              print(
+                                  "////////////////////////// $prizeDescription");
+                              if (DealsPrize == null &&
+                                  (_Prizeimage != null ||
+                                      (prizeTitle != null &&
+                                          prizeTitle!.text.isNotEmpty) ||
+                                      (prizeDescription != null &&
+                                          prizeDescription!.text.isNotEmpty))) {
                                 if (_PrizeformKey!.currentState!.validate()) {
-                                  await AddPrize();
-                                  await getuserId().then((value)   {
-                                     createDealsObject(value);
-                                    print(deals!.toJson());
-                                  });
+                                  if (_Prizeimagesid != null &&
+                                      CategoryId != 0 &&
+                                      _country != null &&
+                                      _city != null &&
+                                      _imagesid.length != 0) {
+                                    await AddPrize();
+                                    await getuserId().then((value) {
+                                      createDealsObject(value);
+                                    });
+                                  } else {
+                                    // setState(() {
+                                    error =
+                                        "Pleaser complete the prize Form or Cancel it ";
+                                    // });
+                                    AwesomeDialog(
+                                      context: context,
+                                      dialogBackgroundColor: Colors.teal[100],
+                                      dialogType: DialogType.warning,
+                                      animType: AnimType.topSlide,
+                                      title: "Erreur !",
+                                      descTextStyle: TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold),
+                                      desc: error.toString(),
+                                      btnCancelColor: Colors.grey,
+                                      btnCancelOnPress: () {},
+                                      btnOkOnPress: () {
+                                        setState(() {
+                                          error = "";
+                                        });
+                                      },
+                                    ).show();
+                                    return;
+                                  }
                                 } else {
-                                  await getuserId().then((value) {
-                                    createDealsObject(value);
-                                    print(deals!.toJson());
-                                  });
-
+                                  error = "Add Price Image !!";
+                                  AwesomeDialog(
+                                    context: context,
+                                    dialogBackgroundColor: Colors.teal[100],
+                                    dialogType: DialogType.warning,
+                                    animType: AnimType.topSlide,
+                                    title: "Erreur !",
+                                    descTextStyle: TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold),
+                                    desc: error.toString(),
+                                    btnCancelColor: Colors.grey,
+                                    btnCancelOnPress: () {},
+                                    btnOkOnPress: () {
+                                      setState(() {
+                                        error = "";
+                                      });
+                                    },
+                                  ).show();
+                                  return;
                                 }
+                              } else if (CategoryId > 1 &&
+                                  _country != null &&
+                                  _city != null &&
+                                  _imagesid.length != 0) {
+                                await getuserId().then((value) {
+                                  createDealsObject(value);
+                                  print(deals!.toJson());
+                                });
+                              } else {
+                                setState(() {
+                                  error = "Veuillez compléter le formulaire";
+                                });
+
+                                //return;
                               }
+
                               if (error!.isNotEmpty) {
                                 print(error);
 
                                 AwesomeDialog(
-                                        context: context,
-                                        dialogBackgroundColor: Colors.teal[100],
-                                        dialogType: DialogType.warning,
-                                        animType: AnimType.topSlide,
-                                        title: "Error !",
-                                        descTextStyle: TextStyle(
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.bold),
-                                        desc: error.toString(),
-                                        btnCancelColor: Colors.grey,
-                                        btnCancelOnPress: () {},
-                                        btnOkOnPress: () {
-                                            error="";
-                                        })
-                                    .show();
+                                  context: context,
+                                  dialogBackgroundColor: Colors.teal[100],
+                                  dialogType: DialogType.warning,
+                                  animType: AnimType.topSlide,
+                                  title: "Erreur !",
+                                  descTextStyle: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold),
+                                  desc: error.toString(),
+                                  btnCancelColor: Colors.grey,
+                                  btnCancelOnPress: () {},
+                                  btnOkOnPress: () {
+                                    setState(() {
+                                      error = "";
+                                    });
+                                  },
+                                ).show();
                               } else {
-                                //Map<String, dynamic> adData = deals!.toJson();
-                                //print(adData);
+                                // Map<String, dynamic> adData = deals!.toJson();
+                                // print(adData);
                                 DealsModel? res = await updateDeal();
                                 Navigator.pop(context, {"UpatedDeals": res});
                               }

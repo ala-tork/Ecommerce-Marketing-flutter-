@@ -134,7 +134,14 @@ class _MyAnnouncesState extends State<MyAnnounces> {
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.teal[100],
         onPressed: () {
-          Navigator.of(context).pushNamed("AddAnnounce");
+          Navigator.of(context).pushNamed("AddAnnounce").then((value) async {
+            await getuserId().then((userid) async {
+              List<AnnounceModel> res = await apicall(userid);
+              setState(() {
+                announces = res;
+              });
+            });
+          });
         },
         child: Icon(
           Icons.add,

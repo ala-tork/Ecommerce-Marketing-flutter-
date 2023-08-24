@@ -1,8 +1,10 @@
 import 'package:ecommerceversiontwo/Pages/Views/Screens/MyAppBAr.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/AdsModels/AdsFilterModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/AdsModels/AnnounceModel.dart';
+import 'package:ecommerceversiontwo/Pages/core/model/CategoriesModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/LikesModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/AnnouncesServices/AnnounceService.dart';
+import 'package:ecommerceversiontwo/Pages/core/services/CategoriesServices/CategoryService.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/LikeServices/LikeService.dart';
 import 'package:flutter/material.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
@@ -69,16 +71,106 @@ class _StoreState extends State<Store> {
     }
   }
 
+  // category variabales
+  List<CategoriesModel> _categorys = [];
+  CategoriesModel? _category;
+  int CategoryId = 0;
+  CategoriesModel? selectedCategory;
 
+  Future<List<CategoriesModel>> fetchData() async {
+    try {
+      List<CategoriesModel> categories = await CategoryService().GetData();
+      _categorys = categories;
+      return categories;
+    } catch (e) {
+      print('Error fetching categories: $e');
+      throw Exception('failed to fetch');
+    }
+  }
 
+ /* List<DropdownMenuItem<CategoriesModel>> buildDropdownItems(List<CategoriesModel> categories) {
+    List<DropdownMenuItem<CategoriesModel>> items = [];
 
+    for (var category in categories) {
+      items.add(DropdownMenuItem<CategoriesModel>(
+        child: Text(category.title.toString()),
+        value: category,
+      ));
+
+      if (category.children != null && category.children!.isNotEmpty) {
+        items.addAll(buildDropdownItems(category.children!));
+      }
+    }
+
+    return items;
+  }*/
+  List<DropdownMenuItem<CategoriesModel>> buildDropdownItems(List<CategoriesModel> categories, {String? parentTitle}) {
+    List<DropdownMenuItem<CategoriesModel>> items = [];
+
+    for (var category in categories) {
+      String label = parentTitle != null ? "$parentTitle / ${category.title}" : category.title!;
+      items.add(DropdownMenuItem<CategoriesModel>(
+        child: Text(label),
+        value: category,
+      ));
+
+      if (category.children != null && category.children!.isNotEmpty) {
+        items.addAll(buildDropdownItems(category.children!, parentTitle: category.title));
+      }
+    }
+
+    return items;
+  }
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar:  MyAppBar(Daimons: 122,title: "Store",),
-      body: Center(
-        child:
-        FutureBuilder<void>(
+    return MaterialApp(
+      home: Scaffold(
+        appBar: MyAppBar(
+          Daimons: 122,
+          title: "Add Deals",
+        ),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: FutureBuilder<List<CategoriesModel>>(
+              future: fetchData(),
+              builder: (BuildContext context, AsyncSnapshot<List<CategoriesModel>> snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return CircularProgressIndicator();
+                } else if (snapshot.hasError) {
+                  return Text('Failed to fetch data');
+                } else {
+                  return DropdownButton<CategoriesModel>(
+                    value: _category ?? _categorys[0],
+                    items: buildDropdownItems(_categorys),
+                    onChanged: (CategoriesModel? x) {
+                      setState(() {
+                        _category = x;
+                        CategoryId = int.parse(x!.idCateg.toString());
+                        //fetchFeatures(CategoryId);
+                      });
+                    },
+                    icon: Icon(Icons.category_outlined),
+                    iconEnabledColor: Colors.indigo,
+                    style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18
+                    ),
+                    borderRadius: BorderRadius.circular(10),
+                  );
+                }
+              },
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+
+/* FutureBuilder<void>(
             future: getLikeByIdUserIdAd(),
             builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
@@ -104,8 +196,4 @@ class _StoreState extends State<Store> {
                   },
                 );
               }
-            }),
-      ),
-    );
-  }
-}
+            }),*/
