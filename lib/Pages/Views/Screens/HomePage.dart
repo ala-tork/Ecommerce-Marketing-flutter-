@@ -13,7 +13,6 @@ import 'package:ecommerceversiontwo/Pages/core/model/AdsModels/AdsFilterModel.da
 import 'package:ecommerceversiontwo/Pages/core/model/AdsModels/AnnounceModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/BostSlideShowModels/BoostSlideShowModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/CategoriesModel.dart';
-import 'package:ecommerceversiontwo/Pages/core/model/Category.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/Product.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/AnnouncesServices/AnnounceService.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/BoostedSlideShowServices/BoostedSlideShowService.dart';

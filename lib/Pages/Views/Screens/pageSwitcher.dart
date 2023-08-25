@@ -1,7 +1,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:ecommerceversiontwo/Pages/Views/Screens/FeedsPage.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/HomePage.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/NotificationPage.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/ProfilePage.dart';
@@ -32,7 +31,7 @@ class _PageSwitcherState extends State<PageSwitcher>
     return Scaffold(
       body: [
         HomePage(),
-        FeedsPage(),
+        //FeedsPage(),
         NotificationPage(),
         ProfilePage(),
       ][_selectedIndex],

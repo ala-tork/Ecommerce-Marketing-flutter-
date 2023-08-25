@@ -1,6 +1,5 @@
 import 'package:ecommerceversiontwo/ApiPaths.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/CategoriesModel.dart';
-import 'package:ecommerceversiontwo/Pages/core/model/Category.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
