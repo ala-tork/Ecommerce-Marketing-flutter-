@@ -118,8 +118,8 @@ class _FilterAllFormState extends State<FilterAllForm> {
                   Container(
                     margin:EdgeInsets.fromLTRB(30, 30, 10, 40),
                     decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey), // Add border color
-                      borderRadius: BorderRadius.circular(8), // Add border radius
+                      border: Border.all(color: Colors.grey),
+                      borderRadius: BorderRadius.circular(8),
                     ),
                     child:
                     DropdownButton<String>(

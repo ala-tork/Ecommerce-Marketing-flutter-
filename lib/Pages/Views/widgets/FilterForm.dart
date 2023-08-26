@@ -100,6 +100,7 @@ class _FilterFormState extends State<FilterForm> {
           _category = targetCategory;
         });
         CategoryId = _category!.idCateg!;
+        fetchFeatures(CategoryId);
       }
     } catch (e) {
       print('Error fetching categories: $e');
@@ -519,18 +520,20 @@ class _FilterFormState extends State<FilterForm> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     if (CategoryId != 0 && _features.isNotEmpty)
-                      /** features list */
+                    /** features list */
                       ..._features.asMap().entries.map((entry) {
                         int index = entry.key;
                         FeaturesModel f = entry.value;
                         return Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            SizedBox(width: 10),
+                            SizedBox(height: 5),
                             Text(
                               f.title.toString(),
                               style: TextStyle(fontSize: 17.0),
                             ),
-                            SizedBox(width: 3),
+                            SizedBox(height: 3),
                             Checkbox(
                               value: f.selected,
                               onChanged: (x) {
@@ -545,46 +548,50 @@ class _FilterFormState extends State<FilterForm> {
                             if (f.valuesList!.isNotEmpty)
                               ...f.valuesList!
                                   .map(
-                                    (fv) => Column(
-                                      children: [
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
+                                    (fv) => Container(
+                                  padding: EdgeInsets.symmetric(vertical: 2),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: [
+                                      Expanded(
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          crossAxisAlignment: CrossAxisAlignment.center,
                                           children: [
-                                            Container(
-                                              height: 30,
-                                              width: 150,
-                                              child: RadioListTile(
-                                                title:
-                                                    Text(fv.title.toString()),
-                                                value: fv.idFv,
-                                                groupValue: f.value,
-                                                onChanged: (value) {
-                                                  setState(() {
-                                                    f.value = value;
-                                                    featuresvalues.add(fv);
-                                                    featuresvaluesid
-                                                        .add(value!);
-                                                    //print(featuresvalues);
-                                                  });
-                                                },
+                                            Radio(
+                                              value: fv.idFv,
+                                              groupValue: f.value,
+                                              onChanged: (value) {
+                                                setState(() {
+                                                  f.value = value;
+                                                  featuresvalues.add(fv);
+                                                  featuresvaluesid.add(value!);
+                                                });
+                                              },
+                                            ),
+                                            Text(
+                                              fv.title.toString(),
+                                              style: TextStyle(
+                                                fontSize: 17.0,
                                               ),
                                             ),
                                           ],
                                         ),
-                                      ],
-                                    ),
-                                  )
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              )
                                   .toList(),
-                            SizedBox(
-                              height: 10,
-                            )
+
+
+
+                            SizedBox(height: 10)
                           ],
                         );
                       }).toList(),
-                    SizedBox(width: 10),
+                    SizedBox(height: 10),
                   ],
                 ),
                 //end drop down buttons

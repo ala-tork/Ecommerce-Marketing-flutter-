@@ -70,7 +70,8 @@ class Body extends StatelessWidget {
             press: () {
               // Do something when "Logout" is pressed
             },
-          ),  ],
+          ),
+        ],
       ),
     );
   }

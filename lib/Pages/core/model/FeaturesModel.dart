@@ -7,7 +7,7 @@ class FeaturesModel {
   String? description;
   String? unit;
   int? active;
-  int? idCategory;
+  //int? idCategory;
   bool? selected=false;
   List<FeaturesValuesModel>?  valuesList=[];
   int? value;
@@ -18,7 +18,7 @@ class FeaturesModel {
         this.description,
         this.unit,
         this.active,
-        this.idCategory,
+        //this.idCategory,
         this.selected=false,
         this.valuesList,
         this.value,
@@ -30,7 +30,7 @@ class FeaturesModel {
     description = json['description'];
     unit = json['unit'];
     active = json['active'];
-    idCategory = json['idCategory'];
+    //idCategory = json['idCategory'];
   }
 
   Map<String, dynamic> toJson() {
@@ -40,7 +40,7 @@ class FeaturesModel {
     data['description'] = this.description;
     data['unit'] = this.unit;
     data['active'] = this.active;
-    data['idCategory'] = this.idCategory;
+    //data['idCategory'] = this.idCategory;
     return data;
   }
 

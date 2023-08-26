@@ -3,9 +3,7 @@ import 'package:ecommerceversiontwo/Pages/Views/Screens/MyAppBAr.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/profile/profileScreen.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/side_bar.dart';
 import 'package:ecommerceversiontwo/Pages/app_color.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert';
 
 class UpdatePasswordPage extends StatefulWidget {
   final String token;
