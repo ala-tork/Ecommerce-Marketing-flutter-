@@ -29,6 +29,7 @@ class Announces extends StatefulWidget {
 }
 
 class _AnnouncesState extends State<Announces> {
+
 // test category
   //List<Category> categoryData = CategoryService.categoryData.cast<Category>();
 
@@ -97,6 +98,8 @@ class _AnnouncesState extends State<Announces> {
 
   Future<List<AdsView>> apicall() async {
     await getuserId();
+    SharedPreferences prefs =  await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
     AdsFilterModel adsFilter = AdsFilterModel(pageNumber: page, idFeaturesValues: []);
     if(adsName!=null){
       adsFilter.adsName=adsName;
@@ -119,7 +122,7 @@ class _AnnouncesState extends State<Announces> {
     try {
       print(id);
       print(adsFilter);
-      Map<String, dynamic> response = await AdsView().getFilteredViewAds(adsFilter,id!);
+      Map<String, dynamic> response = await AdsView().getFilteredViewAds(adsFilter,id!,token!);
 
       if (response["ads"] != null) {
         List<dynamic> adsJsonList = response["ads"];

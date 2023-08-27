@@ -1,9 +1,9 @@
 import 'dart:convert';
+import 'package:ecommerceversiontwo/Pages/Views/Screens/LandingPage.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:ecommerceversiontwo/Pages/Views/Screens/LoginPage.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/OTPVerificationPage.dart';
-import 'package:ecommerceversiontwo/Pages/Views/Screens/pageSwitcher.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -91,7 +91,7 @@ class ApiService {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => PageSwitcher(token: token),
+                builder: (context) => LandingPage(),
               ),
             );
           } else {
@@ -148,10 +148,11 @@ class ApiService {
       print("the new refresh token $refreshToken");
 
       if (token != null) {
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        await prefs.setString('token', token);
-        await prefs.setString('refreshToken', refreshToken);
 
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        prefs.setString('token', token);
+        prefs.setString('refreshToken', refreshToken);
+        print("////////////////////////${prefs.get('refreshToken')}");
         return true; // Refresh token successful
       }
     }

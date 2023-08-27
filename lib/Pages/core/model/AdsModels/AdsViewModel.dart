@@ -121,13 +121,17 @@ class AdsView {
 
   ////// filtred Ads with like and wishlist
   //fileter data with pagination
-  Future<Map<String, dynamic>> getFilteredViewAds(AdsFilterModel filter,int idUser) async {
+  Future<Map<String, dynamic>> getFilteredViewAds(AdsFilterModel filter,int idUser ,String token) async {
+    print("///////////////////////////////////////$token");
     print(filter.toJson());
     try {
 
       final response = await http.post(
         Uri.parse("https://10.0.2.2:7058/api/Test/AdsWithLikeAndWishList?iduser=$idUser"),
-        headers: {'Content-Type': 'application/json'},
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
         body: jsonEncode(filter.toJson()),
       );
       print(response.body);

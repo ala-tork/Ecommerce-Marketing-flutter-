@@ -1,15 +1,12 @@
-import 'dart:convert';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/LandingPage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import 'package:http/http.dart' as http;
 import 'package:ecommerceversiontwo/ApiService.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/FogotPassword.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/RegisterPage.dart';
-import 'package:ecommerceversiontwo/Pages/Views/Screens/pageSwitcher.dart';
 import 'package:ecommerceversiontwo/Pages/app_color.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -51,18 +48,22 @@ class _LoginPageState extends State<LoginPage> {
     if (token != null) {
       // Token exists, navigate to appropriate screen based on user role
       var decodedToken = JwtDecoder.decode(token);
-      String userRole = decodedToken['role'];
+      //String userRole = decodedToken['role'];
+      String refresh = decodedToken['refreshToken'];
+      var res = await ApiService.refreshToken(refresh);
 
-      if (userRole == "User") {
+      //if (userRole == "User") {
+      if (res==true) {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) =>LandingPage() /*PageSwitcher(token: token)*/),
         );
       } else {
-        Navigator.pushReplacement(
+        return;
+        /*Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => LoginPage()),
-        );
+        );*/
       }
     }
   }

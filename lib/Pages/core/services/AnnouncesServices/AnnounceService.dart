@@ -6,6 +6,7 @@ import 'package:ecommerceversiontwo/Pages/core/model/AdsModels/CreateAnnounceMod
 import 'package:http/http.dart' as http;
 
 class AnnounceService{
+  String? token;
 
 
 
@@ -114,12 +115,15 @@ class AnnounceService{
     }
   }
 
-  Future<Map<String, dynamic>> GetAdsByUser(int idUser,int page) async {
+  Future<Map<String, dynamic>> GetAdsByUser(int idUser,int page,String token) async {
     try {
 
       final response = await http.get(
         Uri.parse("${ApiPaths().GetAdsByUserUrl}${idUser}&page=${page}"),
-        headers: {'Content-Type': 'application/json'},
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
       );
       print(response.body);
       if (response.statusCode == 200) {

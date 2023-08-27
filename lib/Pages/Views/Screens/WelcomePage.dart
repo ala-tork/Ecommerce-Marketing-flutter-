@@ -1,10 +1,45 @@
-
+import 'package:ecommerceversiontwo/ApiService.dart';
+import 'package:ecommerceversiontwo/Pages/Views/Screens/LandingPage.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/LoginPage.dart';
 import 'package:ecommerceversiontwo/Pages/app_color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class WelcomePage extends StatelessWidget {
+class WelcomePage extends StatefulWidget {
+  const WelcomePage({super.key});
+
+  @override
+  State<WelcomePage> createState() => _WelcomePageState();
+}
+
+class _WelcomePageState extends State<WelcomePage> {
+  Future<void> checkLoggedIn() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+    if (token != null) {
+      // Token exists, navigate to appropriate screen based on user role
+      var decodedToken = JwtDecoder.decode(token);
+      String refresh = decodedToken['refreshToken'];
+     // String? refresh = prefs.getString('refreshToken');
+      var res = await ApiService.refreshToken(refresh!);
+
+      //if (userRole == "User") {
+      if (res==true) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) =>LandingPage() /*PageSwitcher(token: token)*/),
+        );
+      } else {
+        //return;
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => LoginPage()),
+        );
+      }
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -49,8 +84,9 @@ class WelcomePage extends StatelessWidget {
               padding: EdgeInsets.symmetric(horizontal: 16),
               margin: EdgeInsets.only(bottom: 16),
               child: ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => LoginPage()));
+                onPressed: () async {
+                  //Navigator.of(context).push(MaterialPageRoute(builder: (context) => LoginPage()));
+                  await checkLoggedIn();
                 },
                 child: Text(
                   'Get Started',
