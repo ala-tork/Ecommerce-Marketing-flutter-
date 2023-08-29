@@ -115,7 +115,7 @@ class _HomePageState extends State<HomePage> {
   Future<List<BoostSlideShowModel>> GetRandom() async {
 
     try {
-      listRandom = await BoostedSlideShowService().getrandomSlideShow();
+      listRandom = await BoostedSlideShowService().getBoostSlideShow();
       return listRandom;
     } catch (e) {
       print('Error: $e');

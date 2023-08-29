@@ -24,6 +24,7 @@ import 'package:ecommerceversiontwo/Pages/core/services/FeaturesValuesServices/F
 import 'package:ecommerceversiontwo/Pages/core/services/ImageServices/ImageService.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/PrizeServices/PrizeService.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
@@ -68,7 +69,6 @@ class _AddDealsState extends State<AddDeals> {
     if (image == null) return;
     final imageTemporary = File(image.path);
     ImageModel response = await ImageService().addImage(imageTemporary);
-    print("//////////////////////////////////////////////////$response");
     setState(() {
       this._Prizeimagesid = response;
       this._Prizeimage = imageTemporary;
@@ -76,11 +76,13 @@ class _AddDealsState extends State<AddDeals> {
   }
 
   Future<PrizeModel> AddPrize() async {
+    int iduser = await getuserId();
     PrizeModel prize = PrizeModel(
         title: prizeTitle!.text,
         description: prizeDescription!.text,
         image: _Prizeimagesid!.title!,
         datePrize: EndDate.text,
+        idUser:iduser,
         active: 1);
 
     try {
@@ -110,6 +112,7 @@ class _AddDealsState extends State<AddDeals> {
         title: prizeTitle!.text,
         description: prizeDescription!.text,
         image: _Prizeimagesid!.title!,
+        datePrize: EndDate.text,
         active: 1);
     try {
       PrizeModel UpdatedPrize =
@@ -187,6 +190,8 @@ class _AddDealsState extends State<AddDeals> {
   List<BrandsModel> _brands = [];
   BrandsModel? _brand;
 
+
+
   String? error = "";
 
   int? idUser;
@@ -207,6 +212,7 @@ class _AddDealsState extends State<AddDeals> {
     if (CategoryId != 0 &&
         _country != null &&
         _city != null &&
+        _brand != null &&
         _imagesid.length != 0) {
       deals = CreateDealsModel(
         title: title.text,
@@ -276,8 +282,6 @@ class _AddDealsState extends State<AddDeals> {
     if (DealsPrize != null) {
       deals!.idPrize = DealsPrize!.idPrize;
     }
-    print(
-        "//////////////////////////////////////////////////////////${deals!.idBoost}");
     Map<String, dynamic> response = await DealsService().createDeal(deals!);
     print(response);
     var x = await DealsModel.fromJson(response);
@@ -512,16 +516,19 @@ class _AddDealsState extends State<AddDeals> {
                         child: TextFormField(
                           controller: price,
                           keyboardType:
-                              TextInputType.numberWithOptions(decimal: true),
+                          TextInputType.numberWithOptions(decimal: true),
+                          inputFormatters: <TextInputFormatter>[
+                            FilteringTextInputFormatter.allow(
+                                RegExp(r'^\d+\.?\d{0,2}$')),
+                          ],
                           decoration: InputDecoration(
-                              enabledBorder: OutlineInputBorder(
-                                borderSide:
-                                    BorderSide(width: 2, color: Colors.indigo),
-                              ),
-                              contentPadding:
-                                  EdgeInsets.symmetric(vertical: 20),
-                              //label: ,
-                              hintText: "Price "),
+                            enabledBorder: OutlineInputBorder(
+                              borderSide:
+                              BorderSide(width: 2, color: Colors.indigo),
+                            ),
+                            contentPadding: EdgeInsets.symmetric(vertical: 20),
+                            hintText: "Price",
+                          ),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return 'Price is required';
@@ -536,6 +543,10 @@ class _AddDealsState extends State<AddDeals> {
                           controller: quantity,
                           keyboardType:
                               TextInputType.numberWithOptions(decimal: true),
+                          inputFormatters: <TextInputFormatter>[
+                            FilteringTextInputFormatter.allow(
+                                RegExp(r'^\d+\.?\d{0,2}$')),
+                          ],
                           decoration: InputDecoration(
                               enabledBorder: OutlineInputBorder(
                                 borderSide:
@@ -559,6 +570,10 @@ class _AddDealsState extends State<AddDeals> {
                           controller: discount,
                           keyboardType:
                               TextInputType.numberWithOptions(decimal: true),
+                          inputFormatters: <TextInputFormatter>[
+                            FilteringTextInputFormatter.allow(
+                                RegExp(r'^\d+\.?\d{0,2}$')),
+                          ],
                           decoration: InputDecoration(
                               enabledBorder: OutlineInputBorder(
                                 borderSide:
@@ -767,7 +782,7 @@ class _AddDealsState extends State<AddDeals> {
                                               padding: EdgeInsets.symmetric(
                                                   horizontal: 7),
                                               disabledHint:
-                                                  Text("Select Cities"),
+                                                  Text("Select Brand"),
                                               value: _brand != null
                                                   ? _brand
                                                   : _brands[0],
@@ -780,9 +795,12 @@ class _AddDealsState extends State<AddDeals> {
                                                       ))
                                                   .toList(),
                                               onChanged: (BrandsModel? b) {
-                                                setState(() {
-                                                  _brand = b;
-                                                });
+                                                if(b!.idBrand!=1){
+                                                  setState(() {
+                                                    _brand = b;
+                                                  });
+                                                }
+
                                               },
                                               icon: Icon(
                                                   Icons.branding_watermark),
@@ -1234,76 +1252,6 @@ class _AddDealsState extends State<AddDeals> {
                                       ),
                                     ],
                                   ),
-                                  /*Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceEvenly,
-                                    children: [
-                                      if (DealsPrize == null)
-                                        ElevatedButton(
-                                          onPressed: () async {
-                                            if (_PrizeformKey.currentState!
-                                                .validate()) {
-                                              await AddPrize();
-                                            }
-                                          },
-                                          style: ElevatedButton.styleFrom(
-                                            primary: Colors.deepOrangeAccent,
-                                            onPrimary: Colors.white,
-                                          ),
-                                          child: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              Icon(Icons.save),
-                                              SizedBox(width: 8),
-                                              Text(
-                                                "Save Prize",
-                                                style: TextStyle(
-                                                  fontSize: 18,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      if (DealsPrize != null)
-                                        ElevatedButton(
-                                          onPressed: () async {
-                                            await UpdatePrize(
-                                                DealsPrize!.idPrize!);
-                                          },
-                                          style: ElevatedButton.styleFrom(
-                                            primary: Colors.green,
-                                            onPrimary: Colors.white,
-                                          ),
-                                          child: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              Icon(Icons.edit),
-                                              SizedBox(width: 8),
-                                              Text("Update Prize"),
-                                            ],
-                                          ),
-                                        ),
-                                      if (DealsPrize != null)
-                                        ElevatedButton(
-                                          onPressed: () async {
-                                            await deletePrize(
-                                                DealsPrize!.idPrize!);
-                                          },
-                                          style: ElevatedButton.styleFrom(
-                                            primary: Colors.red,
-                                            onPrimary: Colors.white,
-                                          ),
-                                          child: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              Icon(Icons.delete),
-                                              SizedBox(width: 8),
-                                              Text("Delete Prize"),
-                                            ],
-                                          ),
-                                        ),
-                                    ],
-                                  )*/
                                 ],
                               ),
                             ),
@@ -1321,9 +1269,8 @@ class _AddDealsState extends State<AddDeals> {
                           onPressed: () async {
                             if (_DealsFormKey.currentState!.validate()) {
                               if (DealsPrize == null &&
-                                  (_Prizeimage != null ||
-                                      prizeTitle != null ||
-                                      prizeDescription != null)) {
+                                  (_Prizeimage != null || (prizeTitle != null && prizeTitle!.text.isNotEmpty)
+                                      || (prizeDescription != null && prizeDescription!.text.isNotEmpty))){
                                 if (_PrizeformKey!.currentState!.validate()) {
                                   if (_Prizeimagesid != null &&
                                       CategoryId != 0 &&
@@ -1386,6 +1333,7 @@ class _AddDealsState extends State<AddDeals> {
                                   _country != null &&
                                   _city != null &&
                                   _imagesid.length != 0) {
+                                //await UpdatePrize(deals!.idPrize!);
                                 await getuserId().then((value) {
                                   createDealsObject(value);
                                   print(deals!.toJson());

@@ -1,3 +1,4 @@
+import 'package:ecommerceversiontwo/ApiPaths.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/Deals/CreateDealsModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/Deals/DealsFilterModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/Deals/DealsModel.dart';
@@ -9,7 +10,7 @@ class DealsService{
 
   Future<Map<String, dynamic>> createDeal(CreateDealsModel adModel) async {
     var headers = {'Content-Type': 'application/json'};
-    var url = Uri.parse("https://10.0.2.2:7058/api/Deals");
+    var url = Uri.parse("${ApiPaths().CreateDealsUrl}");
     var adData = json.encode(adModel.toJson());
 
     var response = await http.post(url, headers: headers, body: adData);
@@ -30,7 +31,7 @@ class DealsService{
 // Update announce
   Future<DealsModel?> updateDeals(int dealsId, CreateDealsModel updatedData) async {
     try {
-      var url = Uri.parse("https://10.0.2.2:7058/api/Deals/$dealsId");
+      var url = Uri.parse("${ApiPaths().UpdateDealsUrl}$dealsId");
       var headers = {'Content-Type': 'application/json'};
 
       var jsonBody = json.encode(updatedData.toJson());
@@ -59,7 +60,7 @@ class DealsService{
     try {
 
       final response = await http.post(
-        Uri.parse("https://10.0.2.2:7058/api/Test/Dealsfilter"),
+        Uri.parse("${ApiPaths().GetFiltredDealUrl}"),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(filter.toJson()),
       );
@@ -76,7 +77,7 @@ class DealsService{
   }
 
   Future<bool> deleteData(int id) async {
-    final String apiUrl = "https://10.0.2.2:7058/api/Deals/${id}";
+    final String apiUrl = "${ApiPaths().DeleteDealUrl}${id}";
 
     try {
       final response = await http.delete(Uri.parse(apiUrl),);
@@ -95,7 +96,7 @@ class DealsService{
   }
 
   Future<DealsModel> getDealById(int id) async {
-    final String apiurl = "https://10.0.2.2:7058/api/Deals/$id";
+    final String apiurl = "${ApiPaths().DeleteDealUrl}$id";
     final response = await http.get(Uri.parse(apiurl));
     if (response.statusCode == 200) {
       Map<String, dynamic> jsonResponse = json.decode(response.body);
@@ -118,7 +119,7 @@ class DealsService{
     try {
 
       final response = await http.post(
-        Uri.parse("https://10.0.2.2:7058/api/Test/DealsWithLikeAndWishList?iduser=$idUser"),
+        Uri.parse("${ApiPaths().GetFiltredDealsUrl}$idUser"),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(filter.toJson()),
       );
@@ -138,7 +139,7 @@ class DealsService{
     try {
 
       final response = await http.get(
-        Uri.parse("https://10.0.2.2:7058/api/Deals/showmore/${idUser}?page=${page}"),
+        Uri.parse("${ApiPaths().GetDealsByUserIdUrl}${idUser}?page=${page}"),
         headers: {'Content-Type': 'application/json'},
       );
       print(response.body);

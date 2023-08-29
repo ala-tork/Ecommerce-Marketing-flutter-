@@ -1,169 +1,50 @@
-import 'package:ecommerceversiontwo/Pages/Views/Screens/MyAppBAr.dart';
-import 'package:ecommerceversiontwo/Pages/core/model/AdsModels/AdsFilterModel.dart';
-import 'package:ecommerceversiontwo/Pages/core/model/AdsModels/AnnounceModel.dart';
-import 'package:ecommerceversiontwo/Pages/core/model/CategoriesModel.dart';
-import 'package:ecommerceversiontwo/Pages/core/model/LikesModel.dart';
-import 'package:ecommerceversiontwo/Pages/core/services/AnnouncesServices/AnnounceService.dart';
-import 'package:ecommerceversiontwo/Pages/core/services/CategoriesServices/CategoryService.dart';
-import 'package:ecommerceversiontwo/Pages/core/services/LikeServices/LikeService.dart';
+import 'package:ecommerceversiontwo/LocalProvider.dart';
+import 'package:ecommerceversiontwo/l10n/l10n.dart';
 import 'package:flutter/material.dart';
-import 'package:jwt_decoder/jwt_decoder.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:provider/provider.dart';
+import 'package:ecommerceversiontwo/Pages/Views/Screens/MyAppBAr.dart';
 
 class Store extends StatefulWidget {
-  const Store({super.key});
+  const Store({Key? key}) : super(key: key);
 
   @override
   State<Store> createState() => _StoreState();
 }
 
 class _StoreState extends State<Store> {
-  int page = 1;
-  List<AnnounceModel> gridMap=[];
-  Future<List<AnnounceModel>> apicall() async {
-    AdsFilterModel adsFilter = AdsFilterModel(pageNumber: page, idFeaturesValues: []);
-
-    try {
-      Map<String, dynamic> response = await AnnounceService().getFilteredAds(adsFilter);
-
-      if (response["ads"] != null) {
-        List<dynamic> adsJsonList = response["ads"];
-        if (page == 1) {
-          gridMap.clear();
-          gridMap.addAll(adsJsonList.map((json) => AnnounceModel.fromJson(json)).toList());
-        } else {
-          gridMap.addAll(adsJsonList.map((json) => AnnounceModel.fromJson(json)).toList());
-        }
-        return gridMap;
-      } else {
-       // print(response["ads"]);
-        throw Exception('Failed to fetch Ads');
-      }
-    } catch (e) {
-      print('Error: $e');
-      throw Exception('An error occurred: $e');
-    }
-  }
-  int? id ;
-  Future<void> getuserId() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('token');
-    var decodedToken = JwtDecoder.decode(token!);
-    id = int.parse(decodedToken['id']);
-    //print("id user is $id");
-  }
-  Future<void> getLikeByIdUserIdAd() async {
-    try {
-      await getuserId();
-      List<AnnounceModel>listannounce=await apicall();
-      if (listannounce.length != 0) {
-        for (var a in listannounce) {
-          Map<String, dynamic> response = await LikeService().getLikeAds(id!, a.idAds!);
-          a.nbLike=response["nbLike"];
-          if(response["like"]!=null)
-            a.likeId= await LikeModel.fromJson(response["like"]).idLP;
-        }
-        print(listannounce[0]);
-      }
-
-    } catch (e) {
-      print('error fetching Likes: $e');
-    }
-  }
-
-  // category variabales
-  List<CategoriesModel> _categorys = [];
-  CategoriesModel? _category;
-  int CategoryId = 0;
-  CategoriesModel? selectedCategory;
-
-  Future<List<CategoriesModel>> fetchData() async {
-    try {
-      List<CategoriesModel> categories = await CategoryService().GetData();
-      _categorys = categories;
-      return categories;
-    } catch (e) {
-      print('Error fetching categories: $e');
-      throw Exception('failed to fetch');
-    }
-  }
-
- /* List<DropdownMenuItem<CategoriesModel>> buildDropdownItems(List<CategoriesModel> categories) {
-    List<DropdownMenuItem<CategoriesModel>> items = [];
-
-    for (var category in categories) {
-      items.add(DropdownMenuItem<CategoriesModel>(
-        child: Text(category.title.toString()),
-        value: category,
-      ));
-
-      if (category.children != null && category.children!.isNotEmpty) {
-        items.addAll(buildDropdownItems(category.children!));
-      }
-    }
-
-    return items;
-  }*/
-  List<DropdownMenuItem<CategoriesModel>> buildDropdownItems(List<CategoriesModel> categories, {String? parentTitle}) {
-    List<DropdownMenuItem<CategoriesModel>> items = [];
-
-    for (var category in categories) {
-      String label = parentTitle != null ? "$parentTitle / ${category.title}" : category.title!;
-      items.add(DropdownMenuItem<CategoriesModel>(
-        child: Text(label),
-        value: category,
-      ));
-
-      if (category.children != null && category.children!.isNotEmpty) {
-        items.addAll(buildDropdownItems(category.children!, parentTitle: category.title));
-      }
-    }
-
-    return items;
-  }
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: MyAppBar(
-          Daimons: 122,
-          title: "Add Deals",
-        ),
-        body: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: FutureBuilder<List<CategoriesModel>>(
-              future: fetchData(),
-              builder: (BuildContext context, AsyncSnapshot<List<CategoriesModel>> snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return CircularProgressIndicator();
-                } else if (snapshot.hasError) {
-                  return Text('Failed to fetch data');
-                } else {
-                  return DropdownButton<CategoriesModel>(
-                    value: _category ?? _categorys[0],
-                    items: buildDropdownItems(_categorys),
-                    onChanged: (CategoriesModel? x) {
-                      setState(() {
-                        _category = x;
-                        CategoryId = int.parse(x!.idCateg.toString());
-                        //fetchFeatures(CategoryId);
-                      });
-                    },
-                    icon: Icon(Icons.category_outlined),
-                    iconEnabledColor: Colors.indigo,
-                    style: TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18
-                    ),
-                    borderRadius: BorderRadius.circular(10),
-                  );
-                }
-              },
+    return ChangeNotifierProvider<LocalProvider>(
+      create: (_) => LocalProvider(),
+      child: Consumer<LocalProvider>(
+        builder: (context, localProvider, _) {
+          return MaterialApp(
+            locale: localProvider.locale,
+            supportedLocales: L10n.all,
+            localizationsDelegates: [
+              AppLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+            ],
+            home: Scaffold(
+              appBar: MyAppBar(
+                Daimons: 122,
+                title: "Add Deals",
+              ),
+              body: Center(
+                child: Text(
+                  AppLocalizations.of(context)?.profile ?? "empty",
+                  style: TextStyle(
+                    fontSize: 18.0,
+                  ),
+                ),
+              ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }

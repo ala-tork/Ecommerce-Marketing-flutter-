@@ -96,6 +96,7 @@ class CreateDealsModel {
     data['idUser'] = this.idUser.toString();
     data['idCountrys'] = this.idCountrys.toString();
     data['idCity'] = this.idCity.toString();
+    if(idBrand!=null)
     data['idBrand'] = this.idBrand.toString();
     data['locations'] = this.locations!;
     if (idBoost != null) data['idBoost'] = this.idBoost.toString();

@@ -3,10 +3,8 @@ import 'package:ecommerceversiontwo/Pages/Views/Screens/DealsCrudViews/UpdateDea
 import 'package:ecommerceversiontwo/Pages/Views/Screens/MyAppBAr.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/BoostFormPopUp.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/DealsGiftPopUp.dart';
-import 'package:ecommerceversiontwo/Pages/core/model/CategoriesModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/Deals/CreateDealsModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/Deals/DealsModel.dart';
-import 'package:ecommerceversiontwo/Pages/core/model/PrizesModels/Prize.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/AdsFeaturesServices/AdsFeaturesService.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/DealsServices/DealsService.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/ImageServices/ImageService.dart';
@@ -60,7 +58,8 @@ class _MyDealsState extends State<MyDeals> {
         if (x % 4 > 0) {
           MaxPage += 1;
         }
-        print(deals);
+        print("nbPages $MaxPage");
+        print("Page $page");
         return deals;
       } else {
         print(response["items"]);
@@ -137,7 +136,7 @@ class _MyDealsState extends State<MyDeals> {
         setState(() {
           deals = data;
         });
-        print(deals[1].idPrize);
+        print(deals[2].price);
       });
     });
   }
@@ -175,11 +174,12 @@ class _MyDealsState extends State<MyDeals> {
                 padding: const EdgeInsets.fromLTRB(0, 0, 0, 70.0),
                 child: ListView.builder(
                   shrinkWrap: true,
-                  itemCount: deals.length,
+                  itemCount: deals.length + 1,
                   itemBuilder: (context, index) {
+                    if (index < deals.length) {
                     var pricewithdiscount = deals[index].price! -
                         ((deals[index].discount! * deals[index].price!) / 100);
-                    if (index < deals.length) {
+
                       return Padding(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 0, vertical: 12),
@@ -359,7 +359,7 @@ class _MyDealsState extends State<MyDeals> {
                                                   color: Colors.green,
                                                 ),
                                               ),
-                                            if (deals[index].discount! == null)
+                                            if (deals[index].discount! == 0)
                                               Text(
                                                 "${deals[index].price} DT",
                                                 style: TextStyle(
@@ -521,17 +521,20 @@ class _MyDealsState extends State<MyDeals> {
                         ),
                       );
                     } else {
-                      if (deals.isNotEmpty && page < MaxPage - 1) {
+                      if (deals.isNotEmpty && page<MaxPage-1) {
                         return ElevatedButton(
                           onPressed: () async {
                             if (page < MaxPage) {
                               setState(() {
                                 page = page + 1;
-                                apicall(1).then((data) {
-                                  setState(() {
-                                    deals = data;
+                                getuserId().then((value) {
+                                  apicall(value).then((data) {
+                                    setState(() {
+                                      deals = data;
+                                    });
                                   });
                                 });
+
                               });
                             }
                           },

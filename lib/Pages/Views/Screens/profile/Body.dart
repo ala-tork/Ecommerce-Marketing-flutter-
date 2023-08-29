@@ -30,12 +30,12 @@ class Body extends StatelessWidget {
             String? token = await _getAuthToken();
             if (token != null) {
 
-            Navigator.push(
+            /*Navigator.push(
             context,
             MaterialPageRoute(
             builder: (context) => ProfileDetails(token: token),
             ),
-            );
+            );*/
             }
             },
           ),

@@ -1,9 +1,13 @@
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
 class User {
   int? id;
   String? email;
   String? password;
   String? firstname;
   String? lastname;
+  String? imageUrl;
   String? phone;
   String? country;
   String? address;
@@ -18,6 +22,7 @@ class User {
         this.password,
         this.firstname,
         this.lastname,
+        this.imageUrl,
         this.phone,
         this.country,
         this.address,
@@ -32,6 +37,7 @@ class User {
     password = json['password'];
     firstname = json['firstname'];
     lastname = json['lastname'];
+    imageUrl=json['imageUrl'];
     phone = json['phone'];
     country = json['country'];
     address = json['address'];
@@ -57,4 +63,23 @@ class User {
     data['refreshToken'] = this.refreshToken;
     return data;
   }
+
+
+  Future<User> GetUserByID(int idUser) async {
+    final String apiUrl = "https://10.0.2.2:7058/User/GetUserById?id=$idUser";
+    try {
+      final response = await http.get(Uri.parse(apiUrl));
+      if (response.statusCode == 200) {
+        dynamic jsonResponse = json.decode(response.body);
+        User user = User.fromJson(jsonResponse);
+        return user;
+      } else {
+        throw Exception("Failed to fetch User. Status code: ${response.statusCode}");
+      }
+    } catch (e) {
+      print("Error Fetching User: $e");
+      throw Exception("Error fetching User: $e");
+    }
+  }
+
 }

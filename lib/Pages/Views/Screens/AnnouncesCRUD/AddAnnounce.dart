@@ -21,6 +21,7 @@ import 'package:ecommerceversiontwo/Pages/core/services/FeaturesServices/Feature
 import 'package:ecommerceversiontwo/Pages/core/services/FeaturesValuesServices/FeaturesValuesService.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/ImageServices/ImageService.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -33,8 +34,7 @@ class AddAnnounces extends StatefulWidget {
 }
 
 class _AddAnnouncesState extends State<AddAnnounces> {
-
-  final formstate = GlobalKey<FormState>();
+  GlobalKey<FormState> _AdsFormKey = GlobalKey<FormState>();
   TextEditingController title = new TextEditingController();
   TextEditingController price = new TextEditingController();
   TextEditingController description = new TextEditingController();
@@ -42,37 +42,35 @@ class _AddAnnouncesState extends State<AddAnnounces> {
   TextEditingController images = new TextEditingController();
   bool? boost;
 
-
   // category variabales
-  List<CategoriesModel> _categorys =[];
+  List<CategoriesModel> _categorys = [];
   CategoriesModel? _category;
-  int CategoryId=0;
+  int CategoryId = 0;
   CategoriesModel? selectedCategory;
 
-
   //country Variables
-  List<CountriesModel> _countrys=[];
-  CountriesModel? _country ;
-  int CountryId=0;
+  List<CountriesModel> _countrys = [];
+  CountriesModel? _country;
+
+  int CountryId = 0;
 
   // city variables
-  List<CitiesModel> _cities=[];
+  List<CitiesModel> _cities = [];
   CitiesModel? _city;
 
   //features variables
-  List<FeaturesModel> _features=[];
+  List<FeaturesModel> _features = [];
   FeaturesModel? _feature;
-  int FeatureId=0;
-  int indexOfFeature=0;
+  int FeatureId = 0;
+  int indexOfFeature = 0;
 
   //FeaturesValues variables
-  List<FeaturesValuesModel> _featuresValues=[];
+  List<FeaturesValuesModel> _featuresValues = [];
   FeaturesValuesModel? _featurevalue;
 
-  String? error ="";
+  String? error = "";
 
-
-  int? idUser ;
+  int? idUser;
 
   Future<int> getuserId() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -83,14 +81,18 @@ class _AddAnnouncesState extends State<AddAnnounces> {
     return idUser!;
   }
 
-
-
 // Function to create the announce object
   CreateAnnounce? announce;
-  void createAnnounceObject(int userid) async  {
-    if(title.toString().isNotEmpty && description.toString().isNotEmpty &&
-        (details!=null && details.text.length!=0) && price.toString().isNotEmpty
-        && CategoryId!=0 && _country!=null  && _city!=null && _imagesid.length!=0 ){
+
+  void createAnnounceObject(int userid) async {
+    if (title.toString().isNotEmpty &&
+        description.toString().isNotEmpty &&
+        (details != null && details.text.length != 0) &&
+        price.toString().isNotEmpty &&
+        CategoryId != 0 &&
+        _country != null &&
+        _city != null &&
+        _imagesid.length != 0) {
       announce = CreateAnnounce(
         title: title.text,
         description: description.text,
@@ -100,21 +102,20 @@ class _AddAnnouncesState extends State<AddAnnounces> {
         idCateg: CategoryId,
         idCountrys: _country!.idCountrys!,
         idCity: _city!.idCity!,
-        IdUser : userid,
+        IdUser: userid,
         locations: "${_country!.title}, ${_city!.title}",
 
         //images:_image,
         active: 1,
       );
-        error="";
-    }else{
-        error="pleace complete all the form ";
+      error = "";
+    } else {
+      error = "pleace complete all the form ";
     }
   }
 
   // get the features of the announce
   List<ListFeaturesFeatureValues> getFeatures() {
-
     List<ListFeaturesFeatureValues> lst = [];
     _features.forEach((f) {
       if (f.selected == true && f.value != null) {
@@ -128,16 +129,14 @@ class _AddAnnouncesState extends State<AddAnnounces> {
     return lst;
   }
 
-
-
 //pick the image
   //image picker
   List<File> _image = [];
-  List<ImageModel> _imagesid=[];
+  List<ImageModel> _imagesid = [];
 
-  Future getImage(source) async{
+  Future getImage(source) async {
     final image = await ImagePicker().pickImage(source: source);
-    if (image==null) return ;
+    if (image == null) return;
     final imageTemporary = File(image.path);
     ImageModel response = await ImageService().addImage(imageTemporary);
     setState(() {
@@ -153,26 +152,30 @@ class _AddAnnouncesState extends State<AddAnnounces> {
     createAnnounceObject(idUser!);
     Map<String, dynamic> response = await AnnounceService().createAd(announce!);
     //save features values
-    var x =AnnounceModel.fromJson(response);
+    var x = AnnounceModel.fromJson(response);
     List<ListFeaturesFeatureValues> lfv = getFeatures();
-    if(lfv!=null && lfv.length!=0){
+    if (lfv != null && lfv.length != 0) {
       lfv.forEach((element) async {
-        CreateAdsFeature fd =
-        new CreateAdsFeature(idAds: int.parse(x.idAds.toString()),idFeature: int.parse(element.featureId.toString()),idFeaturesValues: int.parse(element.featureValueId.toString()),active: 1);
+        CreateAdsFeature fd = new CreateAdsFeature(
+            idAds: int.parse(x.idAds.toString()),
+            idFeature: int.parse(element.featureId.toString()),
+            idFeaturesValues: int.parse(element.featureValueId.toString()),
+            active: 1);
         await AdsFeaturesService().Createfeature(fd);
         //print(fvres);
       });
     }
     //update the images
-    for(var i=0;i<_imagesid!.length;i++){
-      await ImageService().UpdateImages(int.parse(_imagesid[i].IdImage.toString()), int.parse(x.idAds.toString()));
+    for (var i = 0; i < _imagesid!.length; i++) {
+      await ImageService().UpdateImages(
+          int.parse(_imagesid[i].IdImage.toString()),
+          int.parse(x.idAds.toString()));
     }
     return x;
   }
 
-
   @override
-  void initState()  {
+  void initState() {
     super.initState();
     fetchCities(CountryId);
     fetchCountries();
@@ -190,11 +193,11 @@ class _AddAnnouncesState extends State<AddAnnounces> {
       setState(() {
         _categorys = categories;
       });
-
     } catch (e) {
       print('Error fetching categories: $e');
     }
   }
+
   /** fetch countrys */
   Future<void> fetchCountries() async {
     try {
@@ -202,20 +205,18 @@ class _AddAnnouncesState extends State<AddAnnounces> {
       setState(() {
         _countrys = countries;
       });
-
     } catch (e) {
       print('Error fetching countrys: $e');
     }
   }
+
   /** fetch Cities */
   Future<void> fetchCities(int id) async {
     try {
       List<CitiesModel> cities = await CityService().GetData(id);
       setState(() {
         _cities = cities;
-
       });
-
     } catch (e) {
       print('Error fetching Cites: $e');
     }
@@ -236,15 +237,15 @@ class _AddAnnouncesState extends State<AddAnnounces> {
   /** fetch Features Values */
   Future<void> fetchFeaturesValues(int idfeature) async {
     try {
-      List<FeaturesValuesModel> featuresValues = await FeaturesValuesService().GetData(idfeature);
+      List<FeaturesValuesModel> featuresValues =
+          await FeaturesValuesService().GetData(idfeature);
       setState(() {
         _featuresValues = featuresValues;
-        if(_features[indexOfFeature].selected==true){
-          _features[indexOfFeature].valuesList=_featuresValues;
-        }else{
-          _features[indexOfFeature].valuesList=[];
+        if (_features[indexOfFeature].selected == true) {
+          _features[indexOfFeature].valuesList = _featuresValues;
+        } else {
+          _features[indexOfFeature].valuesList = [];
         }
-
       });
       //print(featuresValues);
     } catch (e) {
@@ -253,18 +254,23 @@ class _AddAnnouncesState extends State<AddAnnounces> {
   }
 
   /** Category DropDown Items */
-  List<DropdownMenuItem<CategoriesModel>> buildDropdownItems(List<CategoriesModel> categories, {String? parentTitle}) {
+  List<DropdownMenuItem<CategoriesModel>> buildDropdownItems(
+      List<CategoriesModel> categories,
+      {String? parentTitle}) {
     List<DropdownMenuItem<CategoriesModel>> items = [];
 
     for (var category in categories) {
-      String label = parentTitle != null ? "$parentTitle / ${category.title}" : category.title!;
+      String label = parentTitle != null
+          ? "$parentTitle / ${category.title}"
+          : category.title!;
       items.add(DropdownMenuItem<CategoriesModel>(
         child: Text(label),
         value: category,
       ));
 
       if (category.children != null && category.children!.isNotEmpty) {
-        items.addAll(buildDropdownItems(category.children!, parentTitle: category.title));
+        items.addAll(buildDropdownItems(category.children!,
+            parentTitle: category.title));
       }
     }
 
@@ -275,23 +281,28 @@ class _AddAnnouncesState extends State<AddAnnounces> {
   Widget build(BuildContext context) {
     return Scaffold(
       //backgroundColor: Colors.blueGrey[100],
-      appBar: MyAppBar(Daimons: 122,title: "Add Announce",),
+      appBar: MyAppBar(
+        Daimons: 122,
+        title: "Add Announce",
+      ),
       body: Container(
         child: ListView(
           children: [
-            SizedBox(height: 20,),
+            SizedBox(
+              height: 20,
+            ),
             Center(
-                child: Text("Create your announce :",
+              child: Text("Create your announce :",
                   style: TextStyle(
-
                     fontWeight: FontWeight.bold,
                     fontSize: 25,
-                      decoration: TextDecoration.underline,
-                      decorationColor: Colors.black,
-                  )
-                  ),
+                    decoration: TextDecoration.underline,
+                    decorationColor: Colors.black,
+                  )),
             ),
-            SizedBox(height: 30,),
+            SizedBox(
+              height: 30,
+            ),
             // create a form
             Container(
               /*decoration: BoxDecoration(
@@ -302,22 +313,25 @@ class _AddAnnouncesState extends State<AddAnnounces> {
                 color: Colors.white
               ),*/
               child: Form(
-                  key: formstate,
-                  child:
-                  Column(
+                  key: _AdsFormKey,
+                  child: Column(
                     children: [
                       Padding(
                         padding: const EdgeInsets.fromLTRB(10, 18.0, 10, 3),
                         child: TextFormField(
                           controller: title,
                           decoration: InputDecoration(
-                            enabledBorder: OutlineInputBorder(
+                              enabledBorder: OutlineInputBorder(
                                 borderSide:
-                                BorderSide(width: 2, color: Colors.indigo),
-
-                          ),
-                              hintText: "title"
-                          ),
+                                    BorderSide(width: 2, color: Colors.indigo),
+                              ),
+                              hintText: "title"),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Title is required';
+                            }
+                            return null;
+                          },
                         ),
                       ),
                       Padding(
@@ -327,14 +341,18 @@ class _AddAnnouncesState extends State<AddAnnounces> {
                           decoration: InputDecoration(
                               enabledBorder: OutlineInputBorder(
                                 borderSide:
-                                BorderSide(width: 2, color: Colors.indigo),
-
+                                    BorderSide(width: 2, color: Colors.indigo),
                               ),
-                              hintText: "Description"
-                          ),
+                              hintText: "Description"),
                           keyboardType: TextInputType.multiline,
                           minLines: 1,
                           maxLines: 2,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Description is required';
+                            }
+                            return null;
+                          },
                         ),
                       ),
                       Padding(
@@ -344,38 +362,55 @@ class _AddAnnouncesState extends State<AddAnnounces> {
                           decoration: InputDecoration(
                               enabledBorder: OutlineInputBorder(
                                 borderSide:
-                                BorderSide(width: 2, color: Colors.indigo),
-
+                                    BorderSide(width: 2, color: Colors.indigo),
                               ),
-                              hintText: "Details"
-                          ),
+                              hintText: "Details"),
                           keyboardType: TextInputType.multiline,
                           minLines: 1,
                           maxLines: 3,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Details is required';
+                            }
+                            return null;
+                          },
                         ),
                       ),
                       Padding(
                         padding: const EdgeInsets.fromLTRB(10, 18.0, 10, 3),
                         child: TextFormField(
                           controller: price,
-                          keyboardType: TextInputType.numberWithOptions(decimal: true),
+                          keyboardType:
+                              TextInputType.numberWithOptions(decimal: true),
+                          inputFormatters: <TextInputFormatter>[
+                            FilteringTextInputFormatter.allow(
+                                RegExp(r'^\d+\.?\d{0,2}$')),
+                          ],
                           decoration: InputDecoration(
-                              enabledBorder: OutlineInputBorder(
-                                borderSide:
-                                BorderSide(width: 2, color: Colors.indigo),
-
-                              ),
+                            enabledBorder: OutlineInputBorder(
+                              borderSide:
+                                  BorderSide(width: 2, color: Colors.indigo),
+                            ),
                             contentPadding: EdgeInsets.symmetric(vertical: 20),
-                              //label: ,
-                              hintText: "price "
+                            hintText: "Price",
                           ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Price is required';
+                            }
+                            return null;
+                          },
                         ),
                       ),
-                      SizedBox(height: 40,),
-                      Text("add Announce Image :",style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                      SizedBox(
+                        height: 40,
                       ),
+                      Text(
+                        "add Announce Image :",
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       // image picker
                       Center(
@@ -385,57 +420,57 @@ class _AddAnnouncesState extends State<AddAnnounces> {
                             children: [
                               _image.length != 0
                                   ? Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: _image.map((img) {
-                                  return Container(
-                                    width: MediaQuery.of(context).size.width,
-                                    height: 300,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(10),
-                                      border: Border.all(color: Colors.black.withOpacity(0)),
-                                    ),
-                                    child: Image.file(
-                                      img!,
-                                      height: 400,
-                                      fit: BoxFit.fill,
-                                    ),
-                                  );
-                                }).toList(),
-                              )
-                                  :
-                              Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: <Widget>[
-                                    Container(
-                                      height: 300,
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(10),
-                                        border: Border.all(
-                                            color: Colors.black.withOpacity(0)
-                                        ),
-
-                                        image: DecorationImage(
-
-                                          image: AssetImage("assets/images/vide.png"),
-                                          fit: BoxFit.fill,
-
-                                        ),
-                                      ),
-
-                                    ),
-                                  ]
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: _image.map((img) {
+                                        return Container(
+                                          width:
+                                              MediaQuery.of(context).size.width,
+                                          height: 300,
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            border: Border.all(
+                                                color: Colors.black
+                                                    .withOpacity(0)),
+                                          ),
+                                          child: Image.file(
+                                            img!,
+                                            height: 400,
+                                            fit: BoxFit.fill,
+                                          ),
+                                        );
+                                      }).toList(),
+                                    )
+                                  : Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: <Widget>[
+                                          Container(
+                                            height: 300,
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              border: Border.all(
+                                                  color: Colors.black
+                                                      .withOpacity(0)),
+                                              image: DecorationImage(
+                                                image: AssetImage(
+                                                    "assets/images/vide.png"),
+                                                fit: BoxFit.fill,
+                                              ),
+                                            ),
+                                          ),
+                                        ]),
+                              SizedBox(
+                                height: 30,
                               ),
-
-                              SizedBox(height: 30,),
                               CostumButton(
                                   title: "Pick an Image",
                                   iconName: Icons.image_outlined,
-                                  onClick: ()=>getImage(ImageSource.gallery)
-                              ),
+                                  onClick: () => getImage(ImageSource.gallery)),
                               CostumButton(
                                   title: "Take picture ",
                                   iconName: Icons.camera,
-                                  onClick:()=>getImage(ImageSource.camera) ),
+                                  onClick: () => getImage(ImageSource.camera)),
                             ],
                           ),
                         ),
@@ -447,7 +482,7 @@ class _AddAnnouncesState extends State<AddAnnounces> {
                         children: [
                           /** Countrys list */
                           Container(
-                            margin:EdgeInsets.fromLTRB(10, 30, 10, 0),
+                            margin: EdgeInsets.fromLTRB(10, 30, 10, 0),
                             decoration: BoxDecoration(
                               border: Border.all(color: Colors.grey),
                               borderRadius: BorderRadius.circular(8),
@@ -455,7 +490,8 @@ class _AddAnnouncesState extends State<AddAnnounces> {
                             child: FutureBuilder<List<CountriesModel>>(
                               future: CountrySerice().GetData(),
                               builder: (context, snapshot) {
-                                if (snapshot.connectionState == ConnectionState.waiting) {
+                                if (snapshot.connectionState ==
+                                    ConnectionState.waiting) {
                                   return CircularProgressIndicator();
                                 } else if (snapshot.hasError) {
                                   return Text('Error: ${snapshot.error}');
@@ -463,25 +499,32 @@ class _AddAnnouncesState extends State<AddAnnounces> {
                                   //_countrys = snapshot.data!;
 
                                   //_country=_countrys![0];
-                                  if (_countrys != null && _countrys!.isNotEmpty) {
+                                  if (_countrys != null &&
+                                      _countrys!.isNotEmpty) {
                                     return Column(
                                       children: [
-
                                         Container(
-                                          child:DropdownButton(
-                                            padding: EdgeInsets.symmetric(horizontal: 7),
-                                            disabledHint: Text("Select Country"),
-                                            value: _country!=null?_country:_countrys[0],
-                                            items: _countrys!.map((e) => DropdownMenuItem<CountriesModel>(
-                                              child:
-                                              Text(e.title.toString()
-                                              ),
-                                              value: e,)).toList(),
-
-                                            onChanged:(CountriesModel? val){
+                                          child: DropdownButton(
+                                            padding: EdgeInsets.symmetric(
+                                                horizontal: 7),
+                                            disabledHint:
+                                                Text("Select Country"),
+                                            value: _country != null
+                                                ? _country
+                                                : _countrys[0],
+                                            items: _countrys!
+                                                .map((e) => DropdownMenuItem<
+                                                        CountriesModel>(
+                                                      child: Text(
+                                                          e.title.toString()),
+                                                      value: e,
+                                                    ))
+                                                .toList(),
+                                            onChanged: (CountriesModel? val) {
                                               setState(() {
-                                                _country=val;
-                                                CountryId=int.parse(val!.idCountrys.toString());
+                                                _country = val;
+                                                CountryId = int.parse(
+                                                    val!.idCountrys.toString());
                                                 fetchCities(CountryId);
                                               });
                                             },
@@ -490,9 +533,9 @@ class _AddAnnouncesState extends State<AddAnnounces> {
                                             style: TextStyle(
                                                 color: Colors.black,
                                                 fontWeight: FontWeight.bold,
-                                                fontSize: 18
-                                            ),
-                                            borderRadius: BorderRadius.circular(10),
+                                                fontSize: 18),
+                                            borderRadius:
+                                                BorderRadius.circular(10),
                                           ), //
                                         ),
                                       ],
@@ -505,9 +548,9 @@ class _AddAnnouncesState extends State<AddAnnounces> {
                             ),
                           ),
                           /** Cities list */
-                          if(CountryId!=0 && _cities.isNotEmpty)
+                          if (CountryId != 0 && _cities.isNotEmpty)
                             Container(
-                              margin:EdgeInsets.fromLTRB(10, 30, 10, 0),
+                              margin: EdgeInsets.fromLTRB(10, 30, 10, 0),
                               decoration: BoxDecoration(
                                 border: Border.all(color: Colors.grey),
                                 borderRadius: BorderRadius.circular(8),
@@ -515,7 +558,8 @@ class _AddAnnouncesState extends State<AddAnnounces> {
                               child: FutureBuilder<List<CitiesModel>>(
                                 future: CityService().GetData(CountryId),
                                 builder: (context, snapshot) {
-                                  if (snapshot.connectionState == ConnectionState.waiting) {
+                                  if (snapshot.connectionState ==
+                                      ConnectionState.waiting) {
                                     return CircularProgressIndicator();
                                   } else if (snapshot.hasError) {
                                     return Text('Error: ${snapshot.error}');
@@ -524,24 +568,30 @@ class _AddAnnouncesState extends State<AddAnnounces> {
                                     //_countrys = snapshot.data!;
 
                                     //_country=_countrys![0];
-                                    if (_cities.length!=0&& _cities!.isNotEmpty) {
+                                    if (_cities.length != 0 &&
+                                        _cities!.isNotEmpty) {
                                       return Column(
                                         children: [
-
                                           Container(
-                                            child:DropdownButton(
-                                              padding: EdgeInsets.symmetric(horizontal: 7),
-                                              disabledHint: Text("Select Cities"),
-                                              value: _city!=null?_city:_cities[0],
-                                              items: _cities!.map((e) => DropdownMenuItem<CitiesModel>(
-                                                child:
-                                                Text(e.title.toString()
-                                                ),
-                                                value: e,)).toList(),
-
-                                              onChanged:(CitiesModel? city){
+                                            child: DropdownButton(
+                                              padding: EdgeInsets.symmetric(
+                                                  horizontal: 7),
+                                              disabledHint:
+                                                  Text("Select Cities"),
+                                              value: _city != null
+                                                  ? _city
+                                                  : _cities[0],
+                                              items: _cities!
+                                                  .map((e) => DropdownMenuItem<
+                                                          CitiesModel>(
+                                                        child: Text(
+                                                            e.title.toString()),
+                                                        value: e,
+                                                      ))
+                                                  .toList(),
+                                              onChanged: (CitiesModel? city) {
                                                 setState(() {
-                                                  _city=city;
+                                                  _city = city;
                                                 });
                                               },
                                               icon: Icon(Icons.map_outlined),
@@ -549,9 +599,9 @@ class _AddAnnouncesState extends State<AddAnnounces> {
                                               style: TextStyle(
                                                   color: Colors.black,
                                                   fontWeight: FontWeight.bold,
-                                                  fontSize: 18
-                                              ),
-                                              borderRadius: BorderRadius.circular(10),
+                                                  fontSize: 18),
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
                                             ), //
                                           ),
                                         ],
@@ -572,58 +622,62 @@ class _AddAnnouncesState extends State<AddAnnounces> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Container(
-                            margin:EdgeInsets.fromLTRB(10, 30, 10, 0),
+                            margin: EdgeInsets.fromLTRB(10, 30, 10, 0),
                             decoration: BoxDecoration(
                               border: Border.all(color: Colors.grey),
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child:/** dropdown list of categorys **/
-                            Padding(
+                            child: /** dropdown list of categorys **/
+                                Padding(
                               padding: const EdgeInsets.all(0),
                               child: FutureBuilder<List<CategoriesModel>>(
                                 future: CategoryService().GetData(),
-                                builder: (BuildContext context, AsyncSnapshot<List<CategoriesModel>> snapshot) {
-                                  if (snapshot.connectionState == ConnectionState.waiting) {
+                                builder: (BuildContext context,
+                                    AsyncSnapshot<List<CategoriesModel>>
+                                        snapshot) {
+                                  if (snapshot.connectionState ==
+                                      ConnectionState.waiting) {
                                     // Display a loading indicator while waiting for data
                                     return CircularProgressIndicator();
                                   } else if (snapshot.hasError) {
                                     // Handle the error case
                                     return Text('Failed to fetch data');
                                   } else {
-                                    return
-                                      DropdownButton<CategoriesModel>(
-                                        value: _category ?? _categorys[0],
-                                        items: buildDropdownItems(_categorys),
-                                        onChanged: (CategoriesModel? x) {
-                                          setState(() {
-                                            _category = x;
+                                    return DropdownButton<CategoriesModel>(
+                                      value: _category ?? _categorys[0],
+                                      items: buildDropdownItems(_categorys),
+                                      onChanged: (CategoriesModel? x) {
+                                        setState(() {
+                                          _category = x;
                                           /*  CategoriesModel? topLevelParent = x;
                                             while (topLevelParent!.idparent != null) {
                                               topLevelParent = _categorys.firstWhere((element) => element.idCateg == topLevelParent!.idparent);
                                             }*/
-                                            //CategoryId = int.parse(topLevelParent!.idCateg.toString());
-                                            CategoryId = int.parse(x!.idCateg.toString());
-                                            fetchFeatures(CategoryId);
-                                          });
-                                        },
-                                        icon: Icon(Icons.category_outlined),
-                                        iconEnabledColor: Colors.indigo,
-                                        style: TextStyle(
-                                            color: Colors.black,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 18
-                                        ),
-                                        borderRadius: BorderRadius.circular(10),
-                                      );
+                                          //CategoryId = int.parse(topLevelParent!.idCateg.toString());
+                                          CategoryId =
+                                              int.parse(x!.idCateg.toString());
+                                          fetchFeatures(CategoryId);
+                                        });
+                                      },
+                                      icon: Icon(Icons.category_outlined),
+                                      iconEnabledColor: Colors.indigo,
+                                      style: TextStyle(
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 18),
+                                      borderRadius: BorderRadius.circular(10),
+                                    );
                                     //
                                   }
                                 },
                               ),
                             ),
-
                           ),
                         ],
-                      ),SizedBox(height: 20,),
+                      ),
+                      SizedBox(
+                        height: 20,
+                      ),
                       Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.center,
@@ -655,39 +709,46 @@ class _AddAnnouncesState extends State<AddAnnounces> {
                                     ...f.valuesList!
                                         .map(
                                           (fv) => Container(
-                                        padding: EdgeInsets.symmetric(vertical: 5),
-                                        child: Row(
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          crossAxisAlignment: CrossAxisAlignment.center,
-                                          children: [
-                                            Expanded(
-                                              child: Row(
-                                                mainAxisAlignment: MainAxisAlignment.center,
-                                                crossAxisAlignment: CrossAxisAlignment.center,
-                                                children: [
-                                                  Radio(
-                                                    value: fv.idFv,
-                                                    groupValue: f.value,
-                                                    onChanged: (value) {
-                                                      setState(() {
-                                                        f.value = value;
-                                                        //print(featuresvalues);
-                                                      });
-                                                    },
+                                            padding: EdgeInsets.symmetric(
+                                                vertical: 5),
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.center,
+                                              children: [
+                                                Expanded(
+                                                  child: Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .center,
+                                                    children: [
+                                                      Radio(
+                                                        value: fv.idFv,
+                                                        groupValue: f.value,
+                                                        onChanged: (value) {
+                                                          setState(() {
+                                                            f.value = value;
+                                                            //print(featuresvalues);
+                                                          });
+                                                        },
+                                                      ),
+                                                      Text(
+                                                        fv.title.toString(),
+                                                        style: TextStyle(
+                                                          fontSize: 17.0,
+                                                        ),
+                                                      ),
+                                                    ],
                                                   ),
-                                                  Text(
-                                                    fv.title.toString(),
-                                                    style: TextStyle(
-                                                      fontSize: 17.0,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
+                                                ),
+                                              ],
                                             ),
-                                          ],
-                                        ),
-                                      ),
-                                    )
+                                          ),
+                                        )
                                         .toList(),
                                   SizedBox(height: 30),
                                 ],
@@ -696,9 +757,6 @@ class _AddAnnouncesState extends State<AddAnnounces> {
                           SizedBox(height: 10),
                         ],
                       ),
-
-
-
 
                       /*
                       // radio button for bosting
@@ -734,7 +792,9 @@ class _AddAnnouncesState extends State<AddAnnounces> {
                       ),
                       //end radio button
                        */
-                      SizedBox(height: 20,),
+                      SizedBox(
+                        height: 20,
+                      ),
                       // create button to save the data
                       ClipRRect(
                         borderRadius: BorderRadius.circular(14.0),
@@ -742,47 +802,50 @@ class _AddAnnouncesState extends State<AddAnnounces> {
                           textColor: Colors.white,
                           color: Colors.indigo,
                           onPressed: () async {
-                            await getuserId().then((value){
-                              createAnnounceObject(value);
-                            });
+                            if (_AdsFormKey.currentState!.validate()) {
+                              await getuserId().then((value) {
+                                createAnnounceObject(value);
+                              });
 
-                           if(error!.isNotEmpty){
-                              print(error);
+                              if (error!.isNotEmpty) {
+                                print(error);
 
-                              AwesomeDialog(
-                                  context: context,
-                                  dialogBackgroundColor: Colors.teal[100],
-                                  dialogType: DialogType.warning,
-                                  animType: AnimType.topSlide,
-                                  title:"Error !",
-                                  descTextStyle: TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold
-                                  ),
-                                  desc: error.toString(),
-                                  btnCancelColor: Colors.grey,
-                                  btnCancelOnPress:(){},
-
-                                  btnOkOnPress: (){}
-                              ).show();
-                            }else{
-                              //Map<String, dynamic> adData = announce!.toJson();
-                              //print(adData);
-                              AnnounceModel adsRes = await sendAdToApi();
-                              Navigator.pop(context,{"NewAd":adsRes});
+                                AwesomeDialog(
+                                        context: context,
+                                        dialogBackgroundColor: Colors.teal[100],
+                                        dialogType: DialogType.warning,
+                                        animType: AnimType.topSlide,
+                                        title: "Error !",
+                                        descTextStyle: TextStyle(
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.bold),
+                                        desc: error.toString(),
+                                        btnCancelColor: Colors.grey,
+                                        btnCancelOnPress: () {},
+                                        btnOkOnPress: () {})
+                                    .show();
+                              } else {
+                                //Map<String, dynamic> adData = announce!.toJson();
+                                //print(adData);
+                                AnnounceModel adsRes = await sendAdToApi();
+                                Navigator.pop(context, {"NewAd": adsRes});
+                              }
                             }
                           },
-                          child: Text("Add Annonces",style: TextStyle(fontSize: 20),),
+                          child: Text(
+                            "Add Annonces",
+                            style: TextStyle(fontSize: 20),
+                          ),
                         ),
                       ),
-                      SizedBox(height: 20,),
+                      SizedBox(
+                        height: 20,
+                      ),
                     ],
-                  )
-              ),
+                  )),
             )
           ],
         ),
-
       ),
     );
   }

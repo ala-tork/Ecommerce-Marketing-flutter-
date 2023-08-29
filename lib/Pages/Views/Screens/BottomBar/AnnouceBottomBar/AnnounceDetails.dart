@@ -98,7 +98,6 @@ class _AnounceDetailsState extends State<AnounceDetails> {
       setState(() {
         _AdsFeatures = AfList;
       });
-      //print(_AdsFeatures);
     } catch (e) {
       print('Error fetching AdsFeatures: $e');
     }
@@ -473,7 +472,7 @@ class _AnounceDetailsState extends State<AnounceDetails> {
                 ),
 
                 /** Features Table */
-                if (_AdsFeatures.isNotEmpty)
+                if (_AdsFeatures.isNotEmpty && _AdsFeatures.length!=0)
                   DataTable(
                     columns: [
                       DataColumn(

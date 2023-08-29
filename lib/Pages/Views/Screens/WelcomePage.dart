@@ -18,14 +18,11 @@ class _WelcomePageState extends State<WelcomePage> {
   Future<void> checkLoggedIn() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
-    if (token != null) {
-      // Token exists, navigate to appropriate screen based on user role
+    if (token != null && token.isNotEmpty) {
       var decodedToken = JwtDecoder.decode(token);
       String refresh = decodedToken['refreshToken'];
-     // String? refresh = prefs.getString('refreshToken');
       var res = await ApiService.refreshToken(refresh!);
 
-      //if (userRole == "User") {
       if (res==true) {
         Navigator.pushReplacement(
           context,
@@ -38,7 +35,11 @@ class _WelcomePageState extends State<WelcomePage> {
           MaterialPageRoute(builder: (context) => LoginPage()),
         );
       }
-    }
+    }else{
+      Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => LoginPage()));
+  }
   }
   @override
   Widget build(BuildContext context) {

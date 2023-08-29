@@ -1,14 +1,14 @@
 import 'dart:io';
-
 import 'package:ecommerceversiontwo/Pages/Views/Screens/AnnouncesCRUD/EditeAnnounce.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/AnnouncesCRUD/MyAnnouncesList.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/DealsCrudViews/AddDeals.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/DealsCrudViews/MyDealsList.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/LandingPage.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/WelcomePage.dart';
-import 'package:ecommerceversiontwo/Pages/Views/Screens/wishlist.dart';
+import 'package:ecommerceversiontwo/Pages/Views/Screens/profile/ProfileProvider.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/myhttpoverrides.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'Pages/Views/Screens/AnnouncesCRUD/AddAnnounce.dart';
 
@@ -32,14 +32,21 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MultiProvider(
+        providers: [
+          ChangeNotifierProvider<UserProfileProvider>(
+            create: (context) => UserProfileProvider(),
+          ),
+          // Add other providers here if needed
+        ],
+    child: MaterialApp(
 
-      debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
-      theme: ThemeData.light(),
+        debugShowCheckedModeBanner: false,
+        title: 'Flutter Demo',
+        theme: ThemeData.light(),
 
-      home:  WelcomePage(),
-      routes:
+        home:  WelcomePage(),
+        routes:
         {
           "LandingPage":(context)=>LandingPage(),
           "MyAnnounces":(context)=>MyAnnounces(),
@@ -51,6 +58,7 @@ class MyApp extends StatelessWidget {
         }
 
 
+    )
     );
   }
 }

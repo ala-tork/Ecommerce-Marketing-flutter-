@@ -1,0 +1,14 @@
+{
+    "language":"English",
+    "@language":{
+        "description":"The Current Language"
+    },
+    "profile": "Profile",
+    "@profile":{
+        "description" : "A programmer greeting"
+    },
+    "announcements": "Announcements",
+    "@announcements":{
+        "description" : "A programmer greeting"
+    }
+}

@@ -1,3 +1,4 @@
+import 'package:ecommerceversiontwo/ApiPaths.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -6,7 +7,7 @@ import 'package:ecommerceversiontwo/Pages/core/model/BoostModules/Boost.dart';
 class BoostService{
 
   Future<List<Boost>> GetAllBoosts() async {
-    final String apiUrl = "https://10.0.2.2:7058/api/Boost";
+    final String apiUrl = "${ApiPaths().GetBoostUrl}";
     try {
       final response = await http.get(Uri.parse(apiUrl));
       if (response.statusCode == 200) {

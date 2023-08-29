@@ -288,7 +288,7 @@ class _GridDealsState extends State<GridDeals> {
                                   color: Colors.green,
                                 ),
                               ),
-                            if (gridMap[index].discount! == null)
+                            if (gridMap[index].discount! == 0)
                               Text(
                                 "${gridMap[index].price} DT",
                                 style: TextStyle(

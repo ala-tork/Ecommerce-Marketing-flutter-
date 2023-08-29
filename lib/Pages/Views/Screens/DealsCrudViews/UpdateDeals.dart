@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:ecommerceversiontwo/ApiPaths.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/MyAppBAr.dart';
@@ -107,10 +106,13 @@ class _UpdateDealsState extends State<UpdateDeals> {
   }
 
   Future<PrizeModel> AddPrize() async {
+    int iduser = await getuserId();
     PrizeModel prize = PrizeModel(
         title: prizeTitle!.text,
         description: prizeDescription!.text,
         image: _Prizeimagesid!.title!,
+        datePrize: EndDate.text,
+        idUser:iduser,
         active: 1);
     try {
       PrizeModel newprize = await PrizeService().AddPrize(prize);
@@ -185,6 +187,7 @@ class _UpdateDealsState extends State<UpdateDeals> {
     if (CategoryId != 0 &&
         _country != null &&
         _city != null &&
+        _brand!=null &&
         _imagesid.length != 0) {
       deals = CreateDealsModel(
         title: title.text,
@@ -209,6 +212,8 @@ class _UpdateDealsState extends State<UpdateDeals> {
         deals!.idPrize = DealsPrize!.idPrize;
       } else if (widget.deal!.idPrize != null) {
         deals!.idPrize = widget.deal!.idPrize;
+      }if(widget.deal!.idBoost!=null){
+        deals!.idBoost=widget.deal!.idBoost;
       }
       setState(() {
         error = "";
@@ -899,9 +904,11 @@ class _UpdateDealsState extends State<UpdateDeals> {
                                                       ))
                                                   .toList(),
                                               onChanged: (BrandsModel? b) {
-                                                setState(() {
-                                                  _brand = b;
-                                                });
+                                                if(b!.idBrand!=1){
+                                                  setState(() {
+                                                    _brand = b;
+                                                  });
+                                                }
                                               },
                                               icon: Icon(
                                                   Icons.branding_watermark),
@@ -1512,17 +1519,9 @@ class _UpdateDealsState extends State<UpdateDeals> {
                           color: Colors.indigo,
                           onPressed: () async {
                             if (_DealsFormKey.currentState!.validate()) {
-                              print("////////////////////////// $DealsPrize");
-                              print("////////////////////////// $_Prizeimage");
-                              print("////////////////////////// $prizeTitle");
-                              print(
-                                  "////////////////////////// $prizeDescription");
                               if (DealsPrize == null &&
-                                  (_Prizeimage != null ||
-                                      (prizeTitle != null &&
-                                          prizeTitle!.text.isNotEmpty) ||
-                                      (prizeDescription != null &&
-                                          prizeDescription!.text.isNotEmpty))) {
+                                  (_Prizeimage != null || (prizeTitle != null && prizeTitle!.text.isNotEmpty)
+                                      || (prizeDescription != null && prizeDescription!.text.isNotEmpty))) {
                                 if (_PrizeformKey!.currentState!.validate()) {
                                   if (_Prizeimagesid != null &&
                                       CategoryId != 0 &&

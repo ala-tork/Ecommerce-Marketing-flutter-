@@ -1,3 +1,4 @@
+import 'package:ecommerceversiontwo/ApiPaths.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/WishListModel.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -7,7 +8,7 @@ class WishListService{
 
   Future<WishListModel> AddAnnouceToWishList(WishListModel w) async {
 
-    final apiUrl = 'https://10.0.2.2:7058/api/WishList/add';
+    final apiUrl = '${ApiPaths().AddToWishlistUrl}';
     try {
       final encodedData = w.toJson();
       final response = await http.post(
@@ -33,7 +34,7 @@ class WishListService{
 
 
   Future<bool> deleteFromWishList(int id) async {
-    final String apiUrl = "https://10.0.2.2:7058/api/WishList/$id";
+    final String apiUrl = "${ApiPaths().DeleteFromWishListUrl}$id";
     try {
       final response = await http.delete(Uri.parse(apiUrl),);
       if (response.statusCode == 200) {
@@ -49,7 +50,7 @@ class WishListService{
   }
 
 
-  Future<List<WishListModel>> GetAllWishListByUser(int idUser) async {
+/*  Future<List<WishListModel>> GetAllWishListByUser(int idUser) async {
     final String apiUrl = "https://10.0.2.2:7058/api/WishList/GEtWishListByUser/$idUser";
     try {
       final response = await http.get(Uri.parse(apiUrl));
@@ -68,13 +69,13 @@ class WishListService{
       print("Error Fetching WishList By User: $e");
       throw Exception("Error fetching wishlist: $e");
     }
-  }
+  }*/
 
   Future<Map<String, dynamic>> GetWishListByUser(int idUser,int page,int pagesize) async {
     try {
 
       final response = await http.get(
-        Uri.parse("https://10.0.2.2:7058/api/WishList/GEtWishListByUser/${idUser}?page=${page}&pageSize=${pagesize}"),
+        Uri.parse("${ApiPaths().GetWishListByUserIdUrl}${idUser}?page=${page}&pageSize=${pagesize}"),
         headers: {'Content-Type': 'application/json'},
       );
       print(response.body);

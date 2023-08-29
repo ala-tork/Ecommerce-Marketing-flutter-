@@ -21,6 +21,7 @@ import 'package:ecommerceversiontwo/Pages/core/services/FeaturesServices/Feature
 import 'package:ecommerceversiontwo/Pages/core/services/FeaturesValuesServices/FeaturesValuesService.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/ImageServices/ImageService.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -35,13 +36,14 @@ class EditeAnnounce extends StatefulWidget {
 }
 
 class _EditeAnnounceState extends State<EditeAnnounce> {
-  final formstate = GlobalKey<FormState>();
+  GlobalKey<FormState> _AdsFormKey = GlobalKey<FormState>();
   TextEditingController title = new TextEditingController();
   TextEditingController price = new TextEditingController();
   TextEditingController description = new TextEditingController();
   TextEditingController details = new TextEditingController();
   TextEditingController images = new TextEditingController();
-  bool? boost;
+
+  //bool? boost;
 
   // category variabales
   List<CategoriesModel> _categorys = [];
@@ -108,6 +110,9 @@ class _EditeAnnounceState extends State<EditeAnnounce> {
         IdUser: userid,
         active: 1,
       );
+      if (widget.announce!.IdBoost != null) {
+        announce!.IdBoost = widget.announce!.IdBoost;
+      }
       error = "";
     } else {
       error = "pleace complete all the form ";
@@ -413,7 +418,7 @@ class _EditeAnnounceState extends State<EditeAnnounce> {
             // create a form
             Container(
               child: Form(
-                  key: formstate,
+                  key: _AdsFormKey,
                   child: Column(
                     children: [
                       Padding(
@@ -426,6 +431,12 @@ class _EditeAnnounceState extends State<EditeAnnounce> {
                                     BorderSide(width: 2, color: Colors.indigo),
                               ),
                               hintText: "title"),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Title is required';
+                            }
+                            return null;
+                          },
                         ),
                       ),
                       Padding(
@@ -441,22 +452,33 @@ class _EditeAnnounceState extends State<EditeAnnounce> {
                           keyboardType: TextInputType.multiline,
                           minLines: 1,
                           maxLines: 2,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Description is required';
+                            }
+                            return null;
+                          },
                         ),
                       ),
                       Padding(
                         padding: const EdgeInsets.fromLTRB(10, 18.0, 10, 3),
                         child: TextFormField(
-                          controller: details,
-                          decoration: InputDecoration(
-                              enabledBorder: OutlineInputBorder(
-                                borderSide:
-                                    BorderSide(width: 2, color: Colors.indigo),
-                              ),
-                              hintText: "Details"),
-                          keyboardType: TextInputType.multiline,
-                          minLines: 1,
-                          maxLines: 3,
-                        ),
+                            controller: details,
+                            decoration: InputDecoration(
+                                enabledBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                      width: 2, color: Colors.indigo),
+                                ),
+                                hintText: "Details"),
+                            keyboardType: TextInputType.multiline,
+                            minLines: 1,
+                            maxLines: 3,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Details is required';
+                              }
+                              return null;
+                            }),
                       ),
                       Padding(
                         padding: const EdgeInsets.fromLTRB(10, 18.0, 10, 3),
@@ -464,15 +486,24 @@ class _EditeAnnounceState extends State<EditeAnnounce> {
                           controller: price,
                           keyboardType:
                               TextInputType.numberWithOptions(decimal: true),
+                          inputFormatters: <TextInputFormatter>[
+                            FilteringTextInputFormatter.allow(
+                                RegExp(r'^\d+\.?\d{0,2}$')),
+                          ],
                           decoration: InputDecoration(
-                              enabledBorder: OutlineInputBorder(
-                                borderSide:
-                                    BorderSide(width: 2, color: Colors.indigo),
-                              ),
-                              contentPadding:
-                                  EdgeInsets.symmetric(vertical: 20),
-                              //label: ,
-                              hintText: "price "),
+                            enabledBorder: OutlineInputBorder(
+                              borderSide:
+                                  BorderSide(width: 2, color: Colors.indigo),
+                            ),
+                            contentPadding: EdgeInsets.symmetric(vertical: 20),
+                            hintText: "Price",
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Price is required';
+                            }
+                            return null;
+                          },
                         ),
                       ),
                       SizedBox(
@@ -840,7 +871,7 @@ class _EditeAnnounceState extends State<EditeAnnounce> {
                               // Handle the error case
                               return Text('Failed to fetch data');
                             } else {
-                              return                       Column(
+                              return Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
@@ -862,7 +893,8 @@ class _EditeAnnounceState extends State<EditeAnnounce> {
                                               setState(() {
                                                 f.selected = x as bool;
                                                 indexOfFeature = index;
-                                                FeatureId = int.parse(f.idF.toString());
+                                                FeatureId =
+                                                    int.parse(f.idF.toString());
                                                 fetchFeaturesValues(FeatureId);
                                               });
                                             },
@@ -871,39 +903,55 @@ class _EditeAnnounceState extends State<EditeAnnounce> {
                                             ...f.valuesList!
                                                 .map(
                                                   (fv) => Container(
-                                                padding: EdgeInsets.symmetric(vertical: 5),
-                                                child: Row(
-                                                  mainAxisAlignment: MainAxisAlignment.center,
-                                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                                  children: [
-                                                    Expanded(
-                                                      child: Row(
-                                                        mainAxisAlignment: MainAxisAlignment.center,
-                                                        crossAxisAlignment: CrossAxisAlignment.center,
-                                                        children: [
-                                                          Radio(
-                                                            value: fv.idFv,
-                                                            groupValue: f.value,
-                                                            onChanged: (value) {
-                                                              setState(() {
-                                                                f.value = value;
-                                                                //print(featuresvalues);
-                                                              });
-                                                            },
+                                                    padding:
+                                                        EdgeInsets.symmetric(
+                                                            vertical: 5),
+                                                    child: Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .center,
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .center,
+                                                      children: [
+                                                        Expanded(
+                                                          child: Row(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .center,
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .center,
+                                                            children: [
+                                                              Radio(
+                                                                value: fv.idFv,
+                                                                groupValue:
+                                                                    f.value,
+                                                                onChanged:
+                                                                    (value) {
+                                                                  setState(() {
+                                                                    f.value =
+                                                                        value;
+                                                                    //print(featuresvalues);
+                                                                  });
+                                                                },
+                                                              ),
+                                                              Text(
+                                                                fv.title
+                                                                    .toString(),
+                                                                style:
+                                                                    TextStyle(
+                                                                  fontSize:
+                                                                      17.0,
+                                                                ),
+                                                              ),
+                                                            ],
                                                           ),
-                                                          Text(
-                                                            fv.title.toString(),
-                                                            style: TextStyle(
-                                                              fontSize: 17.0,
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
+                                                        ),
+                                                      ],
                                                     ),
-                                                  ],
-                                                ),
-                                              ),
-                                            )
+                                                  ),
+                                                )
                                                 .toList(),
                                           SizedBox(height: 30),
                                         ],
@@ -926,30 +974,33 @@ class _EditeAnnounceState extends State<EditeAnnounce> {
                           textColor: Colors.white,
                           color: Colors.indigo,
                           onPressed: () async {
-                            await getuserId().then((value) {
-                              createAnnounceObject(value);
-                            });
-                            if (error!.isNotEmpty) {
-                              print(error);
+                            if (_AdsFormKey.currentState!.validate()) {
+                              await getuserId().then((value) {
+                                createAnnounceObject(value);
+                              });
+                              if (error!.isNotEmpty) {
+                                print(error);
 
-                              AwesomeDialog(
-                                  context: context,
-                                  dialogBackgroundColor: Colors.teal[100],
-                                  dialogType: DialogType.warning,
-                                  animType: AnimType.topSlide,
-                                  title: "Error !",
-                                  descTextStyle: TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold),
-                                  desc: error.toString(),
-                                  btnCancelColor: Colors.grey,
-                                  btnCancelOnPress: () {},
-                                  btnOkOnPress: () {
-                                    error = "";
-                                  }).show();
-                            } else {
-                              var res = await UpdateAnnounce();
-                              Navigator.pop(context, {'updatedAnnounce': res});
+                                AwesomeDialog(
+                                    context: context,
+                                    dialogBackgroundColor: Colors.teal[100],
+                                    dialogType: DialogType.warning,
+                                    animType: AnimType.topSlide,
+                                    title: "Error !",
+                                    descTextStyle: TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold),
+                                    desc: error.toString(),
+                                    btnCancelColor: Colors.grey,
+                                    btnCancelOnPress: () {},
+                                    btnOkOnPress: () {
+                                      error = "";
+                                    }).show();
+                              } else {
+                                var res = await UpdateAnnounce();
+                                Navigator.pop(
+                                    context, {'updatedAnnounce': res});
+                              }
                             }
                           },
                           child: Text(

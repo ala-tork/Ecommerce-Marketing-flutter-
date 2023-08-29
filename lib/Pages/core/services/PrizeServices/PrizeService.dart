@@ -1,3 +1,4 @@
+import 'package:ecommerceversiontwo/ApiPaths.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/PrizesModels/Prize.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -5,7 +6,7 @@ import 'dart:convert';
 class PrizeService{
 
   Future<PrizeModel> GetPrizeById(int idPrize) async {
-    final String apiUrl = "https://10.0.2.2:7058/api/Prize/$idPrize";
+    final String apiUrl = "${ApiPaths().GetPrizeByIdUrl}$idPrize";
     try {
       final response = await http.get(Uri.parse(apiUrl));
       if (response.statusCode == 200) {
@@ -23,7 +24,7 @@ class PrizeService{
 
   Future<PrizeModel> AddPrize(PrizeModel p) async {
 
-    final apiUrl = 'https://10.0.2.2:7058/api/Prize';
+    final apiUrl = '${ApiPaths().AddPrizeUrl}';
     try {
       final encodedData = p.toJson();
       print(encodedData);
@@ -49,7 +50,7 @@ class PrizeService{
 
   Future<bool> deleteDealsPrize(int id) async {
     print(id);
-    final String apiUrl = "https://10.0.2.2:7058/api/Prize/$id";
+    final String apiUrl = "${ApiPaths().DeletePrizeUrl}$id";
     try {
       final response = await http.delete(Uri.parse(apiUrl),);
       print("//////////////// ${response.body}");
@@ -65,7 +66,7 @@ class PrizeService{
     }
   }
   Future<PrizeModel> UpdatePrize(PrizeModel prize,int idPrize) async{
-    final apiUrl = 'https://10.0.2.2:7058/api/Prize?idprize=$idPrize';
+    final apiUrl = '${ApiPaths().UpdatePrizeUrl}$idPrize';
     try{
       final encodedData = prize.toJson();
       print(encodedData);
