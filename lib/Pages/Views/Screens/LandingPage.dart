@@ -3,6 +3,7 @@ import 'package:ecommerceversiontwo/Pages/Views/Screens/BottomBar/DealsBotomBar/
 import 'package:ecommerceversiontwo/Pages/Views/Screens/BottomBar/store.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/HomePage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class LandingPage extends StatefulWidget {
   const LandingPage({super.key});
@@ -62,7 +63,7 @@ class _LandingPageState extends State<LandingPage> {
                       children: [
                         Icon(Icons.home,color: currentTab==0?Colors.indigo:Colors.grey,),
                         Text(
-                          "Dashbord",
+                          AppLocalizations.of(context)!.reception,
                           style: TextStyle(
                               color: currentTab==0?Colors.indigo:Colors.grey
                           ),
@@ -85,7 +86,7 @@ class _LandingPageState extends State<LandingPage> {
                       children: [
                         Icon(Icons.person,color: currentTab==1 ?Colors.indigo:Colors.grey,),
                         Text(
-                          "Deals",
+                          AppLocalizations.of(context)!.deals,
                           style: TextStyle(
                               color: currentTab==1 ?Colors.indigo:Colors.grey
                           ),
@@ -112,7 +113,7 @@ class _LandingPageState extends State<LandingPage> {
                       children: [
                         Icon(Icons.storefront_outlined,color: currentTab==2?Colors.indigo[400]:Colors.grey,),
                         Text(
-                          "Stor",
+                          AppLocalizations.of(context)!.store,
                           style: TextStyle(
                               color: currentTab==2?Colors.indigo[400]:Colors.grey
                           ),
@@ -135,7 +136,7 @@ class _LandingPageState extends State<LandingPage> {
                       children: [
                         Icon(Icons.announcement_rounded,color: currentTab==3?Colors.indigo[400]:Colors.grey,),
                         Text(
-                          "Announce",
+                          AppLocalizations.of(context)!.announcements,
                           style: TextStyle(
                               color: currentTab==3?Colors.indigo[400]:Colors.grey
                           ),

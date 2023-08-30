@@ -1,16 +1,13 @@
-import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:ecommerceversiontwo/ApiPaths.dart';
-import 'package:ecommerceversiontwo/Pages/Views/Screens/messagePage.dart';
-import 'package:ecommerceversiontwo/Pages/Views/Screens/profile/ProfileProvider.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/profile/UpdateProfile.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/AppBarWithArrowBack.dart';
-import 'package:ecommerceversiontwo/Pages/Views/widgets/custom_icon_button_widget.dart';
 import 'package:ecommerceversiontwo/Pages/app_color.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/CountriesModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/UserModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/CountriesServices/CountryService.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 
 class Profile extends StatefulWidget {
   final int id;
@@ -93,7 +90,7 @@ class _ProfileState extends State<Profile> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBarWithArrowBack(),
+      appBar: AppBarWithArrowBack(title:AppLocalizations.of(context)!.profile),
       body:FutureBuilder<User>(
         future: GetUser(),
     builder: (BuildContext context, AsyncSnapshot<User> snapshot) {
@@ -185,7 +182,7 @@ class _ProfileState extends State<Profile> {
                                 mainAxisSize: MainAxisSize.min,
                                 children: <Widget>[
                                   Text(
-                                    'Personal Information',
+                                    AppLocalizations.of(context)!.personal_Information,
                                     style: TextStyle(
                                       fontSize: 18.0,
                                       fontWeight: FontWeight.bold,
@@ -230,7 +227,7 @@ class _ProfileState extends State<Profile> {
                                 mainAxisSize: MainAxisSize.min,
                                 children: <Widget>[
                                   Text(
-                                    'FirstName',
+                                    AppLocalizations.of(context)!.firstName,
                                     style: TextStyle(
                                       fontSize: 16.0,
                                       fontWeight: FontWeight.bold,
@@ -255,7 +252,7 @@ class _ProfileState extends State<Profile> {
                                   controller: _firstnameController,
                                   decoration: InputDecoration(
                                     hintText: firstname.isEmpty
-                                        ? "Enter Firstname"
+                                        ? AppLocalizations.of(context)!.enter_Firstname
                                         : firstname,
                                   ),
                                   enabled: !_status,
@@ -281,7 +278,7 @@ class _ProfileState extends State<Profile> {
                                 mainAxisSize: MainAxisSize.min,
                                 children: <Widget>[
                                   Text(
-                                    'LastName',
+                                    AppLocalizations.of(context)!.lastName,
                                     style: TextStyle(
                                       fontSize: 16.0,
                                       fontWeight: FontWeight.bold,
@@ -306,7 +303,7 @@ class _ProfileState extends State<Profile> {
                                   controller: _lastnameController,
                                   decoration: InputDecoration(
                                     hintText: lastname.isEmpty
-                                        ? "Enter Lastname"
+                                        ? AppLocalizations.of(context)!.enter_Lastname
                                         : lastname,
                                   ),
                                   enabled: !_status,
@@ -331,7 +328,7 @@ class _ProfileState extends State<Profile> {
                                 mainAxisSize: MainAxisSize.min,
                                 children: <Widget>[
                                   Text(
-                                    'Email',
+                                    AppLocalizations.of(context)!.email,
                                     style: TextStyle(
                                       fontSize: 16.0,
                                       fontWeight: FontWeight.bold,
@@ -356,7 +353,7 @@ class _ProfileState extends State<Profile> {
                                   controller: _emailController,
                                   decoration: InputDecoration(
                                     hintText:
-                                        email.isEmpty ? "Enter Email " : email,
+                                        email.isEmpty ? AppLocalizations.of(context)!.enter_Email : email,
                                   ),
                                   enabled: !_status,
                                 ),
@@ -380,7 +377,7 @@ class _ProfileState extends State<Profile> {
                                 mainAxisSize: MainAxisSize.min,
                                 children: <Widget>[
                                   Text(
-                                    'Mobile',
+                                    AppLocalizations.of(context)!.mobile,
                                     style: TextStyle(
                                       fontSize: 16.0,
                                       fontWeight: FontWeight.bold,
@@ -405,7 +402,7 @@ class _ProfileState extends State<Profile> {
                                   controller: _phoneController,
                                   decoration: InputDecoration(
                                     hintText: phone.isEmpty
-                                        ? "Enter Mobile Number"
+                                        ? AppLocalizations.of(context)!.enter_phone_Number
                                         : phone,
                                   ),
                                   enabled: !_status,
@@ -430,7 +427,7 @@ class _ProfileState extends State<Profile> {
                                 mainAxisSize: MainAxisSize.min,
                                 children: <Widget>[
                                   Text(
-                                    'Address',
+                                    AppLocalizations.of(context)!.address,
                                     style: TextStyle(
                                       fontSize: 16.0,
                                       fontWeight: FontWeight.bold,
@@ -455,7 +452,7 @@ class _ProfileState extends State<Profile> {
                                   controller: _addressController,
                                   decoration: InputDecoration(
                                     hintText: address.isEmpty
-                                        ? "Enter Address"
+                                        ? AppLocalizations.of(context)!.enter_Address
                                         : address,
                                   ),
                                   enabled: !_status,
@@ -481,7 +478,7 @@ class _ProfileState extends State<Profile> {
                                 mainAxisSize: MainAxisSize.min,
                                 children: <Widget>[
                                   Text(
-                                    'Country',
+                                    AppLocalizations.of(context)!.country,
                                     style: TextStyle(
                                       fontSize: 16.0,
                                       fontWeight: FontWeight.bold,
@@ -506,7 +503,7 @@ class _ProfileState extends State<Profile> {
                                     controller: _addressController,
                                     decoration: InputDecoration(
                                       hintText: country.isEmpty
-                                          ? "Enter Your COuntry"
+                                          ? AppLocalizations.of(context)!.enter_Your_Country
                                           : country,
                                     ),
                                     enabled: !_status,

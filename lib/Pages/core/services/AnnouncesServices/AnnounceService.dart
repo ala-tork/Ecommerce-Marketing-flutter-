@@ -115,11 +115,11 @@ class AnnounceService{
     }
   }
 
-  Future<Map<String, dynamic>> GetAdsByUser(int idUser,int page,String token) async {
+  Future<Map<String, dynamic>> GetAdsByUser(int idUser,int page,int pagesize,String token) async {
     try {
 
       final response = await http.get(
-        Uri.parse("${ApiPaths().GetAdsByUserUrl}${idUser}&page=${page}"),
+        Uri.parse("${ApiPaths().GetAdsByUserUrl}${idUser}&page=${page}&pageSize=$pagesize"),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',

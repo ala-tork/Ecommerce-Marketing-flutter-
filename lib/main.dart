@@ -1,64 +1,93 @@
 import 'dart:io';
-import 'package:ecommerceversiontwo/Pages/Views/Screens/AnnouncesCRUD/EditeAnnounce.dart';
-import 'package:ecommerceversiontwo/Pages/Views/Screens/AnnouncesCRUD/MyAnnouncesList.dart';
+import 'package:ecommerceversiontwo/LocalProvider.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/DealsCrudViews/AddDeals.dart';
+import 'package:ecommerceversiontwo/l10n/l10n.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:ecommerceversiontwo/Pages/Views/Screens/AnnouncesCRUD/MyAnnouncesList.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/DealsCrudViews/MyDealsList.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/LandingPage.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/WelcomePage.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/profile/ProfileProvider.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/myhttpoverrides.dart';
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'Pages/Views/Screens/AnnouncesCRUD/AddAnnounce.dart';
+import 'package:ecommerceversiontwo/Pages/Views/Screens/AnnouncesCRUD/AddAnnounce.dart';
 
-void main() async{
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   HttpOverrides.global = MyHttpOverrides();
-  /** affect the sharedPrefirence of the boosted Silde SHow */
-  void AffectFalseToSlideShow() async{
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setBool('boostedSlideDialogShown', false);
-    prefs.setBool('Rules', false);
-  }
-  AffectFalseToSlideShow();
 
-  runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider<LocalProvider>(
+      create: (_) => LocalProvider(),
+      child: Consumer<LocalProvider>(
+        builder: (context, localProvider, _) {
+          return MaterialApp(
+            locale: localProvider.locale,
+            supportedLocales: L10n.all,
+            localizationsDelegates: [
+              AppLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+            ],
+            home: MyApp(),
+          );
+        },
+      ),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
-  // This widget is the root of your application.
+  void affectFalseToSlideShow() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setBool('boostedSlideDialogShown', false);
+    prefs.setBool('Rules', false);
+  }
+
   @override
   Widget build(BuildContext context) {
+    affectFalseToSlideShow();
+
     return MultiProvider(
-        providers: [
-          ChangeNotifierProvider<UserProfileProvider>(
-            create: (context) => UserProfileProvider(),
-          ),
-          // Add other providers here if needed
-        ],
-    child: MaterialApp(
+      providers: [
+        ChangeNotifierProvider<LocalProvider>(
+          create: (context) => LocalProvider(),
+        ),
+        // Add other providers here if needed
+      ],
+      child: Consumer<LocalProvider>(
+        builder: (context, localProvider, _) {
+          final locale = localProvider.locale;
 
-        debugShowCheckedModeBanner: false,
-        title: 'Flutter Demo',
-        theme: ThemeData.light(),
-
-        home:  WelcomePage(),
-        routes:
-        {
-          "LandingPage":(context)=>LandingPage(),
-          "MyAnnounces":(context)=>MyAnnounces(),
-          "AddAnnounce": (context) => AddAnnounces(),
-          "EditeAnnounce": (context) => EditeAnnounce(),
-          //"WishList": (context)=>WishList(int userid),
-          "MyDeals" : (context)=>MyDeals(),
-          "AddDeals" : (context)=>AddDeals(),
-        }
-
-
-    )
+          return MaterialApp(
+            locale: locale,
+            supportedLocales: L10n.all,
+            localizationsDelegates: [
+              AppLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+            ],
+            debugShowCheckedModeBanner: false,
+            title: 'Flutter Demo',
+            theme: ThemeData.light(),
+            home: WelcomePage(),
+            routes: {
+              "LandingPage": (context) => LandingPage(),
+              "MyAnnounces": (context) => MyAnnounces(),
+              "AddAnnounce": (context) => AddAnnounces(),
+              "MyDeals": (context) => MyDeals(),
+              "AddDeals": (context) => AddDeals(),
+            },
+          );
+        },
+      ),
     );
   }
 }

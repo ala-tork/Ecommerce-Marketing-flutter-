@@ -19,6 +19,7 @@ import 'package:lecle_flutter_carousel_pro/lecle_flutter_carousel_pro.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../widgets/custom_icon_button_widget.dart';
 import '../../messagePage.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class Deals extends StatefulWidget {
   const Deals({super.key});
@@ -238,7 +239,7 @@ class _DealsState extends State<Deals> {
         iconTheme: IconThemeData(color: Colors.white),
         backgroundColor: Colors.indigo,
         title: Text(
-          "Deals",
+          AppLocalizations.of(context)!.deals,
           style: TextStyle(color: Colors.white),
         ),
         centerTitle: true,
@@ -293,7 +294,7 @@ class _DealsState extends State<Deals> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text("Winners Of The Month",
+                  Text(AppLocalizations.of(context)!.winners,
                   style: TextStyle(
                     color: Colors.black,
                     fontSize: 26,
@@ -394,7 +395,7 @@ class _DealsState extends State<Deals> {
                           color: Colors.indigo,
                           size: 30,
                         )),
-                    Text('Filter')
+                    Text(AppLocalizations.of(context)!.filter)
                   ],
                 ),
               ],

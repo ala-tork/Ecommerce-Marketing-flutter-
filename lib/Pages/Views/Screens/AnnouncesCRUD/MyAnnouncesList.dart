@@ -39,8 +39,8 @@ class _MyAnnouncesState extends State<MyAnnounces> {
     try {
       SharedPreferences prefs =  await SharedPreferences.getInstance();
       String? token = prefs.getString('token');
-      Map<String, dynamic> response =
-          await AnnounceService().GetAdsByUser(iduser, page,token!);
+      int pagesize=4;
+      Map<String, dynamic> response = await AnnounceService().GetAdsByUser(iduser, page,pagesize,token!);
 
       if (response["listAds"] != null) {
         List<dynamic> adsJsonList = response["listAds"];

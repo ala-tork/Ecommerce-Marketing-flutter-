@@ -2,16 +2,15 @@ import 'package:ecommerceversiontwo/ApiPaths.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/DealsCrudViews/MyDealsList.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/LoginPage.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/profile/Profile.dart';
-import 'package:ecommerceversiontwo/Pages/Views/Screens/profile/ProfileDetails.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/wishlist.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/UserModel.dart';
 import 'package:ecommerceversiontwo/language_picker_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/products/productList.dart';
-import 'package:ecommerceversiontwo/Pages/Views/Screens/profile/profileScreen.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class SideBar extends StatefulWidget {
   const SideBar({Key? key}) : super(key: key);
@@ -71,9 +70,6 @@ class _SideBarState extends State<SideBar> {
 
   @override
   Widget build(BuildContext context) {
-
-
-
     return Drawer(
         child: FutureBuilder<User>(
             future: GetUser(),
@@ -118,8 +114,8 @@ class _SideBarState extends State<SideBar> {
                     ListTile(
                       leading: Icon(Icons.account_circle_outlined),
                       title: Text(
-                        "Profile",
-
+                        //"Profile",
+                        AppLocalizations.of(context)!.profile,
                         style: TextStyle(
                           fontSize: 18.0,
                         ),
@@ -143,7 +139,7 @@ class _SideBarState extends State<SideBar> {
                     ListTile(
                       leading: Icon(Icons.shopping_bag_outlined),
                       title: Text(
-                        "Commande Vente",
+                        AppLocalizations.of(context)!.sales_Orders,
                         style: TextStyle(
                           fontSize: 18.0,
                         ),
@@ -153,7 +149,7 @@ class _SideBarState extends State<SideBar> {
                     ListTile(
                       leading: Icon(Icons.shopping_cart_outlined),
                       title: Text(
-                        "Commande d'achat",
+                        AppLocalizations.of(context)!.purchase_orders,
                         style: TextStyle(
                           fontSize: 18.0,
                         ),
@@ -163,7 +159,7 @@ class _SideBarState extends State<SideBar> {
                     ListTile(
                       leading: Icon(Icons.list_alt),
                       title: Text(
-                        "My Announces",
+                        AppLocalizations.of(context)!.my_Announces,
                         style: TextStyle(
                           fontSize: 18.0,
                         ),
@@ -175,7 +171,7 @@ class _SideBarState extends State<SideBar> {
                     ListTile(
                       leading: Icon(Icons.list_alt),
                       title: Text(
-                        "My Deals",
+                        AppLocalizations.of(context)!.my_Deals,
                         style: TextStyle(
                           fontSize: 18.0,
                         ),
@@ -192,7 +188,7 @@ class _SideBarState extends State<SideBar> {
                     ListTile(
                       leading: Icon(Icons.list_alt),
                       title: Text(
-                        "My Products",
+                        AppLocalizations.of(context)!.my_Products,
                         style: TextStyle(
                           fontSize: 18.0,
                         ),
@@ -213,7 +209,7 @@ class _SideBarState extends State<SideBar> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            "My Favorits",
+                            AppLocalizations.of(context)!.my_Favorites,
                             style: TextStyle(
                               fontSize: 18.0,
                             ),
@@ -239,11 +235,11 @@ class _SideBarState extends State<SideBar> {
                         );
                       },
                     ),
-                    SizedBox(height: 100.0),
+                    SizedBox(height: 50.0),
                     ListTile(
                       leading: Icon(Icons.settings),
                       title: Text(
-                        "parametre",
+                        AppLocalizations.of(context)!.setting,
                         style: TextStyle(
                           fontSize: 18.0,
                         ),
@@ -253,7 +249,7 @@ class _SideBarState extends State<SideBar> {
                     ListTile(
                       leading: Icon(Icons.exit_to_app_outlined),
                       title: Text(
-                        "Déconnexion",
+                        AppLocalizations.of(context)!.logout,
                         style: TextStyle(
                           fontSize: 18.0,
                         ),
@@ -267,7 +263,9 @@ class _SideBarState extends State<SideBar> {
                           ),
                         );
                       },
+
                     ),
+                    LanguagePickerWidget()
                   ],
                 );
               }

@@ -135,11 +135,11 @@ class DealsService{
     }
   }
 
-  Future<Map<String, dynamic>> GetDealsByUser(int idUser,int page) async {
+  Future<Map<String, dynamic>> GetDealsByUser(int idUser,int page, int pagesize) async {
     try {
 
       final response = await http.get(
-        Uri.parse("${ApiPaths().GetDealsByUserIdUrl}${idUser}?page=${page}"),
+        Uri.parse("${ApiPaths().GetDealsByUserIdUrl}${idUser}?page=${page}&pageSize=$pagesize"),
         headers: {'Content-Type': 'application/json'},
       );
       print(response.body);

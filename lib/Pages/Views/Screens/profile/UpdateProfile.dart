@@ -5,6 +5,7 @@ import 'package:ecommerceversiontwo/Pages/core/services/CountriesServices/Countr
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class UpdateProfile extends StatefulWidget {
   final int id;
@@ -109,7 +110,7 @@ class _UpdateProfileState extends State<UpdateProfile> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBarWithArrowBack(),
+      appBar: AppBarWithArrowBack(title:AppLocalizations.of(context)!.update_Profile),
       body : Container(
         color: Colors.white,
         child: ListView(
@@ -140,7 +141,7 @@ class _UpdateProfileState extends State<UpdateProfile> {
                                 mainAxisSize: MainAxisSize.min,
                                 children: <Widget>[
                                   Text(
-                                    'Update Personal Information',
+                                    AppLocalizations.of(context)!.update_Personal_Information,
                                     style: TextStyle(
                                       fontSize: 22.0,
                                       fontWeight: FontWeight.bold,
@@ -165,7 +166,7 @@ class _UpdateProfileState extends State<UpdateProfile> {
                                 mainAxisSize: MainAxisSize.min,
                                 children: <Widget>[
                                   Text(
-                                    'FirstName',
+                                    AppLocalizations.of(context)!.firstName,
                                     style: TextStyle(
                                       fontSize: 16.0,
                                       fontWeight: FontWeight.bold,
@@ -189,7 +190,9 @@ class _UpdateProfileState extends State<UpdateProfile> {
                                 child: TextField(
                                   controller: _firstnameController,
                                   decoration: InputDecoration(
-                                    hintText: firstname.isEmpty ? "Enter Firstname" : firstname,
+                                    hintText: firstname.isEmpty ?
+                                    AppLocalizations.of(context)!.enter_Firstname
+                                        : firstname,
                                   ),
 
                                 ),
@@ -213,7 +216,7 @@ class _UpdateProfileState extends State<UpdateProfile> {
                                 mainAxisSize: MainAxisSize.min,
                                 children: <Widget>[
                                   Text(
-                                    'LastName',
+                                    AppLocalizations.of(context)!.lastName,
                                     style: TextStyle(
                                       fontSize: 16.0,
                                       fontWeight: FontWeight.bold,
@@ -237,7 +240,9 @@ class _UpdateProfileState extends State<UpdateProfile> {
                                 child: TextField(
                                   controller: _lastnameController,
                                   decoration: InputDecoration(
-                                    hintText: lastname.isEmpty ? "Enter Lastname" : lastname,
+                                    hintText: lastname.isEmpty ?
+                                    AppLocalizations.of(context)!.enter_Lastname
+                                        : lastname,
                                   ),
                                 ),
                               ),
@@ -259,7 +264,7 @@ class _UpdateProfileState extends State<UpdateProfile> {
                                 mainAxisSize: MainAxisSize.min,
                                 children: <Widget>[
                                   Text(
-                                    'Email',
+                                    AppLocalizations.of(context)!.email,
                                     style: TextStyle(
                                       fontSize: 16.0,
                                       fontWeight: FontWeight.bold,
@@ -283,7 +288,9 @@ class _UpdateProfileState extends State<UpdateProfile> {
                                 child: TextField(
                                   controller: _emailController,
                                   decoration: InputDecoration(
-                                    hintText: email.isEmpty ? "Enter Email " : email,
+                                    hintText: email.isEmpty ?
+                                    AppLocalizations.of(context)!.enter_Email
+                                        : email,
 
                                   ),
                                 ),
@@ -307,7 +314,7 @@ class _UpdateProfileState extends State<UpdateProfile> {
                                 mainAxisSize: MainAxisSize.min,
                                 children: <Widget>[
                                   Text(
-                                    'Mobile',
+                                    AppLocalizations.of(context)!.mobile,
                                     style: TextStyle(
                                       fontSize: 16.0,
                                       fontWeight: FontWeight.bold,
@@ -331,7 +338,9 @@ class _UpdateProfileState extends State<UpdateProfile> {
                                 child: TextField(
                                   controller: _phoneController,
                                   decoration: InputDecoration(
-                                    hintText: phone.isEmpty ? "Enter Mobile Number" : phone,
+                                    hintText: phone.isEmpty ?
+                                    AppLocalizations.of(context)!.enter_phone_Number
+                                        : phone,
                                   ),
                                 ),
                               ),
@@ -354,7 +363,7 @@ class _UpdateProfileState extends State<UpdateProfile> {
                                 mainAxisSize: MainAxisSize.min,
                                 children: <Widget>[
                                   Text(
-                                    'Address',
+                                    AppLocalizations.of(context)!.address,
                                     style: TextStyle(
                                       fontSize: 16.0,
                                       fontWeight: FontWeight.bold,
@@ -378,7 +387,9 @@ class _UpdateProfileState extends State<UpdateProfile> {
                                 child: TextField(
                                   controller: _addressController,
                                   decoration: InputDecoration(
-                                    hintText: address.isEmpty ? "Enter Address" : address,
+                                    hintText: address.isEmpty ?
+                                    AppLocalizations.of(context)!.enter_Address
+                                        : address,
                                   ),
                                 ),
                               ),
@@ -401,7 +412,7 @@ class _UpdateProfileState extends State<UpdateProfile> {
                                 mainAxisSize: MainAxisSize.min,
                                 children: <Widget>[
                                   Text(
-                                    'Country',
+                                    AppLocalizations.of(context)!.country,
                                     style: TextStyle(
                                       fontSize: 16.0,
                                       fontWeight: FontWeight.bold,
@@ -516,7 +527,7 @@ class _UpdateProfileState extends State<UpdateProfile> {
                               ),
                             ),
                             child: Text(
-                              "Save",
+                              AppLocalizations.of(context)!.save,
                               style: TextStyle(color: Colors.white),
                             ),
                           )
@@ -540,7 +551,7 @@ class _UpdateProfileState extends State<UpdateProfile> {
                             ),
                           ),
                           child: Text(
-                            "Cancel",
+                            AppLocalizations.of(context)!.cancel,
                             style: TextStyle(color: Colors.white),
                           ),
                         ),

@@ -39,9 +39,8 @@ class _MyDealsState extends State<MyDeals> {
 //get all Deals by user
   Future<List<DealsModel>> apicall(int iduser) async {
     try {
-      Map<String, dynamic> response =
-          await DealsService().GetDealsByUser(iduser, page);
-
+      int pagesize=4;
+      Map<String, dynamic> response = await DealsService().GetDealsByUser(iduser, page,pagesize);
       if (response["items"] != null) {
         List<dynamic> adsJsonList = response["items"];
         if (page == 0) {

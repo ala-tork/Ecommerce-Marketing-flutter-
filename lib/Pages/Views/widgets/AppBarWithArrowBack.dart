@@ -2,9 +2,12 @@ import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/messagePage.dart';
 import 'package:flutter/material.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/custom_icon_button_widget.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 
 class AppBarWithArrowBack extends StatelessWidget implements PreferredSizeWidget {
-  const AppBarWithArrowBack({Key? key}) : super(key: key);
+  final String title;
+  const AppBarWithArrowBack({Key? key, required this.title}) : super(key: key);
 
   @override
   Size get preferredSize => Size.fromHeight(kToolbarHeight);
@@ -22,7 +25,7 @@ class AppBarWithArrowBack extends StatelessWidget implements PreferredSizeWidget
       iconTheme: IconThemeData(color: Colors.white),
       backgroundColor: Colors.indigo,
       title: Text(
-        "Profile",
+        "$title",
         style: TextStyle(
           color: Colors.white,
         ),

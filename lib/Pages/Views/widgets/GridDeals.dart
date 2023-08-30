@@ -9,6 +9,8 @@ import 'package:ecommerceversiontwo/Pages/core/services/WishListServices/WishLis
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 
 class GridDeals extends StatefulWidget {
   final data;
@@ -138,7 +140,7 @@ class _GridDealsState extends State<GridDeals> {
         crossAxisCount: 1,
         crossAxisSpacing: 10.0,
         mainAxisSpacing: 10.0,
-        mainAxisExtent: 440,
+        mainAxisExtent: 450,
       ),
       itemCount: gridMap.length,
       itemBuilder: (_, index) {
@@ -305,13 +307,13 @@ class _GridDealsState extends State<GridDeals> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            'available until: ${gridMap[index].dateEND}',
+                            '${AppLocalizations.of(context)!.available_until}: ${gridMap[index].dateEND}',
                             style: TextStyle(
                               decoration: TextDecoration.underline,
                               decorationColor: Colors.green,
                               color: Colors.green,
                               fontWeight: FontWeight.w500,
-                              fontSize: 16,
+                              fontSize: 18,
                             ),
                           ),
                         ],
@@ -323,7 +325,8 @@ class _GridDealsState extends State<GridDeals> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'quantity : ${gridMap[index].quantity}',
+                            maxLines: 1,
+                            '${AppLocalizations.of(context)!.quantity} : ${gridMap[index].quantity}',
                             style: TextStyle(
                               color: Colors.black,
                               fontWeight: FontWeight.w400,
@@ -390,7 +393,7 @@ class _GridDealsState extends State<GridDeals> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text("sold out of ${gridMap[index].quantity} ",
+                          Text("${AppLocalizations.of(context)!.sold_out_of} ${gridMap[index].quantity} ",
                           style: TextStyle(
                             fontSize: 17,
                             fontWeight: FontWeight.w500
@@ -398,7 +401,7 @@ class _GridDealsState extends State<GridDeals> {
                         ],
                       ),
                       SizedBox(
-                        height: 8,
+                        height: 5,
                       ),
                       Row(
                         children: [

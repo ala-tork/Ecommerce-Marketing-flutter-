@@ -3,12 +3,40 @@
     "@language":{
         "description":"The Current Language"
     },
-    "profile": "Profile",
-    "@profile":{
-        "description" : "A programmer greeting"
-    },
     "announcements": "Announcements",
-    "@announcements":{
-        "description" : "A programmer greeting"
-    }
+    "store":"Store",
+    "deals":"Deals",
+    "profile": "Profile",
+    "update_Profile":"Update Profile",
+    "sales_Orders":"Sales Orders",
+    "purchase_orders":"Purchase Orders",
+    "my_Announces":"My Announces",
+    "my_Deals":"My Deals",
+    "my_Products":"My Products",
+    "my_Favorites":"My Favorites",
+    "setting":"Setting",
+    "logout":"Logout",
+    "personal_Information":"Personal Information",
+    "firstName":"First Name",
+    "lastName":"LastName",
+    "enter_Firstname":"Enter Firstname",
+    "enter_Lastname":"Enter Lastname",
+    "email":"Email",
+    "enter_Email":"Enter Email",
+    "mobile":"phone",
+    "enter_phone_Number":"Enter phone Number",
+    "address":"Address",
+    "enter_Address":"Enter Address",
+    "country":"Country",
+    "enter_Your_Country":"Enter Your Country",
+    "update_Personal_Information":"Update Personal Information",
+    "save":"Save",
+    "cancel":"Cancel",
+    "reception":"Reception",
+    "winners":"Winners",
+    "filter":"Filter",
+    "available_until":"Available until",
+    "quantity":"Quantity",
+    "sold_out_of":"sold out of"
+
 }
