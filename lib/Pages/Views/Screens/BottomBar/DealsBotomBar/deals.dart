@@ -11,7 +11,9 @@ import 'package:ecommerceversiontwo/Pages/core/model/CitiesModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/CountriesModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/Deals/DealsView.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/FeaturesValuesModel.dart';
+import 'package:ecommerceversiontwo/Pages/core/model/WinnerModel/WinnerModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/DealsServices/DealsService.dart';
+import 'package:ecommerceversiontwo/Pages/core/services/WinnerServices/WinnerService.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
@@ -52,81 +54,6 @@ class _DealsState extends State<Deals> {
     print("id user is $idUser");
     return idUser!;
   }
-
-/*
-  Future<void> getLikeByIdUserIdAd() async {
-    try {
-      await getuserId();
-      List<DealsModel>listdeals=await apicall();
-      if (listdeals.length != 0) {
-        for (var a in listdeals) {
-          Map<String, dynamic> response = await LikeModel().getLikeDeals(idUser!, a.idDeal!);
-          a.nbLike=response["nbLike"];
-          if(response["like"]!=null)
-            a.likeId= await LikeModel.fromJson(response["like"]).idLP;
-        }
-      }
-
-    } catch (e) {
-      print('error fetching Likes: $e');
-    }
-  }*/
-
-/*
-  Future<List<DealsModel>> apicall() async {
-    await getuserId();
-    DealsFilterModel deaslFilter = DealsFilterModel(pageNumber: page, idFeaturesValues: []);
-    if(DealsName!=null){
-      deaslFilter.DealsName=DealsName;
-    }
-    if (country != null) {
-      deaslFilter.idCountrys = country!.idCountrys;
-    }
-    if (category != null) {
-      deaslFilter.idCategory = category!.idCateg;
-    }
-    if (city != null) {
-      deaslFilter.idCity = city!.idCity;
-    }
-    if(brand !=null){
-      deaslFilter.IdBrans= brand!.idBrand;
-    }
-    if(minprice!=0)
-    {
-      deaslFilter.minPrice=minprice;
-    }
-    if(maxprice!=0){ deaslFilter.maxPrice=maxprice;}
-    if(featuresvaluesid.isNotEmpty){deaslFilter.idFeaturesValues=featuresvaluesid;}
-    try {
-      Map<String, dynamic> response = await DealsService().getFilteredDeals(deaslFilter);
-
-      if (response["deals"] != null) {
-        List<dynamic> adsJsonList = response["deals"];
-
-        if (page == 1) {
-
-          gridMap.clear();
-          gridMap.addAll(adsJsonList.map((json) => DealsModel.fromJson(json)).toList());
-        } else {
-          gridMap.addAll(adsJsonList.map((json) => DealsModel.fromJson(json)).toList());
-        }
-        //nbr Page
-        int x = response["totalItems"];
-        MaxPage = x ~/ 4;
-        if (x % 4 > 0) {
-          MaxPage += 1;
-        }
-
-        return gridMap;
-      } else {
-        print(response["deals"]);
-        throw Exception('Failed to fetch Deals !!!!!!!!!!');
-      }
-    } catch (e) {
-      print('Error: $e');
-      throw Exception('An error occurred: $e');
-    }
-  }*/
 
   Future<List<DealsView>> apicall() async {
     await getuserId();
@@ -189,40 +116,21 @@ class _DealsState extends State<Deals> {
       throw Exception('An error occurred: $e');
     }
   }
-
-  /** winners staic */
-  final List<Winner> listWinners = [
-    Winner(
-      name: "John Doe",
-      avatar: "assets/Torkhani_Ala.jpg",
-      prizeDescription: "Congratulations! You won a vacation package.",
-      date: "December 16, 2023",
-    ),
-    Winner(
-      name: "Jane Smith",
-      avatar: "assets/avatar2.png",
-      prizeDescription: "You're the lucky winner of a brand new car!",
-      date: "December 5, 2023",
-    ),
-    Winner(
-      name: "Emily Johnson",
-      avatar: "assets/avatar3.webp",
-      prizeDescription: "You've won a luxury cruise vacation!",
-      date: "December 20, 2023",
-    ),
-    Winner(
-      name: "Michael Williams",
-      avatar: "assets/avatar4.jpg",
-      prizeDescription: "Congratulations! You've won a shopping spree.",
-      date: "December 12, 2023",
-    ),
-    Winner(
-      name: "Sophia Brown",
-      avatar: "assets/avatar5.webp",
-      prizeDescription: "You're the lucky winner of a high-end gadget.",
-      date: "December 8, 2023",
-    ),
-  ];
+  List<WinnerModel> listWinners = [];
+  Future<List<WinnerModel>> GetRandomWinners() async {
+    try{
+      List <WinnerModel> w = await WinnerService().GetRandomWinners();
+      if(w!=null){
+        //setState(() {
+          listWinners=w;
+        //});
+      }
+      return w;
+    }catch (e)
+    {
+      throw Exception("error fetching Winners : $e");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -304,21 +212,32 @@ class _DealsState extends State<Deals> {
               ),
             ),
             Padding(
-                padding: EdgeInsets.fromLTRB(0, 18, 0, 0),
-                child: SizedBox(
-                  height: 150.0,
-                  width: double.infinity,
-                  child: Carousel(
-                    showIndicator: false,
-                    //dotBgColor: Colors.transparent,
-                    //dotSize: 6.0,
-                   // dotColor: Colors.pink,
-                   // dotIncreasedColor: Colors.indigo,
-                    images: listWinners.map((a) {
-                      return WinnerSlideShow(winner: a);
-                    }).toList(),
-                  ),
-                )),
+              padding: EdgeInsets.fromLTRB(0, 18, 0, 0),
+              child: FutureBuilder<List<WinnerModel>>(
+                future: GetRandomWinners(), // Replace with your function to fetch winners
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return CircularProgressIndicator(); // Display a loading indicator while waiting for data
+                  } else if (snapshot.hasError) {
+                    return Text('Error: ${snapshot.error}');
+                  } else if (!snapshot.hasData ){
+                    return Text('No winners available.');
+                  } else {
+                    return SizedBox(
+                      height: 150.0,
+                      width: double.infinity,
+                      child: Carousel(
+                        showIndicator: false,
+                        images: listWinners.map((a) {
+                          return WinnerSlideShow(winner: a);
+                        }).toList(),
+                      ),
+                    );
+                  }
+                },
+              ),
+            ),
+
             Row(
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.start,

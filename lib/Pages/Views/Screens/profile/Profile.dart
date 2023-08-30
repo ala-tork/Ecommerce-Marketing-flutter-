@@ -128,7 +128,7 @@ class _ProfileState extends State<Profile> {
                                     image: DecorationImage(
                                       image: user?.imageUrl != null
                                           ? NetworkImage(
-                                              "${ApiPaths().ImagePath}${user?.imageUrl}")
+                                              "${ApiPaths().UserImagePath}${user?.imageUrl}")
                                           : AssetImage("assets/user.png")
                                               as ImageProvider,
                                       fit: BoxFit.cover,

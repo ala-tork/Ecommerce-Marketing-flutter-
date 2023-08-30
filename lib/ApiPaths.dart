@@ -5,6 +5,7 @@ class ApiPaths{
 
   /**         IMAGE Paths             */
   final String ImagePath="${baseUrl}/Assets/images/";
+  final String UserImagePath="${baseUrl}/Assets/images/users/";
   final String AddImageUrl ="${baseUrl}/api/ImagesControler";
   final String UpdateImagePath  = "${baseUrl}/api/ImagesControler?";
   final String DeleteImagePath = "${baseUrl}/api/ImagesControler?idAds=";
@@ -80,5 +81,7 @@ final String AddToWishlistUrl ="$baseUrl/api/WishList/add";
 final String  DeleteFromWishListUrl ="$baseUrl/api/WishList/";
 final String GetWishListByUserIdUrl ="$baseUrl/api/WishList/GEtWishListByUser/";
 
+/**            Winner                  */
+final String GetRandomWinnerUrl ="$baseUrl/api/Winners/RandomWinners";
 
 }

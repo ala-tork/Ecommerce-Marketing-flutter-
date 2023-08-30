@@ -95,7 +95,7 @@ class _SideBarState extends State<SideBar> {
                         child: ClipOval(
                           child: user!.imageUrl!=null?
                           Image.network(
-                            "${ApiPaths().ImagePath}${user!.imageUrl}",
+                            "${ApiPaths().UserImagePath}${user!.imageUrl}",
                             fit: BoxFit.cover,
                           ):Image.asset(
                             "assets/user.png",
