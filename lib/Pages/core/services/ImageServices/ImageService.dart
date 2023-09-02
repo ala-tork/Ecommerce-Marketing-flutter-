@@ -19,7 +19,6 @@ class ImageService{
     }
     String responseString = await response.stream.bytesToString();
     Map<String, dynamic> jsonResponse = jsonDecode(responseString);
-    //print("//////////////////////////////////////////${jsonResponse['idImage']}");
     return ImageModel(
       IdImage: jsonResponse['idImage'],
       title: jsonResponse['title'],
@@ -93,7 +92,7 @@ class ImageService{
     }
   }
 
-
+/**            Deals Images       */
   // get image by id deals
   Future<List<ImageModel>> getImage(int Deals) async {
     http.Response response;
@@ -140,6 +139,7 @@ class ImageService{
   }
 
 
+  /**        Prize Images          */
 
   Future<ImageModel> getPrizeImage(int idPrize) async {
     http.Response response;
@@ -169,6 +169,52 @@ class ImageService{
 
   Future<bool> deletePrizeImage(int id) async {
     final String apiUrl = "${ApiPaths().DeletePrizeImageUrl}$id";
+    try {
+      final response = await http.delete(Uri.parse(apiUrl),);
+
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        print("Failed to delete Images . Status code: ${response.statusCode}");
+        return false;
+      }
+    } catch (e) {
+      print("Error deleting item: $e");
+      return false;
+    }
+  }
+
+  /**             Product Images                      */
+
+  // get image by id product
+  Future<List<ImageModel>> getProductImage(int idProduct) async {
+    http.Response response;
+    response = await http
+        .get(Uri.parse("https://10.0.2.2:7058/api/ImagesControler/getAllProductImages?idProduct=${idProduct}"));
+    if (response.statusCode == 200) {
+      var responseBody = response.body;
+      List<ImageModel> images =(jsonDecode(responseBody) as List)
+          .map((json) => ImageModel.fromJson(json))
+          .toList();
+      return images;
+    } else {
+      print(response.body);
+      throw Exception('Failed to fetch Images Deals');
+    }
+  }
+
+  Future UpdateProductImages(int idImage, int idProduct) async {
+
+    var request = http.MultipartRequest('put', Uri.parse("https://10.0.2.2:7058/api/ImagesControler/updateProductImages?idImage=$idImage&idProduct=$idProduct"));
+    var response = await request.send();
+    if (response.statusCode != 200) {
+      throw Exception('Failed to Update image: ${response.statusCode}');
+    }
+  }
+
+  Future<bool> deleteProductImage(int id) async {
+    final String apiUrl = "https://10.0.2.2:7058/api/ImagesControler/deleteProductImages?idProduct=$id";
+
     try {
       final response = await http.delete(Uri.parse(apiUrl),);
 

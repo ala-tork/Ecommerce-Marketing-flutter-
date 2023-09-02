@@ -1,5 +1,4 @@
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+
 
 class User {
   int? id;
@@ -14,6 +13,10 @@ class User {
   String? role;
   String? dateInscription;
   int? active;
+  int? isPro;
+  int? isverified;
+  int? isPremium;
+  int? nbDiamon;
   String? refreshToken;
 
   User(
@@ -29,6 +32,10 @@ class User {
         this.role,
         this.dateInscription,
         this.active,
+        this.isPro,
+        this.isverified,
+        this.isPremium,
+        this.nbDiamon,
         this.refreshToken});
 
   User.fromJson(Map<String, dynamic> json) {
@@ -37,13 +44,17 @@ class User {
     password = json['password'];
     firstname = json['firstname'];
     lastname = json['lastname'];
-    imageUrl=json['imageUrl'];
+    imageUrl = json['imageUrl'];
     phone = json['phone'];
     country = json['country'];
     address = json['address'];
     role = json['role'];
     dateInscription = json['dateInscription'];
     active = json['active'];
+    isPro = json['isPro'];
+    isverified = json['isverified'];
+    isPremium = json['isPremium'];
+    nbDiamon = json['nbDiamon'];
     refreshToken = json['refreshToken'];
   }
 
@@ -54,32 +65,20 @@ class User {
     data['password'] = this.password;
     data['firstname'] = this.firstname;
     data['lastname'] = this.lastname;
+    data['imageUrl'] = this.imageUrl;
     data['phone'] = this.phone;
     data['country'] = this.country;
     data['address'] = this.address;
     data['role'] = this.role;
     data['dateInscription'] = this.dateInscription;
     data['active'] = this.active;
+    data['isPro'] = this.isPro;
+    data['isverified'] = this.isverified;
+    data['isPremium'] = this.isPremium;
+    data['nbDiamon'] = this.nbDiamon;
     data['refreshToken'] = this.refreshToken;
     return data;
   }
 
-
-  Future<User> GetUserByID(int idUser) async {
-    final String apiUrl = "https://10.0.2.2:7058/User/GetUserById?id=$idUser";
-    try {
-      final response = await http.get(Uri.parse(apiUrl));
-      if (response.statusCode == 200) {
-        dynamic jsonResponse = json.decode(response.body);
-        User user = User.fromJson(jsonResponse);
-        return user;
-      } else {
-        throw Exception("Failed to fetch User. Status code: ${response.statusCode}");
-      }
-    } catch (e) {
-      print("Error Fetching User: $e");
-      throw Exception("Error fetching User: $e");
-    }
-  }
 
 }

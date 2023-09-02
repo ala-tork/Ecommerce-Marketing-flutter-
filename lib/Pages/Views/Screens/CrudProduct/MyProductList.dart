@@ -1,42 +1,69 @@
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:ecommerceversiontwo/ApiPaths.dart';
-import 'package:ecommerceversiontwo/Pages/Views/Screens/DealsCrudViews/AddDeals.dart';
-import 'package:ecommerceversiontwo/Pages/Views/Screens/DealsCrudViews/UpdateDeals.dart';
+import 'package:ecommerceversiontwo/Pages/Views/Screens/CrudProduct/AddProduct.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/MyAppBAr.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/BoostFormPopUp.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/DealsGiftPopUp.dart';
-import 'package:ecommerceversiontwo/Pages/core/model/BoostModules/Boost.dart';
-import 'package:ecommerceversiontwo/Pages/core/model/Deals/CreateDealsModel.dart';
-import 'package:ecommerceversiontwo/Pages/core/model/Deals/DealsModel.dart';
+import 'package:ecommerceversiontwo/Pages/core/model/ProductModels/CreateProduct.dart';
+import 'package:ecommerceversiontwo/Pages/core/model/ProductModels/Product.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/UserModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/AdsFeaturesServices/AdsFeaturesService.dart';
-import 'package:ecommerceversiontwo/Pages/core/services/DealsServices/DealsService.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/ImageServices/ImageService.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/PrizeServices/PrizeService.dart';
+import 'package:ecommerceversiontwo/Pages/core/services/ProductServices/ProductService.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/SettingServices/SettingService.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/UsersServices/UserService.dart';
 import 'package:flutter/material.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-
-
-class MyDeals extends StatefulWidget {
-  const MyDeals({super.key});
+class MyProducts extends StatefulWidget {
+  const MyProducts({super.key});
 
   @override
-  State<MyDeals> createState() => _MyDealsState();
+  State<MyProducts> createState() => _MyProductsState();
 }
 
-class _MyDealsState extends State<MyDeals> {
-  List<DealsModel> deals = [];
+class _MyProductsState extends State<MyProducts> {
+  /*List<Product> products = [
+    Product(
+      idProd: 1,
+      codeBar: '123456789',
+      codeProduct: 'ABC123',
+      reference: 'REF001',
+      title: 'Product A',
+      description: 'This is product A',
+      details: 'Detailed information about product A',
+      datePublication: '2023-08-31',
+      qte: 50,
+      color: 'Red',
+      unity: 'Piece',
+      tax: 10,
+      price: 120,
+      idPricesDelevery: 1,
+      discount: 5,
+      imagePrincipale: 'product_a.jpg',
+      videoName: 'product_a_video.mp4',
+      idPrize: 36,
+      idCateg: 8,
+      idUser: 1003,
+      idMagasin: 2,
+      idBrand: 2,
+      idCountry: 6,
+      idCity: 1,
+      idBoost: 1,
+      active: 1,
+    ),
+  ];*/
+  List<Product> products =[];
   int MaxPage = 0;
   int page = 0;
 
   /** User  */
   User? user;
   int? idUser;
-  int? nbDiamonDeals;
+  int? nbDiamonProduct;
 
   Future<int> getuserId() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -56,21 +83,20 @@ class _MyDealsState extends State<MyDeals> {
     }
   }
 
-//get all Deals by user
-  Future<List<DealsModel>> apicall(int iduser) async {
+//get all Product by user
+  Future<List<Product>> GetAllProduct(int iduser) async {
     try {
-      int pagesize = 4;
-      Map<String, dynamic> response =
-          await DealsService().GetDealsByUser(iduser, page, pagesize);
-      if (response["items"] != null) {
-        List<dynamic> adsJsonList = response["items"];
+      int pagesize=4;
+      Map<String, dynamic> response = await ProductService().GetProductByUser(iduser, page,pagesize);
+      if (response["listProducts"] != null) {
+        List<dynamic> adsJsonList = response["listProducts"];
         if (page == 0) {
-          deals.clear();
-          deals.addAll(
-              adsJsonList.map((json) => DealsModel.fromJson(json)).toList());
+          products.clear();
+          products.addAll(
+              adsJsonList.map((json) => Product.fromJson(json)).toList());
         } else {
-          deals.addAll(
-              adsJsonList.map((json) => DealsModel.fromJson(json)).toList());
+          products.addAll(
+              adsJsonList.map((json) => Product.fromJson(json)).toList());
         }
         //nbr Page
         int x = response["nbItems"];
@@ -80,10 +106,10 @@ class _MyDealsState extends State<MyDeals> {
         }
         print("nbPages $MaxPage");
         print("Page $page");
-        return deals;
+        return products;
       } else {
         print(response["items"]);
-        throw Exception('Failed to fetch Ads');
+        throw Exception('Failed to fetch Product here ');
       }
     } catch (e) {
       print('Error: $e');
@@ -92,12 +118,12 @@ class _MyDealsState extends State<MyDeals> {
   }
 
   //delete Deal
-  void deleteItem(int id, int? idPrize) async {
-    bool imgdel = await ImageService().deleteDealImage(id);
-    bool Af = await AdsFeaturesService().deleteDeals(id);
+ void deleteItem(int id, int? idPrize) async {
+    bool imgdel = await ImageService().deleteProductImage(id);
+    bool Af = await AdsFeaturesService().deletePeoductAdsFeatures(id);
 
     if (imgdel && Af) {
-      bool isDeleted = await DealsService().deleteData(id);
+      bool isDeleted = await ProductService().deleteData(id);
       if (idPrize != null) {
         bool imgPrize = await ImageService().deletePrizeImage(idPrize);
         bool prize = await PrizeService().deleteDealsPrize(idPrize);
@@ -105,9 +131,9 @@ class _MyDealsState extends State<MyDeals> {
 
       if (isDeleted) {
         print("Item with ID $id deleted successfully.");
-        deals.removeWhere((element) => element.idDeal == id);
+        products.removeWhere((element) => element.idProd == id);
         setState(() {
-          deals;
+          products;
         });
       } else {
         print("Failed to delete item with ID $id.");
@@ -115,52 +141,62 @@ class _MyDealsState extends State<MyDeals> {
     }
   }
 
-  Future<DealsModel> AddBost(DealsModel deal, Boost boost, int DealsIndex) async {
+  Future<Product> AddBost(
+      Product prod, int idBoost, int ProdIndex) async {
     try {
-      CreateDealsModel updatedDeal = CreateDealsModel(
-          title: deal.title,
-          description: deal.description,
-          details: deal.details,
-          price: deal.price,
-          quantity: deal.quantity,
-          discount: deal.discount,
-          imagePrinciple: deal.imagePrinciple,
-          idCateg: deal.idCateg,
-          idCountrys: deal.idCountrys,
-          idCity: deal.idCity,
-          idBrand: deal.idBrand,
-          idUser: deal.idUser,
-          locations: deal.locations,
-          dateEND: deal.dateEND,
-          idPrize: deal.idPrize,
-          active: 1,
-          idBoost: boost.idBoost);
-      DealsModel? response = await DealsService().updateDeals(deal.idDeal!, updatedDeal);
-      await UserService().updateUserDiamond({"nbDiamon":user!.nbDiamon! - boost!.price!},idUser!);
+      CreateProduct updateProd = CreateProduct(
+        codeBar: prod.codeBar,
+        codeProduct: prod.codeProduct,
+        reference: prod.reference,
+        title: prod.title,
+        description: prod.description,
+        details: prod.details,
+        datePublication: prod.datePublication,
+        qte: prod.qte,
+        color: prod.color,
+        unity: prod.unity,
+        tax: prod.tax,
+        price: prod.price,
+        idPricesDelevery: prod.idPricesDelevery,
+        discount: prod.discount,
+        imagePrincipale: prod.imagePrincipale,
+        videoName: prod.videoName,
+        idMagasin: prod.idMagasin,
+        idCateg: prod.idCateg,
+        idUser: prod.idUser,
+        idCountry: prod.idCountry,
+        idCity: prod.idCity,
+        idBrand: prod.idBrand,
+        idPrize: prod.idPrize,
+        idBoost: prod.idBoost,
+        active: 0,
+      );
+
+      Product? response = await ProductService().updateProduct(prod.idProd!, updateProd);
       setState(() {
-        deals[DealsIndex] = response!;
-        user!.nbDiamon = user!.nbDiamon! - boost.price!;
+        products[ProdIndex] = response!;
       });
       // print(announces[AnnounceIndex].IdBoost);
       return response!;
     } catch (e) {
-      throw Exception("faild to Boost Deals : $e");
+      throw Exception("faild to Boost Product : $e");
     }
   }
-
 
   @override
   void initState() {
     super.initState();
+
     getuserId().then((value) async {
-      await apicall(idUser!).then((data) {
+      GetAllProduct(idUser!).then((data) {
         setState(() {
-          deals = data;
+          products= data;
         });
+        //print(products[1].price);
       });
       await GetUser(value);
       setState(() async {
-        nbDiamonDeals = await SettingService().getNbDiamondDeals();
+        nbDiamonProduct = await SettingService().getNbDiamondProduct();
       });
     });
   }
@@ -171,36 +207,33 @@ class _MyDealsState extends State<MyDeals> {
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.teal[100],
         onPressed: () {
-          if (nbDiamonDeals! <= user!.nbDiamon!) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => AddDeals(newUserdiamond: user!.nbDiamon! - nbDiamonDeals!),
-              ),
-            ).then((value) async {
-              await getuserId().then((userid) async {
-                List<DealsModel> res = await apicall(userid);
-                setState(() {
-                  deals = res;
-                  user!.nbDiamon=user!.nbDiamon! - nbDiamonDeals!;
-                });
-              });
+      if (nbDiamonProduct! <= user!.nbDiamon!) {
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => AddProduct(newUserdiamond: user!.nbDiamon! - nbDiamonProduct!,)))
+            .then((value) async {
+          await getuserId().then((userid) async {
+            List<Product> res = await GetAllProduct(userid);
+            setState(() {
+              products = res;
+              user!.nbDiamon= user!.nbDiamon! - nbDiamonProduct!;
             });
-          } else {
-            AwesomeDialog(
-                    context: context,
-                    dialogBackgroundColor: Colors.teal[100],
-                    dialogType: DialogType.warning,
-                    animType: AnimType.topSlide,
-                    title: "Error !",
-                    descTextStyle:
-                        TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                    desc: "You don't have enough diamonds.",
-                    btnCancelColor: Colors.grey,
-                    btnCancelOnPress: () {},
-                    btnOkOnPress: () {})
-                .show();
-          }
+          });
+        });
+      }else {
+        AwesomeDialog(
+            context: context,
+            dialogBackgroundColor: Colors.teal[100],
+            dialogType: DialogType.warning,
+            animType: AnimType.topSlide,
+            title: "Error !",
+            descTextStyle:
+            TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            desc: "You don't have enough diamonds.",
+            btnCancelColor: Colors.grey,
+            btnCancelOnPress: () {},
+            btnOkOnPress: () {})
+            .show();
+      }
         },
         child: Icon(
           Icons.add,
@@ -209,7 +242,7 @@ class _MyDealsState extends State<MyDeals> {
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       appBar: MyAppBar(
-        title: "My Deals",
+        title: AppLocalizations.of(context)!.product,
       ),
       body: Padding(
         padding: const EdgeInsets.fromLTRB(0, 20.0, 0, 8.0),
@@ -220,12 +253,11 @@ class _MyDealsState extends State<MyDeals> {
                 padding: const EdgeInsets.fromLTRB(0, 0, 0, 70.0),
                 child: ListView.builder(
                   shrinkWrap: true,
-                  itemCount: deals.length + 1,
+                  itemCount: products.length + 1,
                   itemBuilder: (context, index) {
-                    if (index < deals.length) {
-                      var pricewithdiscount = deals[index].price! -
-                          ((deals[index].discount! * deals[index].price!) /
-                              100);
+                    if (index < products.length) {
+                    var pricewithdiscount = products[index].price! -
+                        ((products[index].discount! * products[index].price!) / 100);
 
                       return Padding(
                         padding: const EdgeInsets.symmetric(
@@ -236,8 +268,8 @@ class _MyDealsState extends State<MyDeals> {
                           elevation: 1,
                           shape: RoundedRectangleBorder(
                             side: BorderSide(
-                              width: deals[index].idBoost != null ? 5 : 0,
-                              color: deals[index].idBoost != null
+                              width: products[index].idBoost != null ? 5 : 0,
+                              color: products[index].idBoost != null
                                   ? Colors.blue
                                   : Colors.black.withOpacity(0.20),
                               //color: Colors.black.withOpacity(0.20),
@@ -248,7 +280,7 @@ class _MyDealsState extends State<MyDeals> {
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: <Widget>[
-                                if (deals[index].idBoost != null)
+                                if (products[index].idBoost != null)
                                   Container(
                                     height: 40,
                                     width: MediaQuery.of(context).size.width,
@@ -261,7 +293,7 @@ class _MyDealsState extends State<MyDeals> {
                                     ),
                                     child: Center(
                                       child: Text(
-                                        'This Deal is Boosted',
+                                        'This Product is Boosted',
                                         style: TextStyle(
                                           fontSize: 18,
                                           color: Colors.white,
@@ -285,11 +317,11 @@ class _MyDealsState extends State<MyDeals> {
                                     image: DecorationImage(
                                         image: NetworkImage(
                                             ApiPaths().ImagePath +
-                                                deals[index].imagePrinciple!),
+                                                products[index].imagePrincipale!),
                                         fit: BoxFit.cover),
                                   ),
                                   child: /** Discount band */
-                                      deals[index].discount! > 0
+                                  products[index].discount! > 0
                                           ? Stack(
                                               children: [
                                                 Positioned(
@@ -311,7 +343,7 @@ class _MyDealsState extends State<MyDeals> {
                                                                       17)),
                                                     ),
                                                     child: Text(
-                                                      '${deals[index].discount}% OFF',
+                                                      '${products[index].discount}% OFF',
                                                       style: TextStyle(
                                                         color: Colors.white,
                                                         fontSize: 14,
@@ -341,7 +373,7 @@ class _MyDealsState extends State<MyDeals> {
                                         children: [
                                           Expanded(
                                             child: Text(
-                                              '${deals[index].title}',
+                                              '${products[index].title}',
                                               maxLines: 1,
                                               overflow: TextOverflow.ellipsis,
                                               style: TextStyle(
@@ -351,7 +383,7 @@ class _MyDealsState extends State<MyDeals> {
                                               ),
                                             ),
                                           ),
-                                          if (deals[index]!.idPrize != null)
+                                          if (products[index]!.idPrize != null)
                                             GestureDetector(
                                               onTap: () {
                                                 showDialog(
@@ -359,7 +391,7 @@ class _MyDealsState extends State<MyDeals> {
                                                   builder: (context) {
                                                     return DealsGiftPopUp(
                                                       IdPrize:
-                                                          deals[index].idPrize,
+                                                      products[index].idPrize,
                                                     );
                                                   },
                                                 );
@@ -377,7 +409,7 @@ class _MyDealsState extends State<MyDeals> {
                                             EdgeInsets.only(top: 2, bottom: 8),
                                         child: Row(
                                           children: [
-                                            if (deals[index].discount! > 0)
+                                            if (products[index].discount! > 0)
                                               Text(
                                                 "$pricewithdiscount DT",
                                                 style: TextStyle(
@@ -388,9 +420,9 @@ class _MyDealsState extends State<MyDeals> {
                                                 ),
                                               ),
                                             SizedBox(width: 8),
-                                            if (deals[index].discount! > 0)
+                                            if (products[index].discount! > 0)
                                               Text(
-                                                '${deals[index].price} DT',
+                                                '${products[index].price} DT',
                                                 style: TextStyle(
                                                   fontSize: 16,
                                                   decoration: TextDecoration
@@ -398,17 +430,17 @@ class _MyDealsState extends State<MyDeals> {
                                                   color: Colors.grey,
                                                 ),
                                               ),
-                                            if (deals[index].discount! > 0)
+                                            if (products[index].discount! > 0)
                                               Text(
-                                                '(${deals[index].discount}% off)',
+                                                '(${products[index].discount}% off)',
                                                 style: TextStyle(
                                                   fontSize: 14,
                                                   color: Colors.green,
                                                 ),
                                               ),
-                                            if (deals[index].discount! == 0)
+                                            if (products[index].discount! == 0)
                                               Text(
-                                                "${deals[index].price} DT",
+                                                "${products[index].price} DT",
                                                 style: TextStyle(
                                                   fontSize: 20,
                                                   fontWeight: FontWeight.w700,
@@ -419,23 +451,6 @@ class _MyDealsState extends State<MyDeals> {
                                           ],
                                         ),
                                       ),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          Text(
-                                            'available until: ${deals[index].dateEND}',
-                                            style: TextStyle(
-                                              decoration:
-                                                  TextDecoration.underline,
-                                              decorationColor: Colors.green,
-                                              color: Colors.green,
-                                              fontWeight: FontWeight.w500,
-                                              fontSize: 16,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
                                       SizedBox(
                                         height: 10,
                                       ),
@@ -444,19 +459,19 @@ class _MyDealsState extends State<MyDeals> {
                                             MainAxisAlignment.spaceBetween,
                                         children: [
                                           Text(
-                                            'quantity : ${deals[index].quantity}',
+                                            'quantity : ${products[index].qte}',
                                             style: TextStyle(
                                               color: Colors.grey,
                                               fontSize: 15,
                                             ),
                                           ),
-                                          Text(
-                                            '${deals[index].locations}',
+                                         /* Text(
+                                            '${products[index]}',
                                             style: TextStyle(
                                               color: Colors.grey,
                                               fontSize: 13,
                                             ),
-                                          ),
+                                          ),*/
                                         ],
                                       ),
                                       SizedBox(
@@ -471,7 +486,7 @@ class _MyDealsState extends State<MyDeals> {
                                           TextButton.icon(
                                             style: ButtonStyle(),
                                             onPressed: () {
-                                              Navigator.of(context)
+                                              /*Navigator.of(context)
                                                   .push(
                                                 MaterialPageRoute(
                                                   builder: (context) =>
@@ -494,7 +509,7 @@ class _MyDealsState extends State<MyDeals> {
                                                     });
                                                   }
                                                 }
-                                              });
+                                              });*/
                                             },
                                             icon: Icon(
                                               Icons.edit,
@@ -509,7 +524,7 @@ class _MyDealsState extends State<MyDeals> {
                                           SizedBox(
                                             width: 20,
                                           ),
-                                          deals[index].idBoost == null && deals[index].active==1
+                                          products[index].idBoost == null
                                               ? TextButton.icon(
                                                   style: ButtonStyle(),
                                                   onPressed: () {
@@ -519,10 +534,10 @@ class _MyDealsState extends State<MyDeals> {
                                                         return BoostFormPopUp();
                                                       },
                                                     ).then((value) {
-                                                      AddBost(
+                                                      /*AddBost(
                                                           deals[index],
                                                           value['idBoost'],
-                                                          index);
+                                                          index);*/
                                                     });
                                                   },
                                                   icon: Icon(
@@ -544,8 +559,7 @@ class _MyDealsState extends State<MyDeals> {
                                           TextButton.icon(
                                             style: ButtonStyle(),
                                             onPressed: () {
-                                              deleteItem(deals[index].idDeal!,
-                                                  deals[index].idPrize);
+                                              deleteItem(products[index].idProd!, products[index].idPrize);
                                             },
                                             icon: Icon(
                                               Icons.delete,
@@ -568,19 +582,20 @@ class _MyDealsState extends State<MyDeals> {
                         ),
                       );
                     } else {
-                      if (deals.isNotEmpty && page < MaxPage - 1) {
+                      if (products.isNotEmpty && page<MaxPage-1) {
                         return ElevatedButton(
                           onPressed: () async {
                             if (page < MaxPage) {
                               setState(() {
                                 page = page + 1;
                                 getuserId().then((value) {
-                                  apicall(value).then((data) {
+                                  GetAllProduct(value).then((data) {
                                     setState(() {
-                                      deals = data;
+                                      products = data;
                                     });
                                   });
                                 });
+
                               });
                             }
                           },

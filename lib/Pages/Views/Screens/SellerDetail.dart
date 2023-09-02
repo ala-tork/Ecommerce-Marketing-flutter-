@@ -1,9 +1,15 @@
+import 'package:ecommerceversiontwo/ApiPaths.dart';
+import 'package:ecommerceversiontwo/Pages/Views/Screens/SellerMoreDetails.dart';
 import 'package:ecommerceversiontwo/Pages/app_color.dart';
+import 'package:ecommerceversiontwo/Pages/core/model/UserModel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 
 class SellerDetailsPopUp {
-  void showDialogFunc(BuildContext context, String img, String title, String email, String phone) {
+  void showDialogFunc(BuildContext context,
+
+      User user
+      ) {
     showDialog(
       context: context,
       builder: (context) {
@@ -32,27 +38,45 @@ class SellerDetailsPopUp {
                   children: <Widget>[
                     ClipRRect(
                       borderRadius: BorderRadius.circular(100),
-                      child: Image.asset(
-                        img,
-                        width: 200,
-                        height: 200,
+                      child: user.imageUrl!=null
+                          ? Image.network(
+                        "${ApiPaths().UserImagePath}${user.imageUrl}",
+                        fit: BoxFit.cover,
+                      )
+                          : Image.asset(
+                        "assets/user.png",
+                        fit: BoxFit.cover,
                       ),
                     ),
                     SizedBox(height: 20),
                     Text(
-                      title,
+                      "${user.firstname}  ${user.lastname}",
                       style: TextStyle(
                         fontSize: 30,
                         color: AppColor.primary,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    SizedBox(height: 15),
+                    SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        if(user.isverified==1)
+                          Icon(Icons.verified, color: Colors.blue),
+                        SizedBox(width: 8.0),
+                        if(user.isPremium==1)
+                          Icon(Icons.star, color: Colors.greenAccent),
+                        SizedBox(width: 8.0),
+                        if(user.isPro==1)
+                          Icon(Icons.local_activity, color: Colors.orange),
+                      ],
+                    ),
+                    SizedBox(height: 10,),
                     Container(
                       child: Align(
                         alignment: Alignment.center,
                         child: Text(
-                          email,
+                          "${user.email}",
                           style: TextStyle(fontSize: 20, color: AppColor.primary),
                           textAlign: TextAlign.center,
                         ),
@@ -60,7 +84,7 @@ class SellerDetailsPopUp {
                     ),
                     SizedBox(height: 8,),
                     Text(
-                      phone,
+                      "${user.phone}",
                       style: TextStyle(
                         fontSize: 25,
                         color: AppColor.primary,
@@ -155,7 +179,9 @@ class SellerDetailsPopUp {
                     Align(
                       alignment: Alignment.bottomCenter,
                       child: ElevatedButton(
-                        onPressed: (){},
+                        onPressed: (){
+                          Navigator.push(context, MaterialPageRoute(builder: (context)=>SellerMoreDetails(user:user)));
+                        },
                         child: Text("More Detail"),
                       ),
                     ),

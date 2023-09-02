@@ -3,9 +3,10 @@
     "@language":{
         "description":"The Current Language"
     },
-    "announcements": "Announcements",
+    "announcements": "Announce",
     "store":"Store",
     "deals":"Deals",
+    "product":"Product",
     "profile": "Profile",
     "update_Profile":"Update Profile",
     "sales_Orders":"Sales Orders",

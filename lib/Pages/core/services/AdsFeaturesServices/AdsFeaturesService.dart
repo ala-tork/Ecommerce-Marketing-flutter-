@@ -89,7 +89,7 @@ class AdsFeaturesService{
       return aflist;
     } else {
       print(response.body);
-      throw Exception('Failed to fetch AdsFeatures By Id Ads');
+      throw Exception('Failed to fetch AdsFeatures By Id Deals');
     }
   }
   Future<bool> deleteDeals(int id) async {
@@ -113,7 +113,46 @@ class AdsFeaturesService{
 
   }
 
+  /** Product functions */
 
+  //get all Product Features by id Deals
+  Future<List<AdsFeature>> GetProductFeaturesByIdDeals(int idProduct) async {
+    http.Response response;
+    response = await http
+        .get(Uri.parse("https://10.0.2.2:7058/api/AdsFeatureControler/GetAllProductFeatures?idProduct=$idProduct"));
+
+    if (response.statusCode == 200) {
+      var responseBody = response.body;
+      List<AdsFeature> aflist=(jsonDecode(responseBody) as List)
+          .map((json) => AdsFeature.fromJson(json))
+          .toList();
+
+      return aflist;
+    } else {
+      print(response.body);
+      throw Exception('Failed to fetch AdsFeatures By Id Product');
+    }
+  }
+  Future<bool> deletePeoductAdsFeatures(int id) async {
+    final String apiUrl = "https://10.0.2.2:7058/api/AdsFeatureControler/DeleteProductFeatures?idProduct=$id";
+    try {
+      final response = await http.delete(Uri.parse(apiUrl));
+
+      print("Response Status Code: ${response.statusCode}");
+      print("Response Body: ${response.body}");
+
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        print("Failed to delete Product Ads Features. Status code: ${response.statusCode}");
+        return false;
+      }
+    } catch (e) {
+      print("Error deleting item: $e");
+      return false;
+    }
+
+  }
 
 
 }

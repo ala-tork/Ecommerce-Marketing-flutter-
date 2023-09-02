@@ -6,6 +6,7 @@ import 'package:ecommerceversiontwo/Pages/Views/widgets/custom_icon_button_widge
 import 'package:ecommerceversiontwo/Pages/core/model/CountriesModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/UserModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/CountriesServices/CountryService.dart';
+import 'package:ecommerceversiontwo/Pages/core/services/UsersServices/UserService.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:ecommerceversiontwo/Pages/app_color.dart';
@@ -104,7 +105,7 @@ class ProfileDetailsState extends State<ProfileDetails>
   User? user;
 
   Future<User> GetUser() async {
-    user = await User().GetUserByID(id!);
+    user = await UserService().GetUserByID(id!);
     if (user != null) {
       return user!;
     } else {

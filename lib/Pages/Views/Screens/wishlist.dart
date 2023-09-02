@@ -32,8 +32,7 @@ class _WishListState extends State<WishList> {
   Future<List<WishListModel>> getWishList() async {
     await getuserId();
     try {
-      Map<String, dynamic> response =
-          await WishListService().GetWishListByUser(idUser!, page, pageSize);
+      Map<String, dynamic> response = await WishListService().GetWishListByUser(idUser!, page, pageSize);
 
       if (response["res"] != null) {
         List<dynamic> adsJsonList = response["res"];

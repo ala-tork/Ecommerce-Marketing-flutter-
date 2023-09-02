@@ -1,12 +1,18 @@
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:ecommerceversiontwo/ApiPaths.dart';
+import 'package:ecommerceversiontwo/Pages/Views/Screens/AnnouncesCRUD/AddAnnounce.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/AnnouncesCRUD/EditeAnnounce.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/MyAppBAr.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/BoostFormPopUp.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/AdsModels/AnnounceModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/AdsModels/CreateAnnounceModel.dart';
+import 'package:ecommerceversiontwo/Pages/core/model/BoostModules/Boost.dart';
+import 'package:ecommerceversiontwo/Pages/core/model/UserModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/AdsFeaturesServices/AdsFeaturesService.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/AnnouncesServices/AnnounceService.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/ImageServices/ImageService.dart';
+import 'package:ecommerceversiontwo/Pages/core/services/SettingServices/SettingService.dart';
+import 'package:ecommerceversiontwo/Pages/core/services/UsersServices/UserService.dart';
 import 'package:flutter/material.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -22,9 +28,11 @@ class _MyAnnouncesState extends State<MyAnnounces> {
   List<AnnounceModel> announces = [];
   int MaxPage = 0;
   int page = 0;
+  int? nbDiamonAds;
 
+  /** User  */
+  User? user;
   int? idUser;
-
   Future<int> getuserId() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
@@ -33,8 +41,16 @@ class _MyAnnouncesState extends State<MyAnnounces> {
     print("id user is $idUser");
     return idUser!;
   }
+  Future<User> GetUser(int id) async {
+    user = await UserService().GetUserByID(id);
+    if (user != null) {
+      return user!;
+    } else {
+      throw Exception("user Not Found !");
+    }
+  }
 
-//get all announces by user
+/** get all announces by user */
   Future<List<AnnounceModel>> apicall(int iduser) async {
     try {
       SharedPreferences prefs =  await SharedPreferences.getInstance();
@@ -70,7 +86,7 @@ class _MyAnnouncesState extends State<MyAnnounces> {
     }
   }
 
-  //delete announce
+  /** delete announce */
   void deleteItem(int id) async {
     bool imgdel = await ImageService().deleteAdsImage(id);
     bool Af = await AdsFeaturesService().deleteData(id);
@@ -87,9 +103,9 @@ class _MyAnnouncesState extends State<MyAnnounces> {
       }
     }
   }
-
+ /** add boost */
   Future<AnnounceModel> AddBost(
-      AnnounceModel an, int idBoost, int AnnounceIndex) async {
+      AnnounceModel an, Boost boost, int AnnounceIndex) async {
     try {
       CreateAnnounce announce = CreateAnnounce(
         title: an.title,
@@ -102,14 +118,15 @@ class _MyAnnouncesState extends State<MyAnnounces> {
         idCity: an.idCity!,
         locations: an.locations,
         IdUser: an.iduser,
-        IdBoost: idBoost,
+        IdBoost: boost.idBoost,
         active: 1,
       );
-      an.IdBoost = idBoost;
-      AnnounceModel? response =
-          await AnnounceService().updateAnnouncement(an!.idAds!, announce);
+      an.IdBoost = boost.idBoost;
+      AnnounceModel? response = await AnnounceService().updateAnnouncement(an.idAds!, announce);
+      await UserService().updateUserDiamond({"nbDiamon":user!.nbDiamon! - boost.price!}, idUser!);
       setState(() {
         announces[AnnounceIndex] = response!;
+        user!.nbDiamon = user!.nbDiamon! - boost.price!;
       });
       print(announces[AnnounceIndex].IdBoost);
       return response!;
@@ -121,11 +138,15 @@ class _MyAnnouncesState extends State<MyAnnounces> {
   @override
   void initState() {
     super.initState();
-    getuserId().then((value) {
-      apicall(value).then((data) {
+    getuserId().then((value) async {
+      await apicall(value).then((data) {
         setState(() {
           announces = data;
         });
+      });
+      await GetUser(value);
+      setState(() async {
+        nbDiamonAds = await SettingService().getNbDiamondAds();
       });
     });
   }
@@ -136,14 +157,37 @@ class _MyAnnouncesState extends State<MyAnnounces> {
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.teal[100],
         onPressed: () {
-          Navigator.of(context).pushNamed("AddAnnounce").then((value) async {
-            await getuserId().then((userid) async {
-              List<AnnounceModel> res = await apicall(userid);
-              setState(() {
-                announces = res;
-              });
+      if (nbDiamonAds! <= user!.nbDiamon!) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => AddAnnounces(newUserdiamond: user!.nbDiamon! - nbDiamonAds!),
+          ),
+        ).then((value) async {
+          await getuserId().then((userid) async {
+            List<AnnounceModel> res = await apicall(userid);
+            setState(() {
+              announces = res;
+              user!.nbDiamon=user!.nbDiamon! - nbDiamonAds!;
             });
           });
+        });
+      } else {
+        AwesomeDialog(
+            context: context,
+            dialogBackgroundColor: Colors.teal[100],
+            dialogType: DialogType.warning,
+            animType: AnimType.topSlide,
+            title: "Error !",
+            descTextStyle: TextStyle(
+                fontSize: 20, fontWeight: FontWeight.bold),
+            desc: "You don't have enough diamonds.",
+            btnCancelColor: Colors.grey,
+            btnCancelOnPress: () {},
+            btnOkOnPress: () {})
+            .show();
+      }
+
         },
         child: Icon(
           Icons.add,
@@ -369,7 +413,7 @@ class _MyAnnouncesState extends State<MyAnnounces> {
                                       SizedBox(
                                         width: 20,
                                       ),
-                                      announces[index].IdBoost == null
+                                      (announces[index].IdBoost == null && announces[index].active==1)
                                           ? TextButton.icon(
                                               style: ButtonStyle(),
                                               onPressed: () {

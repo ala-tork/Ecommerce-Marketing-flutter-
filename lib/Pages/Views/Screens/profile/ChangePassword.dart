@@ -1,9 +1,13 @@
+import 'package:ecommerceversiontwo/ApiPaths.dart';
+import 'package:ecommerceversiontwo/Pages/Views/Screens/HomePage.dart';
+import 'package:ecommerceversiontwo/Pages/Views/Screens/profile/Profile.dart';
+import 'package:ecommerceversiontwo/Pages/Views/widgets/AppBarWithArrowBack.dart';
 import 'package:flutter/material.dart';
-import 'package:ecommerceversiontwo/Pages/Views/Screens/MyAppBAr.dart';
-import 'package:ecommerceversiontwo/Pages/Views/Screens/profile/profileScreen.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/side_bar.dart';
 import 'package:ecommerceversiontwo/Pages/app_color.dart';
 import 'package:http/http.dart' as http;
+import 'package:jwt_decoder/jwt_decoder.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class UpdatePasswordPage extends StatefulWidget {
   final String token;
@@ -22,9 +26,15 @@ class _UpdatePasswordPageState extends State<UpdatePasswordPage> {
   String _currentPassword = '';
   String _newPassword = '';
   String _retypePassword = '';
-
+  int? id ;
+  Future<void> getuserId() async {
+    var decodedToken = JwtDecoder.decode(widget.token!);
+    id = int.parse(decodedToken['id']);
+    print("id user is $id");
+  }
   @override
   void initState() {
+    getuserId();
     super.initState();
   }
 
@@ -33,12 +43,20 @@ class _UpdatePasswordPageState extends State<UpdatePasswordPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       drawer: SideBar(),
-      appBar: MyAppBar(Daimons: 122, title: "Update Password"),
+      appBar: AppBarWithArrowBack(title: "Update Password",),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            Text(
+              "Update your Password :",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 24
+              ),
+            ),
+            SizedBox(height: 30,),
             TextFormField(
               controller: _currentPasswordController,
               obscureText: true,
@@ -96,11 +114,11 @@ class _UpdatePasswordPageState extends State<UpdatePasswordPage> {
     if (_currentPassword.isNotEmpty && _newPassword.isNotEmpty && _retypePassword.isNotEmpty) {
       if (_newPassword == _retypePassword) {
         try {
-          print("ddddddddddddddddddddddddddddddddddddddddddd ${_currentPassword}");
+          print("${_currentPassword}");
 
-          print("fffffffffffffffffffffffffffffffffffffffffffffffffffffffff ${_newPassword}");
+          print("${_newPassword}");
           final response = await http.put(
-            Uri.parse('http://10.0.2.2:5055/User/update-password?currentPassword=${_currentPassword}&newPassword=${_newPassword}'),
+            Uri.parse("${ApiPaths().UpdatePasswordUrl}${_currentPassword}&newPassword=${_newPassword}"),
             headers: {
               'Authorization': 'Bearer ${widget.token}',
               'Content-Type': 'application/json',
@@ -108,6 +126,7 @@ class _UpdatePasswordPageState extends State<UpdatePasswordPage> {
           );
           print("status ${response.statusCode}");
           print("Bearer ${widget.token}");
+          print(response.statusCode);
 
           if (response.statusCode == 200) {
             _currentPasswordController.clear();
@@ -119,10 +138,7 @@ class _UpdatePasswordPageState extends State<UpdatePasswordPage> {
                 duration: Duration(seconds: 2),
               ),
             );
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => ProfileScreen()),
-            );
+            Navigator.of(context).pop();
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(

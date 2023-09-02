@@ -11,8 +11,11 @@ import 'package:ecommerceversiontwo/Pages/core/model/CitiesModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/CountriesModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/Deals/DealsView.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/FeaturesValuesModel.dart';
+import 'package:ecommerceversiontwo/Pages/core/model/UserModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/WinnerModel/WinnerModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/DealsServices/DealsService.dart';
+import 'package:ecommerceversiontwo/Pages/core/services/SettingServices/SettingService.dart';
+import 'package:ecommerceversiontwo/Pages/core/services/UsersServices/UserService.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/WinnerServices/WinnerService.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -44,8 +47,8 @@ class _DealsState extends State<Deals> {
   List<FeaturesValuesModel> featuresvalues = [];
   List<int> featuresvaluesid = [];
 
+  /** User  */
   int? idUser;
-
   Future<int> getuserId() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
@@ -55,6 +58,7 @@ class _DealsState extends State<Deals> {
     return idUser!;
   }
 
+/** Get Deals */
   Future<List<DealsView>> apicall() async {
     await getuserId();
     DealsFilterModel deaslFilter =
@@ -105,7 +109,6 @@ class _DealsState extends State<Deals> {
         if (x % 4 > 0) {
           MaxPage += 1;
         }
-
         return gridMap;
       } else {
         print(response["deals"]);
@@ -132,6 +135,7 @@ class _DealsState extends State<Deals> {
     }
   }
 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -140,7 +144,7 @@ class _DealsState extends State<Deals> {
           icon: Icon(Icons.arrow_back),
           onPressed: () {
             Navigator.of(context)
-                .pushNamed("LandingPage"); // Redirect to previous screen
+                .pushNamed("LandingPage");
           },
         ),
         elevation: 1,

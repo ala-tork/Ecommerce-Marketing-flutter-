@@ -11,7 +11,6 @@ import 'package:ecommerceversiontwo/Pages/Views/Screens/AnnouncesCRUD/MyAnnounce
 import 'package:ecommerceversiontwo/Pages/Views/Screens/DealsCrudViews/MyDealsList.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/LandingPage.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/WelcomePage.dart';
-import 'package:ecommerceversiontwo/Pages/Views/Screens/profile/ProfileProvider.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/myhttpoverrides.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/AnnouncesCRUD/AddAnnounce.dart';
 
@@ -25,6 +24,7 @@ void main() async {
       child: Consumer<LocalProvider>(
         builder: (context, localProvider, _) {
           return MaterialApp(
+            debugShowCheckedModeBanner: false,
             locale: localProvider.locale,
             supportedLocales: L10n.all,
             localizationsDelegates: [
@@ -81,9 +81,9 @@ class MyApp extends StatelessWidget {
             routes: {
               "LandingPage": (context) => LandingPage(),
               "MyAnnounces": (context) => MyAnnounces(),
-              "AddAnnounce": (context) => AddAnnounces(),
+              ///"AddAnnounce": (context) => AddAnnounces(newUserdiamond: ,),
               "MyDeals": (context) => MyDeals(),
-              "AddDeals": (context) => AddDeals(),
+              //"AddDeals": (context) => AddDeals(),
             },
           );
         },

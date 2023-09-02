@@ -1,17 +1,16 @@
 import 'package:ecommerceversiontwo/ApiPaths.dart';
-import 'package:ecommerceversiontwo/Pages/core/model/Deals/CreateDealsModel.dart';
-import 'package:ecommerceversiontwo/Pages/core/model/Deals/DealsFilterModel.dart';
-import 'package:ecommerceversiontwo/Pages/core/model/Deals/DealsModel.dart';
+import 'package:ecommerceversiontwo/Pages/core/model/AdsModels/AdsFilterModel.dart';
+import 'package:ecommerceversiontwo/Pages/core/model/ProductModels/CreateProduct.dart';
+import 'package:ecommerceversiontwo/Pages/core/model/ProductModels/Product.dart';
+import 'package:ecommerceversiontwo/Pages/core/model/ProductModels/ProductFilter.dart';
 import  'package:http/http.dart' as http;
 import 'dart:convert';
 
-class DealsService{
-
-
-  Future<Map<String, dynamic>> createDeal(CreateDealsModel adModel) async {
+class ProductService{
+  Future<Map<String, dynamic>> createProduct(CreateProduct prodModel) async {
     var headers = {'Content-Type': 'application/json'};
-    var url = Uri.parse("${ApiPaths().CreateDealsUrl}");
-    var adData = json.encode(adModel.toJson());
+    var url = Uri.parse("https://10.0.2.2:7058/api/Product/CreateProduct");
+    var adData = json.encode(prodModel.toJson());
 
     var response = await http.post(url, headers: headers, body: adData);
 
@@ -29,9 +28,9 @@ class DealsService{
 
 
 // Update announce
-  Future<DealsModel?> updateDeals(int dealsId, CreateDealsModel updatedData) async {
+  Future<Product?> updateProduct(int prodId, CreateProduct updatedData) async {
     try {
-      var url = Uri.parse("${ApiPaths().UpdateDealsUrl}$dealsId");
+      var url = Uri.parse("https://10.0.2.2:7058/api/Product/product/$prodId");
       var headers = {'Content-Type': 'application/json'};
 
       var jsonBody = json.encode(updatedData.toJson());
@@ -40,20 +39,20 @@ class DealsService{
 
       if (response.statusCode == 200) {
         var responseData = json.decode(response.body);
-        return DealsModel.fromJson(responseData);
+        return Product.fromJson(responseData);
       } else {
-        print('Failed to update announcement. Status code: ${response.statusCode}');
+        print('Failed to update Product. Status code: ${response.statusCode}');
         print('Response body: ${response.body}');
         return null;
       }
     } catch (e) {
-      print('Error updating Deals: $e');
+      print('Error updating product: $e');
       return null;
     }
   }
 
 
-
+/*
   //fileter data with pagination
   Future<Map<String, dynamic>> getFilteredDeals(DealsFilterModel filter) async {
     print(filter.toJson());
@@ -74,10 +73,10 @@ class DealsService{
     } catch (e) {
       throw Exception('An error occurred: $e');
     }
-  }
+  }*/
 
   Future<bool> deleteData(int id) async {
-    final String apiUrl = "${ApiPaths().DeleteDealUrl}${id}";
+    final String apiUrl = "https://10.0.2.2:7058/api/Product/product/${id}";
 
     try {
       final response = await http.delete(Uri.parse(apiUrl),);
@@ -86,7 +85,7 @@ class DealsService{
         print("deals fetures deleted succesfulty");
         return true;
       } else {
-        print("Failed to delete Deals. Status code: ${response.statusCode}");
+        print("Failed to delete product. Status code: ${response.statusCode}");
         return false;
       }
     } catch (e) {
@@ -95,16 +94,16 @@ class DealsService{
     }
   }
 
-  Future<DealsModel> getDealById(int id) async {
-    final String apiurl = "${ApiPaths().DeleteDealUrl}$id";
+  Future<Product> getProductById(int id) async {
+    final String apiurl = "https://10.0.2.2:7058/api/Product/product/$id";
     final response = await http.get(Uri.parse(apiurl));
     if (response.statusCode == 200) {
       Map<String, dynamic> jsonResponse = json.decode(response.body);
-      DealsModel deal = DealsModel.fromJson(jsonResponse);
-      return deal;
+      Product prod = Product.fromJson(jsonResponse);
+      return prod;
     } else {
-      print('Failed to fetch Deal: ${response.body}');
-      throw Exception('Failed to fetch Deal');
+      print('Failed to fetch Product: ${response.body}');
+      throw Exception('Failed to fetch Product');
     }
   }
 
@@ -112,57 +111,58 @@ class DealsService{
 
 
 
-  ////// filtred deals with like and wishlist
-  //fileter data with pagination
-  Future<Map<String, dynamic>> getFilteredViewDeals(DealsFilterModel filter,int idUser) async {
+  ////// filtred Product with like and wishlist
+  /**          fileter data with pagination                */
+  Future<Map<String, dynamic>> getFilteredViewProduct(FilterProduct filter,int idUser) async {
     print(filter.toJson());
     try {
-
       final response = await http.post(
-        Uri.parse("${ApiPaths().GetFiltredDealsUrl}$idUser"),
+        Uri.parse("https://10.0.2.2:7058/api/Test/ProdWithLikeAndWishList?iduser=$idUser"),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(filter.toJson()),
       );
-      print(response.body);
+      print("///////////////${response.body}");
       if (response.statusCode == 200) {
         final responseData = json.decode(response.body);
+        print(responseData);
         return responseData;
       } else {
-        throw Exception('Failed to fetch Deals ');
+        throw Exception('Failed to fetch Product ');
       }
     } catch (e) {
       throw Exception('An error occurred: $e');
     }
   }
 
-  ////// filtred deals with like and wishlist
-  /** fileter data with pagination By User ID  */
-  Future<Map<String, dynamic>> getUserDeals(DealsFilterModel filter,int idUser) async {
-    print(filter.toJson());
+  ////// filtred Product with like and wishlist
+  /**  fileter data by UserId with pagination */
+  Future<Map<String, dynamic>> getUserProduc(FilterProduct filter,int idUser) async {
     try {
-
       final response = await http.post(
-        Uri.parse("${ApiPaths().GetUserDealsUrl}$idUser"),
+        Uri.parse("${ApiPaths().GetUserProductUrl}$idUser"),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(filter.toJson()),
       );
       print(response.body);
       if (response.statusCode == 200) {
         final responseData = json.decode(response.body);
+        print(responseData);
         return responseData;
       } else {
-        throw Exception('Failed to fetch Deals ');
+        throw Exception('Failed to fetch Product ');
       }
     } catch (e) {
       throw Exception('An error occurred: $e');
     }
   }
 
-  Future<Map<String, dynamic>> GetDealsByUser(int idUser,int page, int pagesize) async {
+
+
+  Future<Map<String, dynamic>> GetProductByUser(int idUser,int page, int pagesize) async {
     try {
 
       final response = await http.get(
-        Uri.parse("${ApiPaths().GetDealsByUserIdUrl}${idUser}?page=${page}&pageSize=$pagesize"),
+        Uri.parse("https://10.0.2.2:7058/api/Product/ShowMoreProductByUserId?iduser=$idUser&page=$page&pagesize=$pagesize"),
         headers: {'Content-Type': 'application/json'},
       );
       print(response.body);
@@ -171,11 +171,12 @@ class DealsService{
         //print(responseData);
         return responseData;
       } else {
-        throw Exception('Failed to fetch Deals ');
+        throw Exception('Failed to fetch Products ');
       }
     } catch (e) {
       throw Exception('An error occurred: $e');
     }
   }
+
 
 }

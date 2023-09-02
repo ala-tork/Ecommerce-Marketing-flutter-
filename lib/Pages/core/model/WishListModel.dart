@@ -1,5 +1,6 @@
 import 'package:ecommerceversiontwo/Pages/core/model/AdsModels/AnnounceModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/Deals/DealsModel.dart';
+import 'package:ecommerceversiontwo/Pages/core/model/ProductModels/Product.dart';
 
 
 class WishListModel {
@@ -9,6 +10,7 @@ class WishListModel {
   int? idDeal;
   DealsModel? deals;
   int? idProd;
+  Product? product;
   int? idAd;
   AnnounceModel? ads;
   String? myDate;
@@ -20,6 +22,7 @@ class WishListModel {
         this.idDeal,
         this.deals,
         this.idProd,
+        this.product,
         this.idAd,
         this.ads,
         this.myDate});
@@ -30,7 +33,8 @@ class WishListModel {
     //user = json['user'];
     idDeal = json['idDeal'];
     deals=json['deals'] != null ? new DealsModel.fromJson(json['deals']) : null;
-    idProd = json['idProd'] !=null ? json['idProd'] :null;
+    idProd = json['idProd'];
+    product = json['product'] != null ? Product.fromJson(json['product']) : null;
     idAd = json['idAd'];
     ads = json['ads'] != null ? AnnounceModel.fromJson(json['ads']) : null;
     myDate = json['myDate'];

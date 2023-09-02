@@ -1,11 +1,15 @@
+import 'dart:ffi';
+
 import 'package:ecommerceversiontwo/ApiPaths.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/BottomBar/DealsBotomBar/DealsCard.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/SellerDetail.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/DealsGiftPopUp.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/curstom_app_bar.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/Deals/DealsFilterModel.dart';
+import 'package:ecommerceversiontwo/Pages/core/model/ProductModels/Product.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/UserModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/DealsServices/DealsService.dart';
+import 'package:ecommerceversiontwo/Pages/core/services/ProductServices/ProductService.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/UsersServices/UserService.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
@@ -21,23 +25,51 @@ import 'package:ecommerceversiontwo/Pages/Views/widgets/modals/add_to_cart.dart'
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-class DealsDetails extends StatefulWidget {
+class ProductDetails extends StatefulWidget {
   final int id;
 
-  DealsDetails({required this.id});
+  ProductDetails({required this.id});
 
   @override
-  _DealsDetailsState createState() => _DealsDetailsState();
+  _ProductDetailsState createState() => _ProductDetailsState();
 }
 
-class _DealsDetailsState extends State<DealsDetails> {
+class _ProductDetailsState extends State<ProductDetails> {
+/*  Product prod =   Product(
+    idProd: 1,
+    codeBar: '123456789',
+    codeProduct: 'ABC123',
+    reference: 'REF001',
+    title: 'Product A',
+    description: 'This is product A',
+    details: 'Detailed information about product A',
+    datePublication: '2023-08-31',
+    qte: 50,
+    color: 'Red',
+    unity: 'Piece',
+    tax: 10,
+    price: 120,
+    idPricesDelevery: 1,
+    discount: 5,
+    imagePrincipale: 'product_a.jpg',
+    videoName: 'product_a_video.mp4',
+    idPrize: 36,
+    idCateg: 8,
+    idUser: 1003,
+    idMagasin: 2,
+    idBrand: 2,
+    idCountry: 6,
+    idCity: 1,
+    idBoost: 1,
+    active: 1,
+  );*/
+  Product? prod;
   PageController productImageSlider = PageController();
   List<ImageModel> _images = [];
   List<String> _urlImages = [];
   List<AdsFeature> _adsFeatures = [];
   double? pricewithdiscount;
 
-  /** User  */
   /** User  */
   User? user;
 
@@ -53,19 +85,18 @@ class _DealsDetailsState extends State<DealsDetails> {
   @override
   void initState() {
     super.initState();
-    GetDeal(widget.id!).then((value) {
+    GetProduct(widget.id!).then((value) {
       setState(() {
-        deals = value;
-        pricewithdiscount =
-            (deals!.price! - ((deals!.discount! * deals!.price!) / 100));
+        prod = value;
+        pricewithdiscount = (prod!.price! - ((prod!.discount! * prod!.price!) / 100));
       });
       GetUser(value.idUser!).then((u) {
         setState(() {
           user = u;
         });
       });
-      fetchAdsFeaturesByIDDeals(deals!.idDeal!);
-      fetchImages(deals!.idDeal!);
+      fetchAdsFeaturesByIdProd(prod!.idProd!);
+      fetchImages(prod!.idProd!);
     });
   }
 
@@ -92,9 +123,9 @@ class _DealsDetailsState extends State<DealsDetails> {
   }
 
   /** fetch Images */
-  Future<void> fetchImages(int idDeals) async {
+  Future<void> fetchImages(int idProd) async {
     try {
-      List<ImageModel> images = await ImageService().getImage(idDeals);
+      List<ImageModel> images = await ImageService().getProductImage(idProd);
       //setState(() {
       _images = images;
       _urlImages.addAll(_images.map((image) => image.title!));
@@ -105,11 +136,10 @@ class _DealsDetailsState extends State<DealsDetails> {
     }
   }
 
-  /** fetch Ads features and change the features and the features values */
-  Future<void> fetchAdsFeaturesByIDDeals(int idDeals) async {
+  /** fetch Prod features and change the features and the features values */
+  Future<void> fetchAdsFeaturesByIdProd(int idProd) async {
     try {
-      List<AdsFeature> adsFeatures =
-          await AdsFeaturesService().GetDealsFeaturesByIdDeals(idDeals);
+      List<AdsFeature> adsFeatures = await AdsFeaturesService().GetProductFeaturesByIdDeals(idProd);
       setState(() {
         _adsFeatures = adsFeatures;
       });
@@ -119,8 +149,8 @@ class _DealsDetailsState extends State<DealsDetails> {
     }
   }
 
-  List<DealsModel> similar = [];
-
+ // List<DealsModel> similar = [];
+/*
   /** Get similar Announce */
 
   Future<List<DealsModel>> GetSimilar(DealsModel an, int page) async {
@@ -152,18 +182,16 @@ class _DealsDetailsState extends State<DealsDetails> {
       print('Error: $e');
       throw Exception('An error occurred: $e');
     }
-  }
-
-  DealsModel? deals;
+  }*/
 
   /**  Get Deal By id  */
-  Future<DealsModel> GetDeal(int idDeals) async {
+  Future<Product> GetProduct(int idProd) async {
     try {
-      DealsModel d = await DealsService().getDealById(idDeals);
-      return d;
+      Product p = await ProductService().getProductById(idProd);
+      return p;
     } catch (e) {
-      print('Error fetching Deal By Id: $e');
-      throw throw Exception('Error fetching Deal By Id');
+      print('Error fetching Product By Id: $e');
+      throw throw Exception('Error fetching Product By Id');
     }
   }
 
@@ -234,9 +262,9 @@ class _DealsDetailsState extends State<DealsDetails> {
             ],
           ),
         ),
-        body: FutureBuilder<DealsModel>(
-          future: GetDeal(widget!.id!),
-          builder: (BuildContext context, AsyncSnapshot<DealsModel> snapshot) {
+        body: FutureBuilder<Product>(
+          future: GetProduct(widget!.id!),
+          builder: (BuildContext context, AsyncSnapshot<Product> snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return CircularProgressIndicator();
             } else if (snapshot.hasError) {
@@ -253,7 +281,7 @@ class _DealsDetailsState extends State<DealsDetails> {
                         // appbar
                         Expanded(
                           child: CustomAppBar(
-                            title: '${deals!.title}',
+                            title: '${prod!.title}',
                             leftIcon:
                                 SvgPicture.asset('assets/icons/Arrow-left.svg'),
                             rightIcon: SvgPicture.asset(
@@ -281,18 +309,9 @@ class _DealsDetailsState extends State<DealsDetails> {
                             border: Border.all(color: Colors.grey),
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          child: FutureBuilder<void>(
-                            future: fetchImages(deals!.idDeal!),
-                            builder: (context, snapshot) {
-                              if (snapshot.connectionState ==
-                                  ConnectionState.waiting) {
-                                return CircularProgressIndicator();
-                              } else if (snapshot.hasError) {
-                                return Text('Error: ${snapshot.error}');
-                              } else {
-                                //print(_images);
-                                if (_images.isNotEmpty) {
-                                  return Stack(
+                          child:
+                                prod!.imagePrincipale!.isNotEmpty?
+                                   Stack(
                                     alignment: Alignment.topCenter,
                                     children: [
                                       // product image
@@ -327,13 +346,12 @@ class _DealsDetailsState extends State<DealsDetails> {
                                         ),
                                       ),
                                     ],
-                                  );
-                                } else {
-                                  return Text('No data available');
-                                }
-                              }
+                                  )
+                                :Text('No data available'),
+                                //}
+                              /*}
                             },
-                          ),
+                          ),*/
                         ),
 
                         // Section 2 - AppBar
@@ -355,7 +373,7 @@ class _DealsDetailsState extends State<DealsDetails> {
                                     Expanded(
                                       child: Text(
                                         maxLines: 1,
-                                        deals!.title.toString(),
+                                        prod!.title!,
                                         style: TextStyle(
                                             fontSize: 24,
                                             fontWeight: FontWeight.w700,
@@ -363,14 +381,14 @@ class _DealsDetailsState extends State<DealsDetails> {
                                             color: AppColor.secondary),
                                       ),
                                     ),
-                                    if (deals!.idPrize != null)
+                                    if (prod!.idPrize != null)
                                       GestureDetector(
                                         onTap: () {
                                           showDialog(
                                             context: context,
                                             builder: (context) {
                                               return DealsGiftPopUp(
-                                                IdPrize: deals!.idPrize,
+                                                IdPrize: prod!.idPrize,
                                               );
                                             },
                                           );
@@ -401,7 +419,7 @@ class _DealsDetailsState extends State<DealsDetails> {
                                   children: [
                                     Row(
                                       children: [
-                                        if (deals!.discount! > 0)
+                                        if (prod!.discount! > 0)
                                           Text(
                                             "$pricewithdiscount DT",
                                             style: TextStyle(
@@ -412,9 +430,9 @@ class _DealsDetailsState extends State<DealsDetails> {
                                             ),
                                           ),
                                         SizedBox(width: 8),
-                                        if (deals!.discount! > 0)
+                                        if (prod!.discount! > 0)
                                           Text(
-                                            '${deals!.price} DT',
+                                            '${prod!.price} DT',
                                             style: TextStyle(
                                               fontSize: 16,
                                               decoration:
@@ -422,17 +440,17 @@ class _DealsDetailsState extends State<DealsDetails> {
                                               color: Colors.grey,
                                             ),
                                           ),
-                                        if (deals!.discount! > 0)
+                                        if (prod!.discount! > 0)
                                           Text(
-                                            '(${deals!.discount}% off)',
+                                            '(${prod!.discount}% off)',
                                             style: TextStyle(
                                               fontSize: 14,
                                               color: Colors.green,
                                             ),
                                           ),
-                                        if (deals!.discount! == null)
+                                        if (prod!.discount! == null)
                                           Text(
-                                            "${deals!.price} DT",
+                                            "${prod!.price} DT",
                                             style: TextStyle(
                                               fontSize: 20,
                                               fontWeight: FontWeight.w700,
@@ -447,30 +465,10 @@ class _DealsDetailsState extends State<DealsDetails> {
                                     ),
                                     Row(
                                       mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Text(
-                                          'available until: ${deals!.dateEND}',
-                                          style: TextStyle(
-                                            decoration:
-                                                TextDecoration.underline,
-                                            decorationColor: Colors.green,
-                                            color: Colors.green,
-                                            fontWeight: FontWeight.w500,
-                                            fontSize: 16,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    SizedBox(
-                                      height: 10,
-                                    ),
-                                    Row(
-                                      mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
                                       children: [
                                         Text(
-                                          'quantity : ${deals!.quantity}',
+                                          'quantity : ${prod!.qte}',
                                           style: TextStyle(
                                             color: Colors.black,
                                             fontWeight: FontWeight.w400,
@@ -478,7 +476,8 @@ class _DealsDetailsState extends State<DealsDetails> {
                                           ),
                                         ),
                                         Text(
-                                          '${deals!.locations}',
+                                          "Location",
+                                          //'${prod!.locations}',
                                           style: TextStyle(
                                             color: Colors.grey,
                                             fontSize: 13,
@@ -489,7 +488,7 @@ class _DealsDetailsState extends State<DealsDetails> {
                                     SizedBox(
                                       height: 20,
                                     ),
-                                    /** announcer info */
+                                    //announcer info
                                     Row(
                                       mainAxisAlignment: MainAxisAlignment.end,
                                       children: [
@@ -505,8 +504,9 @@ class _DealsDetailsState extends State<DealsDetails> {
                                                 ),
                                               ),
                                               onPressed: () {
-                                                SellerDetailsPopUp().showDialogFunc(
-                                                    context,
+                                                SellerDetailsPopUp()
+                                                    .showDialogFunc(
+                                                        context,
                                                     user!
                                                 );
                                               },
@@ -532,16 +532,8 @@ class _DealsDetailsState extends State<DealsDetails> {
                                         ),
                                         CircleAvatar(
                                           radius: 35,
-                                          backgroundImage: user!.imageUrl !=
-                                                  null
-                                              ? NetworkImage(
-                                                  "${ApiPaths().UserImagePath}${user!.imageUrl}",
-                                                ) as ImageProvider<Object>
-                                              : AssetImage(
-                                                  "assets/user.png",
-                                                ),
-                                          backgroundColor: Colors.transparent,
-                                          foregroundColor: Colors.transparent,
+                                          backgroundImage: AssetImage(
+                                              "assets/Torkhani_Ala.jpg"),
                                         ),
                                       ],
                                     ),
@@ -582,7 +574,7 @@ class _DealsDetailsState extends State<DealsDetails> {
                           height: 30,
                         ),
                         /** Similar */
-                        FutureBuilder<List<DealsModel>>(
+                     /*   FutureBuilder<List<DealsModel>>(
                           future: GetSimilar(deals!, 1),
                           builder: (BuildContext context,
                               AsyncSnapshot<List<DealsModel>> snapshot) {
@@ -658,7 +650,7 @@ class _DealsDetailsState extends State<DealsDetails> {
                               );
                             }
                           },
-                        ),
+                        ),*/
                       ],
                     ),
                   ),
@@ -666,7 +658,8 @@ class _DealsDetailsState extends State<DealsDetails> {
               );
             }
           },
-        ));
-/*    */
+        )
+    );
+
   }
 }

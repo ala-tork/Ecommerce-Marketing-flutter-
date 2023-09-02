@@ -8,9 +8,11 @@ import 'package:ecommerceversiontwo/Pages/core/model/AdsFeaturesModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/AdsModels/AdsFilterModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/AdsModels/AnnounceModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/ImageModel.dart';
+import 'package:ecommerceversiontwo/Pages/core/model/UserModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/AdsFeaturesServices/AdsFeaturesService.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/AnnouncesServices/AnnounceService.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/ImageServices/ImageService.dart';
+import 'package:ecommerceversiontwo/Pages/core/services/UsersServices/UserService.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -33,16 +35,15 @@ class _AnounceDetailsState extends State<AnounceDetails> {
   PageController productImageSlider = PageController();
 
   /** User  */
-  String email = "";
-  String firstname = "";
-  String lastname = "";
-  String phone = "";
-  String country = "";
-  String address = "";
-  String _selectedCountry = '';
-  String selectedCountry = '';
-  String id = "";
-
+  User? user ;
+  Future<User> GetUser(int id) async {
+    user = await UserService().GetUserByID(id!);
+    if (user != null) {
+      return user!;
+    } else {
+      throw Exception("user Not Found !");
+    }
+  }
   //
   List<AnnounceModel> similar = [];
 
@@ -56,14 +57,9 @@ class _AnounceDetailsState extends State<AnounceDetails> {
       GetSimilar(value, 1);
       fetchAdsFeaturesByIDAds(value.idAds!);
       fetchImages(value.idAds!);
-      fetchUserData(value.iduser!).then((user) {
+      GetUser(value.iduser!).then((u) {
         setState(() {
-          email = user['email'];
-          firstname = user['firstname'];
-          lastname = user['lastname'];
-          phone = user['phone'];
-          address = user['address'];
-          country = user['country'];
+            user=u;
         });
       });
       //print("Like IDDDDDDDDD :${ad!.likeId}");
@@ -218,7 +214,7 @@ class _AnounceDetailsState extends State<AnounceDetails> {
                     elevation: 0,
                   ),
                   onPressed: () async {
-                    final Uri call = Uri(scheme: 'tel', path: phone.toString());
+                    final Uri call = Uri(scheme: 'tel', path: user?.phone??"");
                     //print(call);
                     if (await canLaunchUrl(call)) {
                       await launchUrl(call);
@@ -426,7 +422,7 @@ class _AnounceDetailsState extends State<AnounceDetails> {
                             children: [
                               TextButton(
                                 child: Text(
-                                  firstname + lastname,
+                                  "${user!.firstname} ${user!.lastname}",
                                   style: TextStyle(
                                     color: AppColor.secondary.withOpacity(1),
                                     height: 150 / 100,
@@ -435,10 +431,8 @@ class _AnounceDetailsState extends State<AnounceDetails> {
                                 onPressed: () {
                                   SellerDetailsPopUp().showDialogFunc(
                                       context,
-                                      "assets/Torkhani_Ala.jpg",
-                                      firstname + lastname,
-                                      email,
-                                      phone);
+                                      user!
+                                  );
                                 },
                               ),
                               RatingBar.builder(
@@ -462,15 +456,31 @@ class _AnounceDetailsState extends State<AnounceDetails> {
                           ),
                           CircleAvatar(
                             radius: 35,
-                            backgroundImage: AssetImage(
-                                "assets/Torkhani_Ala.jpg"),
+                            backgroundImage: user!.imageUrl != null
+                                ? NetworkImage(
+                              "${ApiPaths().UserImagePath}${user!.imageUrl}",
+                            ) as ImageProvider<Object> // Cast to ImageProvider<Object>
+                                : AssetImage(
+                              "assets/user.png",
+                            ),
+                            backgroundColor: Colors.transparent,
+                            foregroundColor: Colors.transparent,
                           ),
                         ],
                       ),
                     ],
                   ),
                 ),
-
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () {},
+                        child: Text("Deals Reviews"),
+                      ),
+                    ),
+                  ],
+                ),
                 /** Features Table */
                 if (_AdsFeatures.isNotEmpty && _AdsFeatures.length!=0)
                   DataTable(

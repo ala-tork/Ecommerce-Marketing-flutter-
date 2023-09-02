@@ -10,6 +10,7 @@ import 'package:ecommerceversiontwo/Pages/core/model/CategoriesModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/CitiesModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/CountriesModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/FeaturesValuesModel.dart';
+import 'package:ecommerceversiontwo/Pages/core/services/AnnouncesServices/AnnounceService.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/CategoriesServices/CategoryService.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -122,7 +123,7 @@ class _AnnouncesState extends State<Announces> {
     try {
       print(id);
       print(adsFilter);
-      Map<String, dynamic> response = await AdsView().getFilteredViewAds(adsFilter,id!,token!);
+      Map<String, dynamic> response = await AnnounceService().getFilteredViewAds(adsFilter,id!,token!);
 
       if (response["ads"] != null) {
         List<dynamic> adsJsonList = response["ads"];

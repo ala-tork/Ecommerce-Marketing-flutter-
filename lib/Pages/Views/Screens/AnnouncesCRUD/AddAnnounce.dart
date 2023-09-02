@@ -1,5 +1,8 @@
+import 'dart:convert';
 import 'dart:io';
-
+import 'package:ecommerceversiontwo/ApiPaths.dart';
+import 'package:ecommerceversiontwo/Pages/core/services/UsersServices/UserService.dart';
+import 'package:http/http.dart' as http;
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/MyAppBAr.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/CustomButton.dart';
@@ -27,7 +30,8 @@ import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AddAnnounces extends StatefulWidget {
-  const AddAnnounces({super.key});
+  final int newUserdiamond;
+  const AddAnnounces({super.key, required this.newUserdiamond});
 
   @override
   State<AddAnnounces> createState() => _AddAnnouncesState();
@@ -104,9 +108,7 @@ class _AddAnnouncesState extends State<AddAnnounces> {
         idCity: _city!.idCity!,
         IdUser: userid,
         locations: "${_country!.title}, ${_city!.title}",
-
-        //images:_image,
-        active: 1,
+        active: 0,
       );
       error = "";
     } else {
@@ -162,6 +164,7 @@ class _AddAnnouncesState extends State<AddAnnounces> {
             idFeaturesValues: int.parse(element.featureValueId.toString()),
             active: 1);
         await AdsFeaturesService().Createfeature(fd);
+
         //print(fvres);
       });
     }
@@ -171,8 +174,10 @@ class _AddAnnouncesState extends State<AddAnnounces> {
           int.parse(_imagesid[i].IdImage.toString()),
           int.parse(x.idAds.toString()));
     }
+    await UserService().updateUserDiamond({"nbDiamon":widget.newUserdiamond}, idUser!);
     return x;
   }
+
 
   @override
   void initState() {
@@ -282,7 +287,6 @@ class _AddAnnouncesState extends State<AddAnnounces> {
     return Scaffold(
       //backgroundColor: Colors.blueGrey[100],
       appBar: MyAppBar(
-        Daimons: 122,
         title: "Add Announce",
       ),
       body: Container(
@@ -757,41 +761,6 @@ class _AddAnnouncesState extends State<AddAnnounces> {
                           SizedBox(height: 10),
                         ],
                       ),
-
-                      /*
-                      // radio button for bosting
-                      SizedBox(height: 40,),
-                      Text("Do u wana to Boost the Annonce ?",style: TextStyle(
-                        fontSize: 18,
-                      ),
-                      ),
-                      Column(
-                        children: [
-                          RadioListTile(
-                            title: Text("Yes"),
-                            value: true,
-                            groupValue: boost,
-                            onChanged: (value){
-                              setState(() {
-                                boost = value;
-                              });
-                            },
-                          ),
-                          RadioListTile(
-                            title: Text("No"),
-                            value: false,
-                            groupValue: boost,
-                            onChanged: (value){
-                              setState(() {
-                                boost = value;
-                                //print(boost);
-                              });
-                            },
-                          ),
-                        ],
-                      ),
-                      //end radio button
-                       */
                       SizedBox(
                         height: 20,
                       ),

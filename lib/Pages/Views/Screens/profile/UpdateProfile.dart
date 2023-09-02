@@ -1,7 +1,10 @@
+import 'package:ecommerceversiontwo/ApiPaths.dart';
+import 'package:ecommerceversiontwo/Pages/Views/Screens/profile/Profile.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/AppBarWithArrowBack.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/CountriesModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/UserModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/CountriesServices/CountryService.dart';
+import 'package:ecommerceversiontwo/Pages/core/services/UsersServices/UserService.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -30,13 +33,12 @@ class _UpdateProfileState extends State<UpdateProfile> {
   String phone = "";
   String country = "";
   String address = "";
-  String _selectedCountry = '';
   String selectedCountry = '';
   int? id;
   User? user;
 
   Future<User> GetUser() async {
-    user = await User().GetUserByID(id!);
+    user = await UserService().GetUserByID(id!);
     if (user != null) {
       return user!;
     } else {
@@ -90,7 +92,7 @@ class _UpdateProfileState extends State<UpdateProfile> {
   Future<void> updateUserInformation(Map<String, dynamic> updatedUser) async {
     try {
       final response = await http.put(
-        Uri.parse('https://10.0.2.2:7058/User/UpdateUser?id=$id'),
+        Uri.parse('${ApiPaths().UpdateUserUrl}$id'),
         headers: {
           'Content-Type': 'application/json',
         },
@@ -513,12 +515,17 @@ class _UpdateProfileState extends State<UpdateProfile> {
                                 'lastname': _lastnameController.text,
                                 'email': _emailController.text,
                                 'phone': _phoneController.text,
+                                'nbDiamon':user!.nbDiamon,
                                 'address': _addressController.text,
                                 'country': country,
                               };
                               // Call the separate method to update the user
                               updateUserInformation(updatedUser);
-                              Navigator.pop(context);
+                              Navigator.of(context).pop();
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(builder: (context) => Profile(id: widget.id)),
+                              );
                             },
                             style: ElevatedButton.styleFrom(
                               primary: Colors.green,

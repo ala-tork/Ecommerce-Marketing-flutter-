@@ -80,7 +80,7 @@ class _ForgetPasswordPageState extends State<ForgetPasswordPage> {
   }
 
   void _sendPasswordResetEmail(String email) async {
-    final apiUrl = 'http://10.0.2.2:5055/User/ForgotPassword?email=$email';
+    final apiUrl = 'https://10.0.2.2:7058/User/ForgotPassword?email=$email';
     try {
       final response = await http.post(Uri.parse(apiUrl));
 

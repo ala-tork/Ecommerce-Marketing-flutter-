@@ -175,7 +175,7 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: MyAppBar(Daimons: 122, title: "Verification"),
+      appBar: MyAppBar( title: "Verification"),
 
       body: ListView(
         shrinkWrap: true,

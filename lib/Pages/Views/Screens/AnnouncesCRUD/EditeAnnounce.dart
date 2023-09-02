@@ -108,7 +108,7 @@ class _EditeAnnounceState extends State<EditeAnnounce> {
         idCity: _city!.idCity!,
         locations: "${_country!.title}, ${_city!.title}",
         IdUser: userid,
-        active: 1,
+        active: 0,
       );
       if (widget.announce!.IdBoost != null) {
         announce!.IdBoost = widget.announce!.IdBoost;
@@ -394,7 +394,6 @@ class _EditeAnnounceState extends State<EditeAnnounce> {
     return Scaffold(
       //backgroundColor: Colors.blueGrey[100],
       appBar: MyAppBar(
-        Daimons: 122,
         title: "Add Announce",
       ),
       body: Container(

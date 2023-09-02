@@ -1,3 +1,4 @@
+import 'package:ecommerceversiontwo/ApiPaths.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -42,7 +43,7 @@ class _ImageViewerState extends State<ImageViewer> {
                 width: MediaQuery.of(context).size.width,
                 height: MediaQuery.of(context).size.height,
                 child: Image.network(
-                  "https://10.0.2.2:7058"+widget.imageUrl[index],
+                  "${ApiPaths().ImagePath}"+widget.imageUrl[index],
                   fit: BoxFit.contain,
                 ),
               ),

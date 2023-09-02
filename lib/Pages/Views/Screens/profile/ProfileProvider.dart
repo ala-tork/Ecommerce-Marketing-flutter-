@@ -1,5 +1,6 @@
 
 import 'package:ecommerceversiontwo/Pages/core/model/UserModel.dart';
+import 'package:ecommerceversiontwo/Pages/core/services/UsersServices/UserService.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -11,7 +12,7 @@ class UserProfileProvider extends ChangeNotifier{
   User? get user  => _user;
 
   void FetchUserProvider(int id) async {
-   User? u = await User().GetUserByID(id);
+   User? u = await UserService().GetUserByID(id);
     if (u!=null) {
       _user =u;
     } else {

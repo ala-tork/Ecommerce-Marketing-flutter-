@@ -25,6 +25,8 @@ final String UpdateAdsUrl ="${baseUrl}/api/Ads/";
 final String GetFiltredAdsUrl ="${baseUrl}/api/Test/filtered";
 final String GetAdsByIdUrl ="${baseUrl}/Ad/";
 final String GetAdsByUserUrl ="${baseUrl}/api/Ads/ShowMoreByUser?iduser=";
+final String GetFiltredViewAdsUrl ="${baseUrl}/api/Test/AdsWithLikeAndWishList?iduser=";
+final String GetAdsUsreUrl ="${baseUrl}/api/Test/AdsByUserId?iduser=";
 
 /**             AdsFeatures                    */
 final String CreateAdsFeatureUrl ="${baseUrl}/api/AdsFeatureControler";
@@ -58,6 +60,7 @@ final String DeleteDealUrl ="$baseUrl/api/Deals/";
 final String GetDealByIdUrl ="$baseUrl/api/Deals/";
 final String GetFiltredDealsUrl ="$baseUrl/api/Test/DealsWithLikeAndWishList?iduser=";
 final String GetDealsByUserIdUrl ="$baseUrl/api/Deals/showmore/";
+final String GetUserDealsUrl ="$baseUrl/api/Test/DealsByUser?iduser=";
 
 /**                Features                 */
 final String GetFeaturesByCategoryIdUrl ="$baseUrl/api/FeaturesCategory/category/";
@@ -83,5 +86,19 @@ final String GetWishListByUserIdUrl ="$baseUrl/api/WishList/GEtWishListByUser/";
 
 /**            Winner                  */
 final String GetRandomWinnerUrl ="$baseUrl/api/Winners/RandomWinners";
+
+/**           User                        */
+final String GetUserByIdUrl = "$baseUrl/User/GetUserById?id=";
+final String AddUserImage ="$baseUrl/User/AddImageUser?idUser=";
+final String UpdateUserUrl ="$baseUrl/User/UpdateUser?id=";
+final String UpdatePasswordUrl ="$baseUrl/User/update-password?currentPassword=";
+/**             Setting              */
+final String GetNbDiamondAds = "$baseUrl/api/Setting/nbDiamondAds";
+  final String GetNbDiamondDeals = "$baseUrl/api/setting/nbDiamondDeals";
+  final String GetNbDiamondProduct = "$baseUrl/api/setting/nbDiamondProduct";
+
+
+  /**           Product                */
+final String GetUserProductUrl ="$baseUrl/api/Test/ProdByUserId?iduser=";
 
 }

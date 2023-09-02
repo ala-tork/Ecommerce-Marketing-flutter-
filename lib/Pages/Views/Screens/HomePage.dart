@@ -1,8 +1,13 @@
 import 'dart:async';
+import 'package:ecommerceversiontwo/Pages/Views/Screens/BottomBar/AnnouceBottomBar/announces.dart';
+import 'package:ecommerceversiontwo/Pages/Views/Screens/BottomBar/DealsBotomBar/deals.dart';
+import 'package:ecommerceversiontwo/Pages/Views/Screens/BottomBar/StoreBottomBar/store.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/MyAppBAr.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/searchPage.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/BostedSlider.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/FilterAllForm.dart';
+import 'package:ecommerceversiontwo/Pages/Views/widgets/GridAnnounces.dart';
+import 'package:ecommerceversiontwo/Pages/Views/widgets/GridDeals.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/ads_slide_show.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/categoryCard.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/dummy_search_widget1.dart';
@@ -10,15 +15,20 @@ import 'package:ecommerceversiontwo/Pages/Views/widgets/item_card.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/rulePopup.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/side_bar.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/AdsModels/AdsFilterModel.dart';
+import 'package:ecommerceversiontwo/Pages/core/model/AdsModels/AdsViewModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/AdsModels/AnnounceModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/BostSlideShowModels/BoostSlideShowModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/CategoriesModel.dart';
+import 'package:ecommerceversiontwo/Pages/core/model/Deals/DealsFilterModel.dart';
+import 'package:ecommerceversiontwo/Pages/core/model/Deals/DealsView.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/Product.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/AnnouncesServices/AnnounceService.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/BoostedSlideShowServices/BoostedSlideShowService.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/CategoriesServices/CategoryService.dart';
+import 'package:ecommerceversiontwo/Pages/core/services/DealsServices/DealsService.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/ProductService.dart';
 import 'package:flutter/material.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:lecle_flutter_carousel_pro/lecle_flutter_carousel_pro.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -45,55 +55,6 @@ class _HomePageState extends State<HomePage> {
   int MaxPage = 0;
   List<AnnounceModel> adsSildeShow = [];
 
-  Future<List<AnnounceModel>> GetAnnounces() async {
-    AdsFilterModel adsFilter =
-        AdsFilterModel(pageNumber: page, idFeaturesValues: []);
-    /*if (country != null) {
-      adsFilter.idCountrys = country!.idCountrys;
-    }
-    if (category != null) {
-      adsFilter.idCategory = category!.idCateg;
-    }
-    if (city != null) {
-      adsFilter.idCity = city!.idCity;
-    }
-    if(minprice!=0)
-    {
-      adsFilter.minPrice=minprice;
-    }
-    if(maxprice!=0){ adsFilter.maxPrice=maxprice;}
-    if(featuresvaluesid.isNotEmpty){adsFilter.idFeaturesValues=featuresvaluesid;}*/
-    try {
-      Map<String, dynamic> response =
-          await AnnounceService().getFilteredAds(adsFilter);
-
-      if (response["ads"] != null) {
-        List<dynamic> adsJsonList = response["ads"];
-        if (page == 1) {
-          adsSildeShow.clear();
-          adsSildeShow.addAll(
-              adsJsonList.map((json) => AnnounceModel.fromJson(json)).toList());
-        } else {
-          adsSildeShow.addAll(
-              adsJsonList.map((json) => AnnounceModel.fromJson(json)).toList());
-        }
-        //nbr Page
-        int x = response["totalItems"];
-        MaxPage = x ~/ 4;
-        if (x % 4 > 0) {
-          MaxPage += 1;
-        }
-
-        return adsSildeShow;
-      } else {
-        print(response["ads"]);
-        throw Exception('Failed to fetch Ads');
-      }
-    } catch (e) {
-      print('Error: $e');
-      throw Exception('An error occurred: $e');
-    }
-  }
 
   /** get Bossted  deals & announcements */
   List<BoostSlideShowModel> listbosted = [];
@@ -132,6 +93,71 @@ class _HomePageState extends State<HomePage> {
       _categorys.removeWhere((element) => element.idCateg == 1);
     } catch (e) {
       print('Error fetching categories: $e');
+    }
+  }
+
+  //get current user
+  int? id ;
+  Future<void> getuserId() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+    var decodedToken = JwtDecoder.decode(token!);
+    id = int.parse(decodedToken['id']);
+    print("id user is $id");
+  }
+/** GEt Announces */
+  List<AdsView> gridMap = [];
+
+
+  Future<List<AdsView>> GetAnnounces() async {
+    await getuserId();
+    SharedPreferences prefs =  await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+    AdsFilterModel adsFilter = AdsFilterModel(pageNumber: 1, idFeaturesValues: []);
+    try {
+      print(id);
+      print(adsFilter);
+      Map<String, dynamic> response = await AnnounceService().getFilteredViewAds(adsFilter,id!,token!);
+
+      if (response["ads"] != null) {
+        List<dynamic> adsJsonList = response["ads"];
+          gridMap.clear();
+          gridMap.addAll(adsJsonList.map((json) => AdsView.fromJson(json)).toList());
+        print(gridMap);
+        return gridMap;
+      } else {
+        print(response["ads"]);
+        throw Exception('Failed to fetch Ads');
+      }
+    } catch (e) {
+      print('Error: $e');
+      throw Exception('An error occurred: $e');
+    }
+  }
+/** Get Deals  */
+  List<DealsView> dealsList = [];
+  Future<List<DealsView>> GetDeals() async {
+    await getuserId();
+    DealsFilterModel deaslFilter = DealsFilterModel(pageNumber: page, idFeaturesValues: []);
+    try {
+      print(id);
+      Map<String, dynamic> response =
+      await DealsService().getFilteredViewDeals(deaslFilter, id!);
+
+      if (response["deals"] != null) {
+        List<dynamic> adsJsonList = response["deals"];
+
+          dealsList.clear();
+          dealsList.addAll(adsJsonList.map((json) => DealsView.fromJson(json)).toList());
+
+        return dealsList;
+      } else {
+        print(response["deals"]);
+        throw Exception('Failed to fetch Deals !!!!!!!!!!');
+      }
+    } catch (e) {
+      print('Error: $e');
+      throw Exception('An error occurred: $e');
     }
   }
 
@@ -187,7 +213,6 @@ class _HomePageState extends State<HomePage> {
       backgroundColor: Colors.white,
       drawer: SideBar(),
       appBar: MyAppBar(
-        Daimons: 122,
         title: "My App",
       ),
       body: ListView(children: [
@@ -661,8 +686,71 @@ class _HomePageState extends State<HomePage> {
                 ],
               ),
             ),
+            /** Section-4 Deals Section  */
+            Padding(
+              padding: EdgeInsets.only(left: 16, top: 16),
+              child: Text(
+                'Today Deals..........',
+                style: TextStyle(
+                    color: Colors.grey,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w400),
+              ),
+            ),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: Wrap(
+                  spacing: 16,
+                  runSpacing: 16,
+                  children:[
+                    FutureBuilder<List<DealsView>>(
+                      future: GetDeals(),
+                      builder: (BuildContext context,
+                          AsyncSnapshot<List<DealsView>> snapshot) {
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          return CircularProgressIndicator();
+                        } else if (snapshot.hasError) {
+                          return Text('Failed to fetch data');
+                        } else {
+                          return Column(
+                            children: [
+                              GridDeals(
+                                data: dealsList,
+                                IdUser: id!,
+                              ),
+                              if (dealsList.length != 0)
+                                Padding(
+                                  padding: const EdgeInsets.only(bottom: 3,top: 5),
+                                  child:
+                                    GestureDetector(
+                                      onTap: (){
+                                        Navigator.push(context, MaterialPageRoute(builder:(context) => Deals()));
+                                      },
+                                      child: Align(
+                                        alignment: Alignment.centerRight,
+                                        child: Text(
+                                          'See More >> ',
+                                          style: TextStyle(
+                                              color: Colors.grey,
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.w600
+                                          ),
+                                        ),
+                                      ),
+                                    )
+                                )
+                              else
+                                SizedBox(height: 0),
+                            ],
+                          );
+                        }
+                      },
+                    ),
+                  ]
+              ),
+            ),
 
-            /** Section 4 - product list **/
+            /** Section 5 - product list **/
 
             Padding(
               padding: EdgeInsets.only(left: 16, top: 16),
@@ -670,7 +758,7 @@ class _HomePageState extends State<HomePage> {
                 'Todays recommendation...',
                 style: TextStyle(
                     color: Colors.grey,
-                    fontSize: 12,
+                    fontSize: 15,
                     fontWeight: FontWeight.w400),
               ),
             ),
@@ -686,6 +774,84 @@ class _HomePageState extends State<HomePage> {
                     product: productData[index],
                   ),
                 ),
+              ),
+            ),
+            GestureDetector(
+              onTap: (){
+                Navigator.push(context, MaterialPageRoute(builder:(context) => Store()));
+              },
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: Text(
+                  'See More >> ',
+                  style: TextStyle(
+                      color: Colors.grey,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600
+                  ),
+                ),
+              ),
+            ),
+
+            /** Announces Section  */
+            Padding(
+              padding: EdgeInsets.only(left: 16, top: 16),
+              child: Text(
+                'Today Announces',
+                style: TextStyle(
+                    color: Colors.grey,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w400),
+              ),
+            ),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: Wrap(
+                spacing: 16,
+                runSpacing: 16,
+                children:[
+                  FutureBuilder<List<AdsView>>(
+                    future: GetAnnounces(),
+                    builder: (BuildContext context, AsyncSnapshot<List<AdsView>> snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return CircularProgressIndicator();
+                      } else if (snapshot.hasError) {
+                        return Text('Failed to fetch Ads with like ');
+                      } else {
+                        return Column(
+                          children: [
+                            GridB(
+                              data: gridMap,
+                              IdUser: id!,
+                            ),
+                            if (gridMap.length != 0)
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 20),
+                                child:GestureDetector(
+                                  onTap: (){
+                                    Navigator.push(context, MaterialPageRoute(builder:(context) => Announces()));
+                                  },
+                                  child: Align(
+                                    alignment: Alignment.centerRight,
+                                    child: Text(
+                                      'See More >> ',
+                                      style: TextStyle(
+                                          color: Colors.grey,
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.w600
+                                      ),
+                                    ),
+                                  ),
+                                )
+                              )
+                            else
+                              SizedBox(height: 0),
+                          ],
+                        );
+                      }
+                    },
+                  ),
+                ]
               ),
             ),
           ],

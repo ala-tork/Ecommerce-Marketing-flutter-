@@ -1,13 +1,14 @@
 import 'package:ecommerceversiontwo/ApiPaths.dart';
+import 'package:ecommerceversiontwo/Pages/Views/Screens/CrudProduct/MyProductList.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/DealsCrudViews/MyDealsList.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/LoginPage.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/profile/Profile.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/wishlist.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/UserModel.dart';
+import 'package:ecommerceversiontwo/Pages/core/services/UsersServices/UserService.dart';
 import 'package:ecommerceversiontwo/language_picker_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:ecommerceversiontwo/Pages/Views/Screens/products/productList.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -23,7 +24,7 @@ class _SideBarState extends State<SideBar> {
   String? token;
   String firstname = '';
   int? idUser;
-
+  int setting=0;
   @override
   void initState() {
     super.initState();
@@ -56,7 +57,7 @@ class _SideBarState extends State<SideBar> {
 
   Future<User> GetUser() async {
     await getuserId();
-    user = await User().GetUserByID(id!);
+    user = await UserService().GetUserByID(id!);
     if (user != null) {
       return user!;
     } else {
@@ -83,21 +84,38 @@ class _SideBarState extends State<SideBar> {
                   padding: EdgeInsets.zero,
                   children: [
                     UserAccountsDrawerHeader(
-                      accountName: Text(
-                        "${user!.firstname} ${user!.lastname}",
-                        style: TextStyle(
-                          fontSize: 18.0,
-                        ),
+                      accountName: Row(
+                        children: [
+                          Text(
+                            "${user!.firstname} ${user!.lastname}",
+                            style: TextStyle(
+                              fontSize: 18.0,
+                            ),
+                          ),
+                          SizedBox(width: 5,),
+                          if(user!.isverified==1)
+                          Icon(Icons.verified, color: Colors.blue),
+                          SizedBox(width: 8.0),
+                          if(user!.isPremium==1)
+                          Icon(Icons.star, color: Colors.greenAccent),
+                          SizedBox(width: 8.0),
+                          if(user!.isPro==1)
+                          Icon(Icons.local_activity, color: Colors.orange),
+                          SizedBox(width: 8.0),
+
+                        ],
                       ),
                       accountEmail: Text(""),
-                      currentAccountPicture: CircleAvatar(
-                        radius: 50,
+                      currentAccountPicture: Container(
+                        width: 100,
+                        height: 100,
                         child: ClipOval(
-                          child: user!.imageUrl!=null?
-                          Image.network(
+                          child: user!.imageUrl != null
+                              ? Image.network(
                             "${ApiPaths().UserImagePath}${user!.imageUrl}",
                             fit: BoxFit.cover,
-                          ):Image.asset(
+                          )
+                              : Image.asset(
                             "assets/user.png",
                             fit: BoxFit.cover,
                           ),
@@ -124,7 +142,6 @@ class _SideBarState extends State<SideBar> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            //builder: (context) => ProfileDetails(id: id!),
                             builder: (context) => Profile(id: id!),
                           ),
                         ).then((value) async {
@@ -197,7 +214,7 @@ class _SideBarState extends State<SideBar> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => ProductList(),
+                            builder: (context) => MyProducts(),
                           ),
                         );
                       },
@@ -244,7 +261,18 @@ class _SideBarState extends State<SideBar> {
                           fontSize: 18.0,
                         ),
                       ),
-                      onTap: () {},
+                      onTap: () {
+                        setState(() {
+                          if(setting==0) {
+                            setting = 1;
+                          }else{setting=0;}
+                        });
+                      },
+                    ),
+                    if(setting==1)
+                    Padding(
+                      padding: const EdgeInsets.only(left: 48),
+                      child: LanguagePickerWidget(),
                     ),
                     ListTile(
                       leading: Icon(Icons.exit_to_app_outlined),
@@ -265,7 +293,7 @@ class _SideBarState extends State<SideBar> {
                       },
 
                     ),
-                    LanguagePickerWidget()
+
                   ],
                 );
               }

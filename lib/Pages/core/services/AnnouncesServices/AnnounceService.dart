@@ -137,4 +137,56 @@ class AnnounceService{
       throw Exception('An error occurred: $e');
     }
   }
+
+
+
+  ////// filtred Ads with like and wishlist
+  //fileter data with pagination
+  Future<Map<String, dynamic>> getFilteredViewAds(AdsFilterModel filter,int idUser ,String token) async {
+    print(filter.toJson());
+    try {
+      final response = await http.post(
+        Uri.parse("${ApiPaths().GetFiltredViewAdsUrl}$idUser"),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(filter.toJson()),
+      );
+      print(response.body);
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        return responseData;
+      } else {
+        throw Exception('Failed to fetch Ads ');
+      }
+    } catch (e) {
+      throw Exception('An error occurred: $e');
+    }
+  }
+
+
+  ////// filtred Ads with like and wishlist
+  /**   fileter data with pagination By User Id    */
+  Future<Map<String, dynamic>> getadsByUser(AdsFilterModel filter,int idUser ) async {
+    print(filter.toJson());
+    try {
+      final response = await http.post(
+        Uri.parse("${ApiPaths().GetAdsUsreUrl}$idUser"),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(filter.toJson()),
+      );
+      print(response.body);
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        return responseData;
+      } else {
+        throw Exception('Failed to fetch Ads ');
+      }
+    } catch (e) {
+      throw Exception('An error occurred: $e');
+    }
+  }
 }

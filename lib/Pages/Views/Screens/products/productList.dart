@@ -20,7 +20,7 @@ class _ProductListState extends State<ProductList> {
     return Scaffold(
       backgroundColor: Colors.white,
       drawer: SideBar(),
-      appBar: MyAppBar(Daimons: 122,title: "Products",),
+      appBar: MyAppBar(title: "Products",),
       body: Column(
         children: [
           //showing the head

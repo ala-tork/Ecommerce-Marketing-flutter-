@@ -54,7 +54,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       drawer: SideBar(),
-      appBar: MyAppBar(Daimons: 122,title: "Show Products",),
+      appBar: MyAppBar(title: "Show Products",),
 
       body: Column(
         children: [

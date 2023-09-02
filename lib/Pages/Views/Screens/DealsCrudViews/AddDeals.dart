@@ -23,6 +23,7 @@ import 'package:ecommerceversiontwo/Pages/core/services/FeaturesServices/Feature
 import 'package:ecommerceversiontwo/Pages/core/services/FeaturesValuesServices/FeaturesValuesService.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/ImageServices/ImageService.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/PrizeServices/PrizeService.dart';
+import 'package:ecommerceversiontwo/Pages/core/services/UsersServices/UserService.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
@@ -30,8 +31,11 @@ import 'package:intl/intl.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+
+
 class AddDeals extends StatefulWidget {
-  const AddDeals({super.key});
+  final int newUserdiamond;
+  const AddDeals({super.key, required this.newUserdiamond});
 
   @override
   State<AddDeals> createState() => _AddDealsState();
@@ -83,7 +87,7 @@ class _AddDealsState extends State<AddDeals> {
         image: _Prizeimagesid!.title!,
         datePrize: EndDate.text,
         idUser:iduser,
-        active: 1);
+        active: 0);
 
     try {
       PrizeModel newprize = await PrizeService().AddPrize(prize);
@@ -113,7 +117,7 @@ class _AddDealsState extends State<AddDeals> {
         description: prizeDescription!.text,
         image: _Prizeimagesid!.title!,
         datePrize: EndDate.text,
-        active: 1);
+        active: 0);
     try {
       PrizeModel UpdatedPrize =
           await PrizeService().UpdatePrize(prize, idPrize);
@@ -227,7 +231,7 @@ class _AddDealsState extends State<AddDeals> {
         idBrand: _brand!.idBrand,
         idUser: userId,
         locations: "${_country!.title}, ${_city!.title}",
-        active: 1,
+        active: 0,
       );
       if (EndDate != null) {
         deals!.dateEND = EndDate.text;
@@ -302,8 +306,11 @@ class _AddDealsState extends State<AddDeals> {
           int.parse(_imagesid[i].IdImage.toString()),
           int.parse(x.idDeal.toString()));
     }
+    await UserService().updateUserDiamond({"nbDiamon":widget.newUserdiamond}, idUser!);
     return x;
   }
+
+
 
   @override
   void initState() {
@@ -424,7 +431,6 @@ class _AddDealsState extends State<AddDeals> {
     return Scaffold(
       //backgroundColor: Colors.blueGrey[100],
       appBar: MyAppBar(
-        Daimons: 122,
         title: "Add Deals",
       ),
       body: Container(

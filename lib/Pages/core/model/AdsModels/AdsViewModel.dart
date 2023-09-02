@@ -119,30 +119,5 @@ class AdsView {
     return data;
   }
 
-  ////// filtred Ads with like and wishlist
-  //fileter data with pagination
-  Future<Map<String, dynamic>> getFilteredViewAds(AdsFilterModel filter,int idUser ,String token) async {
-    print("///////////////////////////////////////$token");
-    print(filter.toJson());
-    try {
 
-      final response = await http.post(
-        Uri.parse("https://10.0.2.2:7058/api/Test/AdsWithLikeAndWishList?iduser=$idUser"),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode(filter.toJson()),
-      );
-      print(response.body);
-      if (response.statusCode == 200) {
-        final responseData = json.decode(response.body);
-        return responseData;
-      } else {
-        throw Exception('Failed to fetch Ads ');
-      }
-    } catch (e) {
-      throw Exception('An error occurred: $e');
-    }
-  }
 }

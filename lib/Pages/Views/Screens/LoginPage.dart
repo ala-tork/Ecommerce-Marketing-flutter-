@@ -3,13 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
-
 import 'package:ecommerceversiontwo/ApiService.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/FogotPassword.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/RegisterPage.dart';
 import 'package:ecommerceversiontwo/Pages/app_color.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 
 class LoginPage extends StatefulWidget {
   @override
@@ -83,9 +83,9 @@ class _LoginPageState extends State<LoginPage> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         centerTitle: true,
-        backgroundColor: Colors.blueGrey,
+        backgroundColor: Colors.indigo,
         elevation: 0,
-        title: Text('Sign in', style: TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.w600)),
+        title: Text('Sign in', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600)),
         leading: IconButton(
           onPressed: () {
             Navigator.of(context).pop();

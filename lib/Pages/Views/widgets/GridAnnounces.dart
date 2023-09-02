@@ -2,7 +2,6 @@ import 'package:ecommerceversiontwo/ApiPaths.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/BottomBar/AnnouceBottomBar/AnnounceDetails.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/AdsModels/AdsViewModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/AdsModels/AnnounceModel.dart';
-import 'package:ecommerceversiontwo/Pages/core/model/CategoriesModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/LikesModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/WishListModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/LikeServices/LikeService.dart';

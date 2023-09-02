@@ -5,6 +5,7 @@ class AdsFeature {
   int? idAF;
   int? idAds;
   int? idDeals;
+  int? idProduct;
   int? idFeature;
   FeaturesModel? features;
   int? idFeaturesValues;
@@ -16,6 +17,7 @@ class AdsFeature {
       {this.idAF,
       this.idAds,
       this.idDeals,
+        this.idProduct,
       this.idFeature,
       this.idFeaturesValues,
       this.featuresValues,
@@ -26,6 +28,7 @@ class AdsFeature {
     idAF = json['idAF'];
     idAds = json['idAds'];
     idDeals = json['idDeals'];
+    idProduct = json['idProduct'];
     idFeature = json['idFeature'];
     features = json['features'] != null
         ? new FeaturesModel.fromJson(json['features'])
@@ -42,6 +45,7 @@ class AdsFeature {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['idAds'] = this.idAds;
     data['idDeals'] = this.idDeals;
+    data['idProduct'] = this.idProduct;
     data['idFeature'] = this.idFeature;
     data['idFeaturesValues'] = this.idFeaturesValues;
     data['myValues'] = this.myValues;
@@ -54,6 +58,7 @@ class AdsFeature {
 class CreateAdsFeature {
   int? idAds;
   int? idDeals;
+  int? idProduct;
   int? idFeature;
   int? idFeaturesValues;
   String? myValues;
@@ -62,6 +67,7 @@ class CreateAdsFeature {
   CreateAdsFeature(
       {this.idAds,
       this.idDeals,
+        this.idProduct,
       this.idFeature,
       this.idFeaturesValues,
       this.myValues,
@@ -71,6 +77,7 @@ class CreateAdsFeature {
     idAds = json['idAds'];
     idDeals = json['idDeals'];
     idFeature = json['idFeature'];
+    idProduct = json['idProduct'];
     idFeaturesValues = json['idFeaturesValues'];
     myValues = json['myValues'];
     active = json['active'];
@@ -81,7 +88,9 @@ class CreateAdsFeature {
       'IdAds': idAds,
       'IdDeals': idDeals,
       'IdFeature': idFeature,
-      'IdFeaturesValues': idFeaturesValues,
+    'idProduct' : idProduct,
+
+    'IdFeaturesValues': idFeaturesValues,
       'MyValues': myValues,
       'Active': active,
     };
