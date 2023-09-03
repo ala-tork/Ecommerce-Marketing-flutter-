@@ -86,7 +86,7 @@ class _MyAppBarState extends State<MyAppBar> {
                 return Text('Failed to fetch data');
               } else {
                 return Padding(
-                  padding: const EdgeInsets.fromLTRB(0, 5.0, 5.0, 0),
+                  padding: const EdgeInsets.fromLTRB(0, 5.0, 0, 0),
                   child: CustomIconButtonWidget(
                     onTap: () {
                       AwesomeDialog(
@@ -113,6 +113,18 @@ class _MyAppBarState extends State<MyAppBar> {
                 );
               }
             }),
+        Padding(
+          padding: const EdgeInsets.only(top: 8),
+          child: CustomIconButtonWidget(
+            onTap: () {
+            },
+            value: 0,
+            icon: Icon(
+              Icons.shopping_cart_outlined,
+              color: Colors.white,
+            ),
+          ),
+        ),
       ],
     );
   }

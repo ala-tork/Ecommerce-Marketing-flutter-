@@ -74,7 +74,7 @@ class _AppBarForBottomBarViewsState extends State<AppBarForBottomBarViews> {
       centerTitle: true,
       actions: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(0, 5.0, 5.0, 0),
+          padding: const EdgeInsets.fromLTRB(0, 5.0, 0, 0),
           child: CustomIconButtonWidget(
             onTap: () {
               Navigator.of(context).push(MaterialPageRoute(
@@ -97,7 +97,7 @@ class _AppBarForBottomBarViewsState extends State<AppBarForBottomBarViews> {
                 return Text('Failed to fetch data');
               } else {
                 return Padding(
-                  padding: const EdgeInsets.fromLTRB(0, 5.0, 5.0, 0),
+                  padding: const EdgeInsets.fromLTRB(0, 5.0, 0, 0),
                   child: CustomIconButtonWidget(
                     onTap: () {
                       AwesomeDialog(
@@ -124,6 +124,18 @@ class _AppBarForBottomBarViewsState extends State<AppBarForBottomBarViews> {
                 );
               }
             }),
+        Padding(
+          padding: const EdgeInsets.only(top: 8),
+          child: CustomIconButtonWidget(
+            onTap: () {
+            },
+            value: 0,
+            icon: Icon(
+              Icons.shopping_cart_outlined,
+              color: Colors.white,
+            ),
+          ),
+        ),
       ],
     );
   }
