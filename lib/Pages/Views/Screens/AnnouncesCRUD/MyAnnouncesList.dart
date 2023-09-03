@@ -104,8 +104,8 @@ class _MyAnnouncesState extends State<MyAnnounces> {
     }
   }
  /** add boost */
-  Future<AnnounceModel> AddBost(
-      AnnounceModel an, Boost boost, int AnnounceIndex) async {
+  Future<AnnounceModel> AddBost(AnnounceModel an, Boost boost, int AnnounceIndex) async {
+    if(boost.price! <= user!.nbDiamon!){
     try {
       CreateAnnounce announce = CreateAnnounce(
         title: an.title,
@@ -132,6 +132,23 @@ class _MyAnnouncesState extends State<MyAnnounces> {
       return response!;
     } catch (e) {
       throw Exception("faild to update Ad : $e");
+    }
+    }else{
+
+      AwesomeDialog(
+          context: context,
+          dialogBackgroundColor: Colors.teal[100],
+          dialogType: DialogType.warning,
+          animType: AnimType.topSlide,
+          title: "Error !",
+          descTextStyle:
+          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          desc: "You don't have enough diamonds.",
+          btnCancelColor: Colors.grey,
+          btnCancelOnPress: () {},
+          btnOkOnPress: () {})
+          .show();
+      throw Exception("");
     }
   }
 
@@ -385,7 +402,8 @@ class _MyAnnouncesState extends State<MyAnnounces> {
                                               builder: (context) =>
                                                   EditeAnnounce(
                                                       announce:
-                                                          announces[index]),
+                                                          announces[index]
+                                                  ),
                                             ),
                                           )
                                               .then((value) {
@@ -424,8 +442,7 @@ class _MyAnnouncesState extends State<MyAnnounces> {
                                                     return BoostFormPopUp();
                                                   },
                                                 ).then((value) {
-                                                  AddBost(announces[index],
-                                                      value['idBoost'], index);
+                                                  AddBost(announces[index], value["Boost"], index);
                                                 });
                                               },
                                               icon: Icon(

@@ -9,7 +9,7 @@ class BoostFormPopUp extends StatefulWidget {
 
 class _BoostFormPopUpState extends State<BoostFormPopUp> {
   List<Boost>? listBoost = [];
-  dynamic selectedBoost;
+  Boost? selectedBoost;
 
   @override
   void initState() {
@@ -115,7 +115,7 @@ class _BoostFormPopUpState extends State<BoostFormPopUp> {
                           color: Colors.green,
                         ),
                       ),
-                      value: b.idBoost,
+                      value: b,
                       groupValue: selectedBoost,
                       onChanged: (value) {
                         setState(() {
@@ -130,7 +130,7 @@ class _BoostFormPopUpState extends State<BoostFormPopUp> {
               SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
-                  Navigator.pop(context,{"idBoost":selectedBoost});
+                  Navigator.pop(context,{"Boost":selectedBoost});
                 },
                 child: Text(
                   'By Now',

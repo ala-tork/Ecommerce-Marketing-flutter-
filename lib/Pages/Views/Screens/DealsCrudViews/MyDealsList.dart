@@ -116,36 +116,55 @@ class _MyDealsState extends State<MyDeals> {
   }
 
   Future<DealsModel> AddBost(DealsModel deal, Boost boost, int DealsIndex) async {
-    try {
-      CreateDealsModel updatedDeal = CreateDealsModel(
-          title: deal.title,
-          description: deal.description,
-          details: deal.details,
-          price: deal.price,
-          quantity: deal.quantity,
-          discount: deal.discount,
-          imagePrinciple: deal.imagePrinciple,
-          idCateg: deal.idCateg,
-          idCountrys: deal.idCountrys,
-          idCity: deal.idCity,
-          idBrand: deal.idBrand,
-          idUser: deal.idUser,
-          locations: deal.locations,
-          dateEND: deal.dateEND,
-          idPrize: deal.idPrize,
-          active: 1,
-          idBoost: boost.idBoost);
-      DealsModel? response = await DealsService().updateDeals(deal.idDeal!, updatedDeal);
-      await UserService().updateUserDiamond({"nbDiamon":user!.nbDiamon! - boost!.price!},idUser!);
-      setState(() {
-        deals[DealsIndex] = response!;
-        user!.nbDiamon = user!.nbDiamon! - boost.price!;
-      });
-      // print(announces[AnnounceIndex].IdBoost);
-      return response!;
-    } catch (e) {
-      throw Exception("faild to Boost Deals : $e");
+    if(boost.price! <= user!.nbDiamon!){
+      try {
+        CreateDealsModel updatedDeal = CreateDealsModel(
+            title: deal.title,
+            description: deal.description,
+            details: deal.details,
+            price: deal.price,
+            quantity: deal.quantity,
+            discount: deal.discount,
+            imagePrinciple: deal.imagePrinciple,
+            idCateg: deal.idCateg,
+            idCountrys: deal.idCountrys,
+            idCity: deal.idCity,
+            idBrand: deal.idBrand,
+            idUser: deal.idUser,
+            locations: deal.locations,
+            dateEND: deal.dateEND,
+            idPrize: deal.idPrize,
+            active: 1,
+            idBoost: boost.idBoost);
+        DealsModel? response = await DealsService().updateDeals(deal.idDeal!, updatedDeal);
+        await UserService().updateUserDiamond({"nbDiamon":user!.nbDiamon! - boost!.price!},idUser!);
+        setState(() {
+          deals[DealsIndex] = response!;
+          user!.nbDiamon = user!.nbDiamon! - boost.price!;
+        });
+        // print(announces[AnnounceIndex].IdBoost);
+        return response!;
+      } catch (e) {
+        throw Exception("faild to Boost Deals : $e");
+      }
+    }else{
+
+      AwesomeDialog(
+          context: context,
+          dialogBackgroundColor: Colors.teal[100],
+          dialogType: DialogType.warning,
+          animType: AnimType.topSlide,
+          title: "Error !",
+          descTextStyle:
+          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          desc: "You don't have enough diamonds.",
+          btnCancelColor: Colors.grey,
+          btnCancelOnPress: () {},
+          btnOkOnPress: () {})
+          .show();
+      throw Exception("");
     }
+
   }
 
 
@@ -486,7 +505,6 @@ class _MyDealsState extends State<MyDeals> {
                                                   DealsModel res =
                                                       value['UpatedDeals'];
                                                   if (res != null) {
-                                                    //print("//////////////////////////////////////   $res");
                                                     setState(() {
                                                       deals.removeWhere((a) =>
                                                           res.idDeal ==
@@ -522,7 +540,7 @@ class _MyDealsState extends State<MyDeals> {
                                                     ).then((value) {
                                                       AddBost(
                                                           deals[index],
-                                                          value['idBoost'],
+                                                          value['Boost'],
                                                           index);
                                                     });
                                                   },

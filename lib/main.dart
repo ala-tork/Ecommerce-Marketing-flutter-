@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:ecommerceversiontwo/LocalProvider.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/DealsCrudViews/AddDeals.dart';
+import 'package:ecommerceversiontwo/Pages/core/services/myhttpoverrides.dart';
 import 'package:ecommerceversiontwo/l10n/l10n.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -14,6 +15,7 @@ import 'package:ecommerceversiontwo/Pages/Views/Screens/WelcomePage.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  HttpOverrides.global = MyHttpOverrides();
 
   runApp(
     ChangeNotifierProvider<LocalProvider>(

@@ -5,6 +5,7 @@ import 'package:ecommerceversiontwo/Pages/Views/Screens/CrudProduct/UpdateProduc
 import 'package:ecommerceversiontwo/Pages/Views/widgets/MyAppBAr.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/BoostFormPopUp.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/DealsGiftPopUp.dart';
+import 'package:ecommerceversiontwo/Pages/core/model/BoostModules/Boost.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/ProductModels/CreateProduct.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/ProductModels/Product.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/UserModel.dart';
@@ -142,45 +143,62 @@ class _MyProductsState extends State<MyProducts> {
     }
   }
 
-  Future<Product> AddBost(
-      Product prod, int idBoost, int ProdIndex) async {
-    try {
-      CreateProduct updateProd = CreateProduct(
-        codeBar: prod.codeBar,
-        codeProduct: prod.codeProduct,
-        reference: prod.reference,
-        title: prod.title,
-        description: prod.description,
-        details: prod.details,
-        datePublication: prod.datePublication,
-        qte: prod.qte,
-        color: prod.color,
-        unity: prod.unity,
-        tax: prod.tax,
-        price: prod.price,
-        idPricesDelevery: prod.idPricesDelevery,
-        discount: prod.discount,
-        imagePrincipale: prod.imagePrincipale,
-        videoName: prod.videoName,
-        idMagasin: prod.idMagasin,
-        idCateg: prod.idCateg,
-        idUser: prod.idUser,
-        idCountry: prod.idCountry,
-        idCity: prod.idCity,
-        idBrand: prod.idBrand,
-        idPrize: prod.idPrize,
-        idBoost: prod.idBoost,
-        active: 0,
-      );
+  Future<Product> AddBost(Product prod, Boost boost, int ProdIndex) async {
+    if(boost.price! <= user!.nbDiamon!) {
+      try {
+        CreateProduct updateProd = CreateProduct(
+          codeBar: prod.codeBar,
+          codeProduct: prod.codeProduct,
+          reference: prod.reference,
+          title: prod.title,
+          description: prod.description,
+          details: prod.details,
+          datePublication: prod.datePublication,
+          qte: prod.qte,
+          color: prod.color,
+          unity: prod.unity,
+          tax: prod.tax,
+          price: prod.price,
+          idPricesDelevery: prod.idPricesDelevery,
+          discount: prod.discount,
+          imagePrincipale: prod.imagePrincipale,
+          videoName: prod.videoName,
+          idMagasin: prod.idMagasin,
+          idCateg: prod.idCateg,
+          idUser: prod.idUser,
+          idCountry: prod.idCountry,
+          idCity: prod.idCity,
+          idBrand: prod.idBrand,
+          idPrize: prod.idPrize,
+          idBoost: boost.idBoost,
+          active: 0,
+        );
 
-      Product? response = await ProductService().updateProduct(prod.idProd!, updateProd);
-      setState(() {
-        products[ProdIndex] = response!;
-      });
-      // print(announces[AnnounceIndex].IdBoost);
-      return response!;
-    } catch (e) {
-      throw Exception("faild to Boost Product : $e");
+        Product? response = await ProductService().updateProduct(
+            prod.idProd!, updateProd);
+        setState(() {
+          products[ProdIndex] = response!;
+        });
+        // print(announces[AnnounceIndex].IdBoost);
+        return response!;
+      } catch (e) {
+        throw Exception("faild to Boost Product : $e");
+      }
+    }else {
+      AwesomeDialog(
+          context: context,
+          dialogBackgroundColor: Colors.teal[100],
+          dialogType: DialogType.warning,
+          animType: AnimType.topSlide,
+          title: "Error !",
+          descTextStyle:
+          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          desc: "You don't have enough diamonds.",
+          btnCancelColor: Colors.grey,
+          btnCancelOnPress: () {},
+          btnOkOnPress: () {})
+          .show();
+      throw Exception("");
     }
   }
 
@@ -526,7 +544,7 @@ class _MyProductsState extends State<MyProducts> {
                                           SizedBox(
                                             width: 20,
                                           ),
-                                          products[index].idBoost == null
+                                          products[index].idBoost == null && products[index].active==1
                                               ? TextButton.icon(
                                                   style: ButtonStyle(),
                                                   onPressed: () {
@@ -536,10 +554,10 @@ class _MyProductsState extends State<MyProducts> {
                                                         return BoostFormPopUp();
                                                       },
                                                     ).then((value) {
-                                                      /*AddBost(
-                                                          deals[index],
-                                                          value['idBoost'],
-                                                          index);*/
+                                                      AddBost(
+                                                          products[index],
+                                                          value['Boost'],
+                                                          index);
                                                     });
                                                   },
                                                   icon: Icon(
