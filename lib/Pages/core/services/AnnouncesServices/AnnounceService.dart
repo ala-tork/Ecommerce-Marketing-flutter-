@@ -59,7 +59,6 @@ class AnnounceService{
 // Update announce
   Future<AnnounceModel?> updateAnnouncement(int announcementId, CreateAnnounce updatedData) async {
     try {
-      print("//////////////////////////// ${updatedData.active}");
       var url = Uri.parse("${ApiPaths().UpdateAdsUrl}$announcementId");
       var headers = {'Content-Type': 'application/json'};
       var jsonBody = json.encode(updatedData.toJson());

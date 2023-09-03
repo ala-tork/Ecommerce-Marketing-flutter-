@@ -4,7 +4,7 @@ import 'package:ecommerceversiontwo/ApiPaths.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/UsersServices/UserService.dart';
 import 'package:http/http.dart' as http;
 import 'package:awesome_dialog/awesome_dialog.dart';
-import 'package:ecommerceversiontwo/Pages/Views/Screens/MyAppBAr.dart';
+import 'package:ecommerceversiontwo/Pages/Views/widgets/MyAppBAr.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/CustomButton.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/AdsFeaturesModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/AdsModels/AnnounceModel.dart';
@@ -422,59 +422,104 @@ class _AddAnnouncesState extends State<AddAnnounces> {
                           padding: const EdgeInsets.fromLTRB(0, 30, 0, 0),
                           child: Column(
                             children: [
-                              _image.length != 0
+                              _imagesid.length != 0
                                   ? Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: _image.map((img) {
-                                        return Container(
-                                          width:
-                                              MediaQuery.of(context).size.width,
-                                          height: 300,
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                            border: Border.all(
-                                                color: Colors.black
-                                                    .withOpacity(0)),
-                                          ),
-                                          child: Image.file(
-                                            img!,
-                                            height: 400,
-                                            fit: BoxFit.fill,
-                                          ),
-                                        );
-                                      }).toList(),
-                                    )
-                                  : Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: <Widget>[
-                                          Container(
-                                            height: 300,
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                              border: Border.all(
-                                                  color: Colors.black
-                                                      .withOpacity(0)),
-                                              image: DecorationImage(
-                                                image: AssetImage(
-                                                    "assets/images/vide.png"),
-                                                fit: BoxFit.fill,
+                                mainAxisSize: MainAxisSize.min,
+                                children: _imagesid.asMap()
+                                    .entries
+                                    .map((entry) {
+                                  int index = entry.key;
+                                  String img = entry.value.title!;
+                                  return Column(
+                                    children: [
+                                      Container(
+                                        width: MediaQuery.of(context)
+                                            .size
+                                            .width,
+                                        height: 300,
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                          BorderRadius.circular(10),
+                                          border: Border.all(
+                                              color: Colors.black
+                                                  .withOpacity(0)),
+                                        ),
+                                        child: Stack(
+                                          children: [
+                                            Image.network(
+                                              ApiPaths().ImagePath + img,
+                                              height: 400,
+                                              width: 420,
+                                              fit: BoxFit.fill,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      ElevatedButton(
+                                        onPressed: () async {
+                                          bool res = await ImageService().deleteImage(entry.value.IdImage!);
+
+                                          setState(() {
+                                            _imagesid.remove(entry.value);
+                                            _image.remove(entry.value);
+                                          });
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          primary: Colors.red,
+                                        ),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                          children: [
+                                            Icon(Icons.delete,
+                                                color: Colors.white),
+                                            SizedBox(width: 8),
+                                            Text(
+                                              "Delete",
+                                              style: TextStyle(
+                                                fontSize: 20,
+                                                color: Colors.white,
                                               ),
                                             ),
-                                          ),
-                                        ]),
-                              SizedBox(
-                                height: 30,
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                }).toList(),
+                              )
+                                  : Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: <Widget>[
+                                  if (_imagesid.length == 0)
+                                    Container(
+                                      height: 300,
+                                      decoration: BoxDecoration(
+                                        borderRadius:
+                                        BorderRadius.circular(10),
+                                        border: Border.all(
+                                            color: Colors.black
+                                                .withOpacity(0)),
+                                        image: DecorationImage(
+                                          image: AssetImage(
+                                              "assets/images/vide.png"),
+                                          fit: BoxFit.fill,
+                                        ),
+                                      ),
+                                    ),
+                                  SizedBox(height: 30),
+                                ],
                               ),
                               CostumButton(
-                                  title: "Pick an Image",
-                                  iconName: Icons.image_outlined,
-                                  onClick: () => getImage(ImageSource.gallery)),
+                                title: "Pick an Image",
+                                iconName: Icons.image_outlined,
+                                onClick: () => getImage(ImageSource.gallery),
+                              ),
                               CostumButton(
-                                  title: "Take picture ",
-                                  iconName: Icons.camera,
-                                  onClick: () => getImage(ImageSource.camera)),
+                                title: "Take a picture",
+                                iconName: Icons.camera,
+                                onClick: () => getImage(ImageSource.camera),
+                              ),
                             ],
                           ),
                         ),
@@ -772,30 +817,57 @@ class _AddAnnouncesState extends State<AddAnnounces> {
                           color: Colors.indigo,
                           onPressed: () async {
                             if (_AdsFormKey.currentState!.validate()) {
-                              await getuserId().then((value) {
-                                createAnnounceObject(value);
-                              });
+                                  if (CategoryId != 0 && _country != null && _city != null &&
+                                      _imagesid.length != 0) {
+                                    await getuserId().then((value) {
+                                      createAnnounceObject(value);
+                                    });
+                                  } else {
+                                    // setState(() {
+                                    error =
+                                    "Pleaser complete the  Form First";
+                                    // });
+                                    AwesomeDialog(
+                                      context: context,
+                                      dialogBackgroundColor: Colors.teal[100],
+                                      dialogType: DialogType.warning,
+                                      animType: AnimType.topSlide,
+                                      title: "Erreur !",
+                                      descTextStyle: TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold),
+                                      desc: error.toString(),
+                                      btnCancelColor: Colors.grey,
+                                      btnCancelOnPress: () {},
+                                      btnOkOnPress: () {
+                                        setState(() {
+                                          error = "";
+                                        });
+                                      },
+                                    ).show();
+                                    return;
+                                  }
 
                               if (error!.isNotEmpty) {
                                 print(error);
 
                                 AwesomeDialog(
-                                        context: context,
-                                        dialogBackgroundColor: Colors.teal[100],
-                                        dialogType: DialogType.warning,
-                                        animType: AnimType.topSlide,
-                                        title: "Error !",
-                                        descTextStyle: TextStyle(
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.bold),
-                                        desc: error.toString(),
-                                        btnCancelColor: Colors.grey,
-                                        btnCancelOnPress: () {},
-                                        btnOkOnPress: () {})
-                                    .show();
+                                  context: context,
+                                  dialogBackgroundColor: Colors.teal[100],
+                                  dialogType: DialogType.warning,
+                                  animType: AnimType.topSlide,
+                                  title: "Error !",
+                                  descTextStyle: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold),
+                                  desc: error.toString(),
+                                  btnCancelColor: Colors.grey,
+                                  btnCancelOnPress: () {},
+                                  btnOkOnPress: () {},
+                                ).show();
                               } else {
-                                //Map<String, dynamic> adData = announce!.toJson();
-                                //print(adData);
+                                /* Map<String, dynamic> adData = deals!.toJson();
+                                print(adData);*/
                                 AnnounceModel adsRes = await sendAdToApi();
                                 Navigator.pop(context, {"NewAd": adsRes});
                               }

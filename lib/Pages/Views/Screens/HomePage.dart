@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/BottomBar/AnnouceBottomBar/announces.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/BottomBar/DealsBotomBar/deals.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/BottomBar/StoreBottomBar/store.dart';
-import 'package:ecommerceversiontwo/Pages/Views/Screens/MyAppBAr.dart';
+import 'package:ecommerceversiontwo/Pages/Views/widgets/MyAppBAr.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/searchPage.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/BostedSlider.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/FilterAllForm.dart';
@@ -26,7 +26,6 @@ import 'package:ecommerceversiontwo/Pages/core/services/AnnouncesServices/Announ
 import 'package:ecommerceversiontwo/Pages/core/services/BoostedSlideShowServices/BoostedSlideShowService.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/CategoriesServices/CategoryService.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/DealsServices/DealsService.dart';
-import 'package:ecommerceversiontwo/Pages/core/services/ProductService.dart';
 import 'package:flutter/material.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:lecle_flutter_carousel_pro/lecle_flutter_carousel_pro.dart';
@@ -39,7 +38,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
  // List<Category> categoryData = CategoryService.categoryData.cast<Category>();
-  List<Product> productData = ProductService.productData;
+  //List<Product> productData = ProductService.productData;
 
   //filter variable
   String country = "All Countrys";
@@ -763,7 +762,7 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
 
-            Container(
+          /*  Container(
               padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               child: Wrap(
                 spacing: 16,
@@ -775,7 +774,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
               ),
-            ),
+            ),*/
             GestureDetector(
               onTap: (){
                 Navigator.push(context, MaterialPageRoute(builder:(context) => Store()));

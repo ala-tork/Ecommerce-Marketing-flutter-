@@ -1,5 +1,4 @@
 import 'package:ecommerceversiontwo/ApiPaths.dart';
-import 'package:ecommerceversiontwo/Pages/core/model/AdsModels/AdsFilterModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/ProductModels/CreateProduct.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/ProductModels/Product.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/ProductModels/ProductFilter.dart';
@@ -9,7 +8,7 @@ import 'dart:convert';
 class ProductService{
   Future<Map<String, dynamic>> createProduct(CreateProduct prodModel) async {
     var headers = {'Content-Type': 'application/json'};
-    var url = Uri.parse("https://10.0.2.2:7058/api/Product/CreateProduct");
+    var url = Uri.parse("${ApiPaths().CreateProductUrl}");
     var adData = json.encode(prodModel.toJson());
 
     var response = await http.post(url, headers: headers, body: adData);
@@ -30,7 +29,7 @@ class ProductService{
 // Update announce
   Future<Product?> updateProduct(int prodId, CreateProduct updatedData) async {
     try {
-      var url = Uri.parse("https://10.0.2.2:7058/api/Product/product/$prodId");
+      var url = Uri.parse("${ApiPaths().UpdateProductUrl}$prodId");
       var headers = {'Content-Type': 'application/json'};
 
       var jsonBody = json.encode(updatedData.toJson());
@@ -76,7 +75,7 @@ class ProductService{
   }*/
 
   Future<bool> deleteData(int id) async {
-    final String apiUrl = "https://10.0.2.2:7058/api/Product/product/${id}";
+    final String apiUrl = "${ApiPaths().DeleteProductUrl}${id}";
 
     try {
       final response = await http.delete(Uri.parse(apiUrl),);
@@ -95,7 +94,7 @@ class ProductService{
   }
 
   Future<Product> getProductById(int id) async {
-    final String apiurl = "https://10.0.2.2:7058/api/Product/product/$id";
+    final String apiurl = "${ApiPaths().GetProductByIdUrl}$id";
     final response = await http.get(Uri.parse(apiurl));
     if (response.statusCode == 200) {
       Map<String, dynamic> jsonResponse = json.decode(response.body);
@@ -117,7 +116,7 @@ class ProductService{
     print(filter.toJson());
     try {
       final response = await http.post(
-        Uri.parse("https://10.0.2.2:7058/api/Test/ProdWithLikeAndWishList?iduser=$idUser"),
+        Uri.parse("${ApiPaths().GetProductWithFilterUrl}$idUser"),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(filter.toJson()),
       );

@@ -1,8 +1,6 @@
-
 import 'package:ecommerceversiontwo/Pages/Views/widgets/item_card.dart';
 import 'package:ecommerceversiontwo/Pages/app_color.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/Product.dart';
-import 'package:ecommerceversiontwo/Pages/core/services/ProductService.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -18,7 +16,6 @@ class SearchResultPage extends StatefulWidget {
 class _SearchResultPageState extends State<SearchResultPage> with TickerProviderStateMixin {
   late TabController tabController;
   TextEditingController searchInputController = TextEditingController();
-  List<Product> searchedProductData = ProductService.searchedProductData;
   @override
   void initState() {
     super.initState();
@@ -121,19 +118,6 @@ class _SearchResultPageState extends State<SearchResultPage> with TickerProvider
                 child: Text(
                   'Search result of ${widget.searchKeyword}',
                   style: TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.w400),
-                ),
-              ),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                child: Wrap(
-                  spacing: 16,
-                  runSpacing: 16,
-                  children: List.generate(
-                    searchedProductData.length,
-                        (index) => ItemCard(
-                      product: searchedProductData[index],
-                    ),
-                  ),
                 ),
               ),
             ],

@@ -1,5 +1,5 @@
-import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/searchPage.dart';
+import 'package:ecommerceversiontwo/Pages/Views/widgets/AppBarForBottomBarViews.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/FilterForm.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/categoryCard.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/dummy_search_widget1.dart';
@@ -16,10 +16,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import '../../../widgets/GridAnnounces.dart';
-import '../../../widgets/custom_icon_button_widget.dart';
-import '../../messagePage.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 
 class Announces extends StatefulWidget {
 
@@ -31,8 +30,6 @@ class Announces extends StatefulWidget {
 
 class _AnnouncesState extends State<Announces> {
 
-// test category
-  //List<Category> categoryData = CategoryService.categoryData.cast<Category>();
 
   String? adsName;
 
@@ -47,55 +44,6 @@ class _AnnouncesState extends State<Announces> {
   List<FeaturesValuesModel> featuresvalues = [];
   List<int> featuresvaluesid = [];
 
-/*
-  Future<List<AnnounceModel>> apicall() async {
-    AdsFilterModel adsFilter = AdsFilterModel(pageNumber: page, idFeaturesValues: []);
-    if(adsName!=null){
-      adsFilter.adsName=adsName;
-    }
-    if (country != null) {
-      adsFilter.idCountrys = country!.idCountrys;
-    }
-    if (category != null) {
-      adsFilter.idCategory = category!.idCateg;
-    }
-    if (city != null) {
-      adsFilter.idCity = city!.idCity;
-    }
-    if(minprice!=0)
-      {
-        adsFilter.minPrice=minprice;
-      }
-    if(maxprice!=0){ adsFilter.maxPrice=maxprice;}
-    if(featuresvaluesid.isNotEmpty){adsFilter.idFeaturesValues=featuresvaluesid;}
-    try {
-      Map<String, dynamic> response = await AnnounceService().getFilteredAds(adsFilter);
-
-      if (response["ads"] != null) {
-        List<dynamic> adsJsonList = response["ads"];
-        if (page == 1) {
-            gridMap.clear();
-            gridMap.addAll(adsJsonList.map((json) => AnnounceModel.fromJson(json)).toList());
-        } else {
-            gridMap.addAll(adsJsonList.map((json) => AnnounceModel.fromJson(json)).toList());
-        }
-        //nbr Page
-        int x = response["totalItems"];
-        MaxPage = x ~/ 4;
-        if (x % 4 > 0) {
-          MaxPage += 1;
-        }
-
-        return gridMap;
-      } else {
-        print(response["ads"]);
-        throw Exception('Failed to fetch Ads');
-      }
-    } catch (e) {
-      print('Error: $e');
-      throw Exception('An error occurred: $e');
-    }
-  }*/
 
   Future<List<AdsView>> apicall() async {
     await getuserId();
@@ -178,70 +126,7 @@ class _AnnouncesState extends State<Announces> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar:
-      AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.of(context).pushNamed("LandingPage"); // Redirect to previous screen
-          },
-        ),
-        elevation: 1,
-        iconTheme: IconThemeData(color: Colors.white),
-        backgroundColor: Colors.indigo,
-        title: Text("announcements",
-          style: TextStyle(
-              color: Colors.white
-          ),
-        ),
-        centerTitle: true,
-        actions: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(0, 5.0, 5.0, 0),
-            child: CustomIconButtonWidget(
-              onTap: () {
-                Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => MessagePage()));
-              },
-              value: 2,
-              icon: Icon(
-                Icons.mark_unread_chat_alt_outlined,
-                color:Colors.white,
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(0, 5.0, 15.0, 0),
-            child: CustomIconButtonWidget(
-              onTap: () {
-                AwesomeDialog(
-                    context: context,
-                    dialogBackgroundColor: Colors.indigo,
-                    dialogType: DialogType.info,
-                    animType: AnimType.topSlide,
-                    title:"Diamond",
-                    descTextStyle: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold
-                    ),
-                    desc: "Hello, welcome to ADS & Deals.\n \n What are diamonds?!\n Diamonds are the currency within our application.\n With diamonds, you can add your products to the application and enhance their visibility. If you would like to refill your wallet and purchase diamonds, please click OK",
-                    btnCancelColor: Colors.grey,
-                    btnCancelOnPress:(){},
-
-                    btnOkOnPress: (){}
-                ).show();
-              },
-              value: 122,
-
-              icon: Icon(
-                Icons.diamond_outlined,
-                color:Colors.white,
-              ),
-
-            ),
-          ),
-        ],
-      ),
+      appBar:AppBarForBottomBarViews(title: AppLocalizations.of(context)!.announcements,),
       body: SingleChildScrollView(
         child: Column(
           children: [

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:ecommerceversiontwo/Pages/Views/Screens/MyAppBAr.dart';
+import 'package:ecommerceversiontwo/Pages/Views/widgets/MyAppBAr.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/GridWishList.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/WishListModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/services/WishListServices/WishListService.dart';

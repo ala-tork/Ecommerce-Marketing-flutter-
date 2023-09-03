@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:awesome_dialog/awesome_dialog.dart';
-import 'package:ecommerceversiontwo/Pages/Views/Screens/MyAppBAr.dart';
+import 'package:ecommerceversiontwo/ApiPaths.dart';
+import 'package:ecommerceversiontwo/Pages/Views/widgets/MyAppBAr.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/CustomButton.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/AdsFeaturesModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/BrandsModel.dart';
@@ -992,71 +993,153 @@ class _AddProductState extends State<AddProduct> {
                         height: 40,
                       ),
                       Text(
-                        "add Announce Image :",
+                        "add Product Image :",
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      /** Deals image picker */
+                      /** Product image picker */
                       Center(
                         child: Padding(
                           padding: const EdgeInsets.fromLTRB(0, 30, 0, 0),
                           child: Column(
                             children: [
-                              _image.length != 0
+                              _imagesid.length != 0
                                   ? Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: _image.map((img) {
-                                        return Container(
-                                          width:
-                                              MediaQuery.of(context).size.width,
-                                          height: 300,
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                            border: Border.all(
-                                                color: Colors.black
-                                                    .withOpacity(0)),
-                                          ),
-                                          child: Image.file(
-                                            img!,
-                                            height: 400,
-                                            fit: BoxFit.fill,
-                                          ),
-                                        );
-                                      }).toList(),
-                                    )
-                                  : Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: <Widget>[
-                                          Container(
-                                            height: 300,
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                              border: Border.all(
-                                                  color: Colors.black
-                                                      .withOpacity(0)),
-                                              image: DecorationImage(
-                                                image: AssetImage(
-                                                    "assets/images/vide.png"),
-                                                fit: BoxFit.fill,
+                                mainAxisSize: MainAxisSize.min,
+                                children: _imagesid.asMap()
+                                    .entries
+                                    .map((entry) {
+                                  int index = entry.key;
+                                  String img = entry.value.title!;
+                                  return Column(
+                                    children: [
+                                      Container(
+                                        width: MediaQuery.of(context)
+                                            .size
+                                            .width,
+                                        height: 300,
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                          BorderRadius.circular(10),
+                                          border: Border.all(
+                                              color: Colors.black
+                                                  .withOpacity(0)),
+                                        ),
+                                        child: Stack(
+                                          children: [
+                                            Image.network(
+                                              ApiPaths().ImagePath + img,
+                                              height: 400,
+                                              width: 420,
+                                              fit: BoxFit.fill,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      ElevatedButton(
+                                        onPressed: () async {
+                                          bool res = await ImageService().deleteImage(entry.value.IdImage!);
+
+                                          setState(() {
+                                            _imagesid.remove(entry.value);
+                                            _image.remove(entry.value);
+                                          });
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          primary: Colors.red,
+                                        ),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                          children: [
+                                            Icon(Icons.delete,
+                                                color: Colors.white),
+                                            SizedBox(width: 8),
+                                            Text(
+                                              "Delete",
+                                              style: TextStyle(
+                                                fontSize: 20,
+                                                color: Colors.white,
                                               ),
                                             ),
-                                          ),
-                                        ]),
-                              SizedBox(
-                                height: 30,
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                }).toList(),
+                              )
+                                /*  : SizedBox(height: 0),
+                              _image.length != 0
+                                  ? Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children:
+                                _image.asMap().entries.map((entry) {
+                                  int index = entry.key;
+                                  File img = entry.value;
+                                  return Column(
+                                    children: [
+                                      Container(
+                                        width: MediaQuery.of(context)
+                                            .size
+                                            .width,
+                                        height: 300,
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                          BorderRadius.circular(10),
+                                          border: Border.all(
+                                              color: Colors.black
+                                                  .withOpacity(0)),
+                                        ),
+                                        child: Stack(
+                                          children: [
+                                            Image.file(
+                                              img,
+                                              height: 400,
+                                              fit: BoxFit.fill,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      SizedBox(height: 30),
+                                    ],
+                                  );
+                                }).toList(),
+                              )*/
+                                  : Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: <Widget>[
+                                  if (_imagesid.length == 0)
+                                    Container(
+                                      height: 300,
+                                      decoration: BoxDecoration(
+                                        borderRadius:
+                                        BorderRadius.circular(10),
+                                        border: Border.all(
+                                            color: Colors.black
+                                                .withOpacity(0)),
+                                        image: DecorationImage(
+                                          image: AssetImage(
+                                              "assets/images/vide.png"),
+                                          fit: BoxFit.fill,
+                                        ),
+                                      ),
+                                    ),
+                                  SizedBox(height: 30),
+                                ],
                               ),
                               CostumButton(
-                                  title: "Pick an Image",
-                                  iconName: Icons.image_outlined,
-                                  onClick: () => getImage(ImageSource.gallery)),
+                                title: "Pick an Image",
+                                iconName: Icons.image_outlined,
+                                onClick: () => getImage(ImageSource.gallery),
+                              ),
                               CostumButton(
-                                  title: "Take picture ",
-                                  iconName: Icons.camera,
-                                  onClick: () => getImage(ImageSource.camera)),
+                                title: "Take a picture",
+                                iconName: Icons.camera,
+                                onClick: () => getImage(ImageSource.camera),
+                              ),
                             ],
                           ),
                         ),
@@ -1286,6 +1369,7 @@ class _AddProductState extends State<AddProduct> {
                                             ProductPrize = null;
                                             prizeTitle = null;
                                             prizeDescription = null;
+                                            EndDate=null;
                                             prizeImages = null;
                                             _Prizeimagesid = null;
                                             _Prizeimage = null;

@@ -2,7 +2,7 @@ import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:ecommerceversiontwo/ApiPaths.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/AnnouncesCRUD/AddAnnounce.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/AnnouncesCRUD/EditeAnnounce.dart';
-import 'package:ecommerceversiontwo/Pages/Views/Screens/MyAppBAr.dart';
+import 'package:ecommerceversiontwo/Pages/Views/widgets/MyAppBAr.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/BoostFormPopUp.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/AdsModels/AnnounceModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/AdsModels/CreateAnnounceModel.dart';
@@ -167,8 +167,9 @@ class _MyAnnouncesState extends State<MyAnnounces> {
           await getuserId().then((userid) async {
             List<AnnounceModel> res = await apicall(userid);
             setState(() {
+              GetUser(idUser!);
               announces = res;
-              user!.nbDiamon=user!.nbDiamon! - nbDiamonAds!;
+              //user!.nbDiamon=user!.nbDiamon! - nbDiamonAds!;
             });
           });
         });

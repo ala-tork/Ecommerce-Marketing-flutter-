@@ -36,18 +36,23 @@ class SellerDetailsPopUp {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(100),
-                      child: user.imageUrl!=null
-                          ? Image.network(
-                        "${ApiPaths().UserImagePath}${user.imageUrl}",
-                        fit: BoxFit.cover,
-                      )
-                          : Image.asset(
-                        "assets/user.png",
-                        fit: BoxFit.cover,
+                    Container(
+                      height: 150, // Set the desired height
+                      width: 150, // Set the desired width
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(100),
+                        child: user.imageUrl != null
+                            ? Image.network(
+                          "${ApiPaths().UserImagePath}${user.imageUrl}",
+                          fit: BoxFit.cover,
+                        )
+                            : Image.asset(
+                          "assets/user.png",
+                          fit: BoxFit.cover,
+                        ),
                       ),
                     ),
+
                     SizedBox(height: 20),
                     Text(
                       "${user.firstname}  ${user.lastname}",

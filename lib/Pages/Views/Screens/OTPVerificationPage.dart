@@ -2,9 +2,8 @@ import 'package:ecommerceversiontwo/Pages/Views/Screens/LandingPage.dart';
 import 'package:ecommerceversiontwo/Pages/app_color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:ecommerceversiontwo/Pages/Views/Screens/MyAppBAr.dart';
+import 'package:ecommerceversiontwo/Pages/Views/widgets/MyAppBAr.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/adminscreen.dart';
-import 'package:ecommerceversiontwo/Pages/Views/Screens/pageSwitcher.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:http/http.dart' as http;
 
@@ -31,8 +30,6 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> {
   }
 
   void decodeToken() {
-    // Map<String, dynamic> decodedToken = JwtDecoder.decode(widget.token);
-    //currentUserId = int.parse(decodedToken['id']);
     var decodedToken = JwtDecoder.decode(widget.token);
     id = decodedToken['id'] ?? '';
 
@@ -42,13 +39,8 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> {
   }
 
   void verifyOTP() async {
-    print("///////////////////////////// $id");
     String enteredOTP = otpController.text;
     String expectedOTP = '1234';
-    print("enteredOTP $enteredOTP");
-
-    print("currentUserId $id");
-
     if (enteredOTP == expectedOTP) {
 
       var url = Uri.parse("https://10.0.2.2:7058/User/VerifyOTP?id=$id");
@@ -57,13 +49,9 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> {
         "Content-Type": "application/json",
         "Authorization": "Bearer ${widget.token}",
       };
-
-      print("TOKEN: ${widget.token}");
-
       var response = await http.post(url, headers: headers);
 
       if (response.statusCode == 200) {
-        print("role: $role");
         if (role == "User") {
           showDialog(
             context: context,

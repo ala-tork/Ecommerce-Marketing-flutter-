@@ -17,6 +17,9 @@ class ApiPaths{
   final String GetPrizeImages  = "${baseUrl}/api/ImagesControler/getPrizeImage?idPrize=";
   final String UpdatePrizeImageUrl ="${baseUrl}/api/ImagesControler/updateTaskImage?idPrize=";
   final String DeletePrizeImageUrl = "${baseUrl}/api/ImagesControler/deletePrizeImages?idPrize=";
+  final String GetProductImageUrl ="$baseUrl/api/ImagesControler/getAllProductImages?idProduct=";
+  final String UpdateProductImage ="$baseUrl/api/ImagesControler/updateProductImages?idImage=";
+  final String DeleteProductImageUrl ="$baseUrl/api/ImagesControler/deleteProductImages?idProduct=";
 
 /**         Ads Paths             */
   final String DeleteAdsUrl ="${baseUrl}/api/Ads?id=";
@@ -31,6 +34,11 @@ final String GetAdsUsreUrl ="${baseUrl}/api/Test/AdsByUserId?iduser=";
 /**             AdsFeatures                    */
 final String CreateAdsFeatureUrl ="${baseUrl}/api/AdsFeatureControler";
 final String GetAdsFeaturesByIdAdsUrl ="${baseUrl}/api/AdsFeatureControler?idAds=";
+final String DeleteAdsFeatureUrl ="$baseUrl/api/AdsFeatureControler?idAds=";
+final String GetDealsFeaturesUrl ="$baseUrl/api/AdsFeatureControler/GetDealsFeatures?idDeals=";
+final String DeleteDealsFeaturesUrl ="$baseUrl/api/AdsFeatureControler/DeleteDealstFeatures?idDeals=";
+final String getProductFeaturesUrl ="$baseUrl/api/AdsFeatureControler/GetAllProductFeatures?idProduct=";
+final String DeleteProductAdsFeatureUrl ="$baseUrl/api/AdsFeatureControler/DeleteProductFeatures?idProduct=";
 
 /**                  BoostedSlideShow                     */
 final String GetBostedSlideSHowUrl ="$baseUrl/api/BoostSlideShow";
@@ -100,5 +108,11 @@ final String GetNbDiamondAds = "$baseUrl/api/Setting/nbDiamondAds";
 
   /**           Product                */
 final String GetUserProductUrl ="$baseUrl/api/Test/ProdByUserId?iduser=";
+  final String CreateProductUrl="$baseUrl/api/Product/CreateProduct";
+  final String UpdateProductUrl ="$baseUrl/api/Product/product/";
+  final String DeleteProductUrl ="$baseUrl/api/Product/product/";
+  final String GetProductByIdUrl="$baseUrl/api/Product/product/";
+  final String GetProductWithFilterUrl ="$baseUrl/api/Test/ProdWithLikeAndWishList?iduser=";
+
 
 }

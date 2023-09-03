@@ -55,7 +55,7 @@ class AdsFeaturesService{
 
 
   Future<bool> deleteData(int id) async {
-    final String apiUrl = "https://10.0.2.2:7058/api/AdsFeatureControler?idAds=$id";
+    final String apiUrl = "${ApiPaths().DeleteAdsFeatureUrl}$id";
 
     try {
       final response = await http.delete(Uri.parse(apiUrl),);
@@ -78,7 +78,7 @@ class AdsFeaturesService{
   Future<List<AdsFeature>> GetDealsFeaturesByIdDeals(int idDeals) async {
     http.Response response;
     response = await http
-        .get(Uri.parse("https://10.0.2.2:7058/api/AdsFeatureControler/GetDealsFeatures?idDeals=$idDeals"));
+        .get(Uri.parse("${ApiPaths().GetDealsFeaturesUrl}$idDeals"));
 
     if (response.statusCode == 200) {
       var responseBody = response.body;
@@ -93,7 +93,7 @@ class AdsFeaturesService{
     }
   }
   Future<bool> deleteDeals(int id) async {
-    final String apiUrl = "https://10.0.2.2:7058/api/AdsFeatureControler/DeleteDealstFeatures?idDeals=$id";
+    final String apiUrl = "${ApiPaths().DeleteDealsFeaturesUrl}$id";
     try {
       final response = await http.delete(Uri.parse(apiUrl));
 
@@ -119,7 +119,7 @@ class AdsFeaturesService{
   Future<List<AdsFeature>> GetProductFeaturesByIdDeals(int idProduct) async {
     http.Response response;
     response = await http
-        .get(Uri.parse("https://10.0.2.2:7058/api/AdsFeatureControler/GetAllProductFeatures?idProduct=$idProduct"));
+        .get(Uri.parse("${ApiPaths().getProductFeaturesUrl}$idProduct"));
 
     if (response.statusCode == 200) {
       var responseBody = response.body;
@@ -134,7 +134,7 @@ class AdsFeaturesService{
     }
   }
   Future<bool> deletePeoductAdsFeatures(int id) async {
-    final String apiUrl = "https://10.0.2.2:7058/api/AdsFeatureControler/DeleteProductFeatures?idProduct=$id";
+    final String apiUrl = "${ApiPaths().DeleteProductAdsFeatureUrl}$id";
     try {
       final response = await http.delete(Uri.parse(apiUrl));
 

@@ -140,12 +140,12 @@ class _GridProductState extends State<GridProduct> {
         crossAxisCount: 1,
         crossAxisSpacing: 10.0,
         mainAxisSpacing: 10.0,
-        mainAxisExtent: 400,
+        mainAxisExtent: 420,
       ),
       itemCount: gridMap.length,
       itemBuilder: (_, index) {
-        var pricewithdiscount =0;/* gridMap[index].price! -
-            ((gridMap[index].discount! * gridMap[index].price!) / 100);*/
+        var pricewithdiscount = gridMap[index].price! -
+            ((gridMap[index].discount! * gridMap[index].price!) / 100);
         return GestureDetector(
           onTap: () {
             Navigator.push(

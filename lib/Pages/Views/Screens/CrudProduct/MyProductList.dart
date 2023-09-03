@@ -1,7 +1,8 @@
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:ecommerceversiontwo/ApiPaths.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/CrudProduct/AddProduct.dart';
-import 'package:ecommerceversiontwo/Pages/Views/Screens/MyAppBAr.dart';
+import 'package:ecommerceversiontwo/Pages/Views/Screens/CrudProduct/UpdateProduct.dart';
+import 'package:ecommerceversiontwo/Pages/Views/widgets/MyAppBAr.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/BoostFormPopUp.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/DealsGiftPopUp.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/ProductModels/CreateProduct.dart';
@@ -214,8 +215,9 @@ class _MyProductsState extends State<MyProducts> {
           await getuserId().then((userid) async {
             List<Product> res = await GetAllProduct(userid);
             setState(() {
+              GetUser(idUser!);
               products = res;
-              user!.nbDiamon= user!.nbDiamon! - nbDiamonProduct!;
+              //user!.nbDiamon= user!.nbDiamon! - nbDiamonProduct!;
             });
           });
         });
@@ -486,30 +488,30 @@ class _MyProductsState extends State<MyProducts> {
                                           TextButton.icon(
                                             style: ButtonStyle(),
                                             onPressed: () {
-                                              /*Navigator.of(context)
+                                              Navigator.of(context)
                                                   .push(
                                                 MaterialPageRoute(
                                                   builder: (context) =>
-                                                      UpdateDeals(
-                                                          deal: deals![index]),
+                                                      UpdateProduct(
+                                                          prod: products![index]),
                                                 ),
                                               )
                                                   .then((value) {
                                                 if (value != null &&
                                                     value is Map) {
-                                                  DealsModel res =
-                                                      value['UpatedDeals'];
+                                                  Product res =
+                                                      value['UpatedProd'];
                                                   if (res != null) {
                                                     //print("//////////////////////////////////////   $res");
                                                     setState(() {
-                                                      deals.removeWhere((a) =>
-                                                          res.idDeal ==
-                                                          a.idDeal);
-                                                      deals.add(res);
+                                                      products.removeWhere((a) =>
+                                                          res.idProd ==
+                                                          a.idProd);
+                                                      products.add(res);
                                                     });
                                                   }
                                                 }
-                                              });*/
+                                              });
                                             },
                                             icon: Icon(
                                               Icons.edit,

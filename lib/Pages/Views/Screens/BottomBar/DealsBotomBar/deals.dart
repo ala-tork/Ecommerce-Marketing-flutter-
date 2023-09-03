@@ -1,5 +1,8 @@
 import 'package:awesome_dialog/awesome_dialog.dart';
+import 'package:ecommerceversiontwo/Pages/Views/widgets/AppBarForBottomBarViews.dart';
+import 'package:ecommerceversiontwo/Pages/Views/widgets/MyAppBAr.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/searchPage.dart';
+import 'package:ecommerceversiontwo/Pages/Views/widgets/AppBarWithArrowBack.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/FilterFormDeals.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/GridDeals.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/WinnersSlideSHow.dart';
@@ -139,65 +142,7 @@ class _DealsState extends State<Deals> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.of(context)
-                .pushNamed("LandingPage");
-          },
-        ),
-        elevation: 1,
-        iconTheme: IconThemeData(color: Colors.white),
-        backgroundColor: Colors.indigo,
-        title: Text(
-          AppLocalizations.of(context)!.deals,
-          style: TextStyle(color: Colors.white),
-        ),
-        centerTitle: true,
-        actions: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(0, 5.0, 5.0, 0),
-            child: CustomIconButtonWidget(
-              onTap: () {
-                Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context) => MessagePage()));
-              },
-              value: 2,
-              icon: Icon(
-                Icons.mark_unread_chat_alt_outlined,
-                color: Colors.white,
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(0, 5.0, 15.0, 0),
-            child: CustomIconButtonWidget(
-              onTap: () {
-                AwesomeDialog(
-                        context: context,
-                        dialogBackgroundColor: Colors.indigo,
-                        dialogType: DialogType.info,
-                        animType: AnimType.topSlide,
-                        title: "Diamond",
-                        descTextStyle: TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.bold),
-                        desc:
-                            "Hello, welcome to ADS & Deals.\n \n What are diamonds?!\n Diamonds are the currency within our application.\n With diamonds, you can add your products to the application and enhance their visibility. If you would like to refill your wallet and purchase diamonds, please click OK",
-                        btnCancelColor: Colors.grey,
-                        btnCancelOnPress: () {},
-                        btnOkOnPress: () {})
-                    .show();
-              },
-              value: 122,
-              icon: Icon(
-                Icons.diamond_outlined,
-                color: Colors.white,
-              ),
-            ),
-          ),
-        ],
-      ),
+      appBar:AppBarForBottomBarViews(title: AppLocalizations.of(context)!.deals,),
       body: SingleChildScrollView(
         child: Column(
           children: [

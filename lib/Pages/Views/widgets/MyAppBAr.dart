@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../widgets/custom_icon_button_widget.dart';
-import 'messagePage.dart';
+import 'custom_icon_button_widget.dart';
+import '../Screens/messagePage.dart';
 
 class MyAppBar extends StatefulWidget implements PreferredSizeWidget {
   final title;

@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:ecommerceversiontwo/ApiPaths.dart';
-import 'package:ecommerceversiontwo/Pages/Views/Screens/MyAppBAr.dart';
+import 'package:ecommerceversiontwo/Pages/Views/widgets/MyAppBAr.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/CustomButton.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/AdsFeaturesModel.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/AdsModels/AnnounceModel.dart';
@@ -131,7 +131,6 @@ class _EditeAnnounceState extends State<EditeAnnounce> {
         lst.add(lfv);
       }
     });
-    //print(lst[0]);
     return lst;
   }
 
@@ -156,11 +155,8 @@ class _EditeAnnounceState extends State<EditeAnnounce> {
   Future<AnnounceModel> UpdateAnnounce() async {
     //create the Announce
     await CreateAnnounce();
-    // print(widget.announce!.idAds!);
     AnnounceModel? response = await AnnounceService()
         .updateAnnouncement(widget.announce!.idAds!, announce!);
-    // Handle the response as needed
-    //print(response);
 
     //save features values
     var x = response;
@@ -181,7 +177,6 @@ class _EditeAnnounceState extends State<EditeAnnounce> {
 
     //update the images
     for (var i = 0; i < _imagesid!.length; i++) {
-      // print(int.parse(_imagesid[i].IdImage.toString()));
       await ImageService().UpdateImages(
           int.parse(_imagesid[i].IdImage.toString()),
           int.parse(x!.idAds.toString()));
@@ -212,7 +207,6 @@ class _EditeAnnounceState extends State<EditeAnnounce> {
     fetchFeaturesValues(FeatureId);
   }
 
-  //int FeaturesforCategory=0;
 
   /** fetch categorys */
   Future<void> fetchData() async {
@@ -226,11 +220,6 @@ class _EditeAnnounceState extends State<EditeAnnounce> {
           _categorys = categories;
           _category = targetCategory;
           fetchFeatures(targetCategory.idCateg!);
-          /* if(_category!.idparent!=null){
-            fetchFeatures(_category!.idparent!);
-          }else{
-            fetchFeatures(_category!.idCateg!);
-          }*/
         });
       } else {
         print('Category with ID ${widget.announce!.idCateg!} not found.');
@@ -523,6 +512,181 @@ class _EditeAnnounceState extends State<EditeAnnounce> {
                             children: [
                               _AnnounceImages.length != 0
                                   ? Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: _AnnounceImages.asMap()
+                                    .entries
+                                    .map((entry) {
+                                  int index = entry.key;
+                                  String img = entry.value.title!;
+                                  return Column(
+                                    children: [
+                                      Container(
+                                        width: MediaQuery.of(context)
+                                            .size
+                                            .width,
+                                        height: 300,
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                          BorderRadius.circular(10),
+                                          border: Border.all(
+                                              color: Colors.black
+                                                  .withOpacity(0)),
+                                        ),
+                                        child: Stack(
+                                          children: [
+                                            Image.network(
+                                              ApiPaths().ImagePath + img,
+                                              height: 400,
+                                              width: 420,
+                                              fit: BoxFit.fill,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      ElevatedButton(
+                                        onPressed: () async {
+                                          bool res = await ImageService()
+                                              .deleteImage(entry.value.IdImage!);
+
+                                          setState(() {
+                                            _AnnounceImages.remove(entry.value);
+                                            _imagesid.remove(entry.value);
+                                          });
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          primary: Colors.red,
+                                        ),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                          children: [
+                                            Icon(Icons.delete,
+                                                color: Colors.white),
+                                            SizedBox(width: 8),
+                                            Text(
+                                              "Delete",
+                                              style: TextStyle(
+                                                fontSize: 20,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                }).toList(),
+                              )
+                                  : SizedBox(height: 0),
+                              _image.length != 0
+                                  ? Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children:
+                                _image.asMap().entries.map((entry) {
+                                  int index = entry.key;
+                                  File img = entry.value;
+                                  return Column(
+                                    children: [
+                                      Container(
+                                        width: MediaQuery.of(context).size.width,
+                                        height: 300,
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                          BorderRadius.circular(10),
+                                          border: Border.all(
+                                              color: Colors.black
+                                                  .withOpacity(0)),
+                                        ),
+                                        child: Stack(
+                                          children: [
+                                            Image.file(
+                                              img,
+                                              height: 400,
+                                              fit: BoxFit.fill,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      ElevatedButton(
+                                        onPressed: () async {
+                                          bool res = await ImageService()
+                                              .deleteImage(
+                                              _imagesid[index].IdImage!);
+
+                                          setState(() {
+                                            _AnnounceImages.removeWhere((i) =>i.IdImage== _imagesid[index].IdImage);
+                                            _imagesid.removeWhere((i) =>i.IdImage== _imagesid[index].IdImage);
+                                            _image.remove(entry.value);
+                                          });
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          primary: Colors.red,
+                                        ),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                          children: [
+                                            Icon(Icons.delete,
+                                                color: Colors.white),
+                                            SizedBox(width: 8),
+                                            Text(
+                                              "Delete",
+                                              style: TextStyle(
+                                                fontSize: 20,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      SizedBox(height: 30),
+                                    ],
+                                  );
+                                }).toList(),
+                              )
+                                  : Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: <Widget>[
+                                  if (_AnnounceImages.length == 0)
+                                    Container(
+                                      height: 300,
+                                      decoration: BoxDecoration(
+                                        borderRadius:
+                                        BorderRadius.circular(10),
+                                        border: Border.all(
+                                            color: Colors.black
+                                                .withOpacity(0)),
+                                        image: DecorationImage(
+                                          image: AssetImage(
+                                              "assets/images/vide.png"),
+                                          fit: BoxFit.fill,
+                                        ),
+                                      ),
+                                    ),
+                                  SizedBox(height: 30),
+                                ],
+                              ),
+                              CostumButton(
+                                title: "Pick an Image",
+                                iconName: Icons.image_outlined,
+                                onClick: () => getImage(ImageSource.gallery),
+                              ),
+                              CostumButton(
+                                title: "Take a picture",
+                                iconName: Icons.camera,
+                                onClick: () => getImage(ImageSource.camera),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                     /* Center(
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(0, 30, 0, 0),
+                          child: Column(
+                            children: [
+                              _AnnounceImages.length != 0
+                                  ? Column(
                                       mainAxisSize: MainAxisSize.min,
                                       children: _AnnounceImages.asMap()
                                           .entries
@@ -650,7 +814,7 @@ class _EditeAnnounceState extends State<EditeAnnounce> {
                             ],
                           ),
                         ),
-                      ),
+                      ),*/
                       //end of image picker
                       /** country and city*/
                       Row(
@@ -825,13 +989,7 @@ class _EditeAnnounceState extends State<EditeAnnounce> {
                                       onChanged: (CategoriesModel? x) {
                                         setState(() {
                                           _category = x;
-                                          /*  CategoriesModel? topLevelParent = x;
-
-                                            while (topLevelParent!.idparent != null) {
-                                              topLevelParent = _categorys.firstWhere((element) => element.idCateg == topLevelParent!.idparent);
-                                            }*/
                                           CategoryId = x!.idCateg!;
-                                          // int FeaturesCategoryId = int.parse(topLevelParent!.idCateg.toString());
                                           fetchFeatures(CategoryId);
                                         });
                                       },
@@ -974,31 +1132,59 @@ class _EditeAnnounceState extends State<EditeAnnounce> {
                           color: Colors.indigo,
                           onPressed: () async {
                             if (_AdsFormKey.currentState!.validate()) {
-                              await getuserId().then((value) {
-                                createAnnounceObject(value);
-                              });
+                              if (CategoryId != 0 && _country != null && _city != null &&
+                                  _imagesid.length != 0) {
+                                await getuserId().then((value) {
+                                  createAnnounceObject(value);
+                                });
+                              } else {
+                                // setState(() {
+                                error =
+                                "Pleaser complete the  Form First";
+                                // });
+                                AwesomeDialog(
+                                  context: context,
+                                  dialogBackgroundColor: Colors.teal[100],
+                                  dialogType: DialogType.warning,
+                                  animType: AnimType.topSlide,
+                                  title: "Erreur !",
+                                  descTextStyle: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold),
+                                  desc: error.toString(),
+                                  btnCancelColor: Colors.grey,
+                                  btnCancelOnPress: () {},
+                                  btnOkOnPress: () {
+                                    setState(() {
+                                      error = "";
+                                    });
+                                  },
+                                ).show();
+                                return;
+                              }
+
                               if (error!.isNotEmpty) {
                                 print(error);
 
                                 AwesomeDialog(
-                                    context: context,
-                                    dialogBackgroundColor: Colors.teal[100],
-                                    dialogType: DialogType.warning,
-                                    animType: AnimType.topSlide,
-                                    title: "Error !",
-                                    descTextStyle: TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold),
-                                    desc: error.toString(),
-                                    btnCancelColor: Colors.grey,
-                                    btnCancelOnPress: () {},
-                                    btnOkOnPress: () {
-                                      error = "";
-                                    }).show();
+                                  context: context,
+                                  dialogBackgroundColor: Colors.teal[100],
+                                  dialogType: DialogType.warning,
+                                  animType: AnimType.topSlide,
+                                  title: "Error !",
+                                  descTextStyle: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold),
+                                  desc: error.toString(),
+                                  btnCancelColor: Colors.grey,
+                                  btnCancelOnPress: () {},
+                                  btnOkOnPress: () {},
+                                ).show();
                               } else {
-                                var res = await UpdateAnnounce();
-                                Navigator.pop(
-                                    context, {'updatedAnnounce': res});
+                                /* Map<String, dynamic> adData = deals!.toJson();
+                                print(adData);*/
+                                AnnounceModel adsRes = await UpdateAnnounce();
+                                Navigator.pop(context, {"NewAd": adsRes});
                               }
                             }
                           },

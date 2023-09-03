@@ -2,7 +2,7 @@ import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:ecommerceversiontwo/ApiPaths.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/DealsCrudViews/AddDeals.dart';
 import 'package:ecommerceversiontwo/Pages/Views/Screens/DealsCrudViews/UpdateDeals.dart';
-import 'package:ecommerceversiontwo/Pages/Views/Screens/MyAppBAr.dart';
+import 'package:ecommerceversiontwo/Pages/Views/widgets/MyAppBAr.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/BoostFormPopUp.dart';
 import 'package:ecommerceversiontwo/Pages/Views/widgets/DealsGiftPopUp.dart';
 import 'package:ecommerceversiontwo/Pages/core/model/BoostModules/Boost.dart';
@@ -181,8 +181,9 @@ class _MyDealsState extends State<MyDeals> {
               await getuserId().then((userid) async {
                 List<DealsModel> res = await apicall(userid);
                 setState(() {
+                  GetUser(idUser!);
                   deals = res;
-                  user!.nbDiamon=user!.nbDiamon! - nbDiamonDeals!;
+                  //user!.nbDiamon=user!.nbDiamon! - nbDiamonDeals!;
                 });
               });
             });

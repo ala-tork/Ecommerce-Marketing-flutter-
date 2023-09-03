@@ -190,7 +190,7 @@ class ImageService{
   Future<List<ImageModel>> getProductImage(int idProduct) async {
     http.Response response;
     response = await http
-        .get(Uri.parse("https://10.0.2.2:7058/api/ImagesControler/getAllProductImages?idProduct=${idProduct}"));
+        .get(Uri.parse("${ApiPaths().GetProductImageUrl}${idProduct}"));
     if (response.statusCode == 200) {
       var responseBody = response.body;
       List<ImageModel> images =(jsonDecode(responseBody) as List)
@@ -205,7 +205,7 @@ class ImageService{
 
   Future UpdateProductImages(int idImage, int idProduct) async {
 
-    var request = http.MultipartRequest('put', Uri.parse("https://10.0.2.2:7058/api/ImagesControler/updateProductImages?idImage=$idImage&idProduct=$idProduct"));
+    var request = http.MultipartRequest('put', Uri.parse("${ApiPaths().UpdateProductImage}$idImage&idProduct=$idProduct"));
     var response = await request.send();
     if (response.statusCode != 200) {
       throw Exception('Failed to Update image: ${response.statusCode}');
@@ -213,7 +213,7 @@ class ImageService{
   }
 
   Future<bool> deleteProductImage(int id) async {
-    final String apiUrl = "https://10.0.2.2:7058/api/ImagesControler/deleteProductImages?idProduct=$id";
+    final String apiUrl = "${ApiPaths().DeleteProductImageUrl}$id";
 
     try {
       final response = await http.delete(Uri.parse(apiUrl),);
